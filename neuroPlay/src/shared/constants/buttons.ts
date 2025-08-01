@@ -3,14 +3,11 @@ import {
   GitCommitHorizontal, 
   GitPullRequestArrow, 
   GitPullRequestClosed, 
-  Pause, 
-  Play, 
-  StepBack, 
-  StepForward, 
   Trash2 
 } from "lucide-react";
+import type { Tool } from "../types/types";
 
-export const TOOL_BUTTONS = [
+export const TOOL_BUTTONS: Tool[] = [
   {
     id: 'add',
     icon: GitCommitHorizontal,
@@ -35,28 +32,5 @@ export const TOOL_BUTTONS = [
     id: 'clear',
     icon: Trash2,
     label: 'Очистить холст'
-  },
-]
-
-export const CONTROL_BUTTONS = [
-  {
-    id: 'play',
-    icon: Play,
-    label: 'Включить анимацию'
-  },
-  {
-    id: 'pause',
-    icon: Pause,
-    label: 'Остановить анимацию'
-  },
-  {
-    id: 'back',
-    icon: StepBack,
-    label: 'Шаг назад'
-  },
-  {
-    id: 'next',
-    icon: StepForward,
-    label: 'Шаг вперед'
   },
 ]

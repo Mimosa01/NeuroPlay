@@ -1,4 +1,5 @@
-import { CONTROL_BUTTONS, TOOL_BUTTONS } from "../../constants/buttons"
+import { ControlToolbar } from "../../features/control/ControlToolbar"
+import { TOOL_BUTTONS } from "../constants/buttons"
 import { Logo } from "./Logo"
 import { Toolbar } from "./Toolbar"
 
@@ -10,9 +11,7 @@ export const LayoutUI = () => {
         <Toolbar 
           tools={TOOL_BUTTONS}
         />
-        <Toolbar 
-          tools={CONTROL_BUTTONS}
-        />
+        <ControlToolbar />
       </div>
     </div>
   )
