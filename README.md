@@ -18,7 +18,7 @@ _Чуть позже_
 ## 🛠️ Установка
 
 ```bash
-git clone [https://github.com/username/neural-playground.git](https://github.com/Mimosa01/NeuroPlay)
+git clone https://github.com/Mimosa01/NeuroPlay
 cd neural-playground
 npm install
 npm run dev
