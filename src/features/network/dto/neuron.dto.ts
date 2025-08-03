@@ -1,11 +1,15 @@
 import type { Coords } from "../../../shared/types/types";
+import type { NeuronId } from "../types/types";
 
 export type NeuronDTO = {
-  id: string;
+  id: NeuronId;
   coords: Coords;
   label: string;
-  activationType: string;
   accumulatedSignal: number;
   inactivityCounter: number;
-  readonly inactivityThreshold: number;
+  inactivityThreshold: number;
+  readyToSend: boolean;
+  signalThreshold: number;
+  refractoryThreshold: number;
+  fading: number;
 };

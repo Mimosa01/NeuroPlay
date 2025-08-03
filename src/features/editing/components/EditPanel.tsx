@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
+import { useEditSelection } from '../hooks/useEditSelection';
+import { Button } from '../../../shared/components/Button';
 import { EdgeBody } from './EdgeBody';
 import { NeuronBody } from './NeuronBody';
-import { useEditSelection } from './hooks/useEditSelection';
-import { Button } from '../../shared/components/Button';
 
 export const EditPanel: React.FC = () => {
   const {
@@ -23,7 +23,7 @@ export const EditPanel: React.FC = () => {
     if (!neuron && !edge) return null;
 
   return (
-    <div className="fixed top-20 right-10 flex flex-col gap-4 shadow-md backdrop-blur-sm rounded-lg p-4 w-64 z-50">
+    <div className="fixed top-4 right-4 flex flex-col gap-4 shadow-md backdrop-blur-sm rounded-lg px-4 py-2 w-64 z-50">
       <div className='flex justify-between items-center'>
         <h3 className="font-bold">{ neuron ? 'Нейрон' : 'Ребро' }</h3>
         <Button

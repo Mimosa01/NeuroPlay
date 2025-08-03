@@ -6,9 +6,12 @@ export function neuronToDTO(neuron: Neuron): NeuronDTO {
     id: neuron.id,
     coords: neuron.getCoords(),
     label: neuron.getLabel(),
-    activationType: neuron.getActivationFn(),
     accumulatedSignal: neuron.getAccumulatedSignal(),
     inactivityCounter: neuron.getInactivityCounter(),
     inactivityThreshold: neuron.getInactivityThreshold(),
+    readyToSend: neuron.getReadyToSend(),
+    signalThreshold: neuron.getSignalTreshold(),
+    refractoryThreshold: neuron.getRefractoryThreshold(),
+    fading: neuron.getFading()
   };
 }

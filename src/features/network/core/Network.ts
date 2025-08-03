@@ -12,12 +12,10 @@ export default class Network {
   private history: NetworkSnapshot[] = [];
   private future: NetworkSnapshot[] = [];
 
-  private lastOutputs: Map<Neuron, number> = new Map();
-
   constructor () {};
 
   public addNeuron(coords: Coords): Neuron {
-    const neuron = new Neuron('relu', coords);
+    const neuron = new Neuron(coords);
     this.neurons.set(neuron.id, neuron);
     return neuron;
   }
@@ -46,35 +44,23 @@ export default class Network {
     this.edges.delete(edgeId);
   }
 
-  private phase1_process(neurons: Neuron[]): void {
-    for (const neuron of neurons) {
-      const output = neuron.process();
-      this.lastOutputs.set(neuron, output);
+  public tick(): void {
+    for (const neuron of this.neurons.values()) {
+      neuron.process();
     }
-  }
 
-  private phase2_transmit(): void {
-    for (const [neuron, output] of this.lastOutputs.entries()) {
-      if (output > 0) {
-        neuron.fire(output);
+    for (const neuron of this.neurons.values()) {
+      if (neuron.getReadyToSend()) {
+        neuron.fire();
+        break;
       }
     }
-  }
 
-  private phase3_decayAndCleanup(neurons: Neuron[]): void {
-    for (const neuron of neurons) {
-      neuron.decay(0.1);
+    for (const neuron of this.neurons.values()) {
+      neuron.decay();
     }
 
     this.removeDeadNeurons();
-  }
-
-  public tick(): void {
-    const neurons = Array.from(this.neurons.values());
-
-    this.phase1_process(neurons);
-    this.phase2_transmit();
-    this.phase3_decayAndCleanup(neurons);
   }
 
   public undoTick(): void {
@@ -158,11 +144,10 @@ export default class Network {
   }
 
   public restoreFromSnapshot(snapshot: NetworkSnapshot) {
-    snapshot.neurons.forEach(({ id, coords, activationType, accumulatedSignal, inactivityCounter }) => {
+    snapshot.neurons.forEach(({ id, coords, accumulatedSignal, inactivityCounter }) => {
       const neuron = this.neurons.get(id);
       if (neuron) {
         neuron.setCoords(coords);
-        if (activationType !== undefined) neuron.setActivationFn(activationType);
         if (accumulatedSignal !== undefined) neuron.setAccumulatedSignal(accumulatedSignal);
         if (inactivityCounter !== undefined) neuron.setInactivityCounter(inactivityCounter);
       }

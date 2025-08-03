@@ -5,6 +5,7 @@ import type { EdgeDTO } from '../dto/edge.dto';
 import type { NeuronDTO } from '../dto/neuron.dto';
 import { neuronToDTO } from '../dto/neuronTo';
 import type { NeuronId, EdgeId } from '../types/types';
+import { toast } from 'sonner';
 
 type NetworkState = {
   network: Network;
@@ -55,10 +56,6 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
       neuron.setLabel(data.label);
     }
 
-    if (data.activationType !== undefined) {
-      neuron.setActivationFn(data.activationType);
-    }
-
     if (data.inactivityThreshold !== undefined && typeof neuron.setInactivityThreshold === 'function') {
       neuron.setInactivityThreshold(data.inactivityThreshold);
     }
@@ -107,6 +104,11 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
       history: [],
       future: [],
     });
+
+    toast.success('Сеть очищена', {
+      duration: 1000,
+      position: 'top-right'
+    });
   },
 
   updateNeuronCoords: (id, x, y) => {
@@ -126,7 +128,6 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
     });
     network.tick();
     refreshDTO();
-    console.log(history)
   },
 
   undoTick: () => {

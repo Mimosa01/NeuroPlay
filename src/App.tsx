@@ -1,7 +1,8 @@
 import { LayoutUI } from "./shared/components/LayoutUI";
 import { Scene } from "./features/scene/Scene";
-import { EditPanel } from "./features/editing/EditPanel";
 import { usePlayback } from "./features/control/usePlayback";
+import { EditPanel } from "./features/editing/components/EditPanel";
+import { Toaster } from "sonner";
 
 
 function App() {
@@ -9,6 +10,7 @@ function App() {
 
   return (
     <>
+      <Toaster />
       <LayoutUI />
       <Scene /> 
       <EditPanel /> 

@@ -1,8 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSelectionStore } from '../store/useSelectionStore';
 import { useNetworkStore } from '../../network/store/useNetworkStore';
+import { toast } from 'sonner';
 
-const activationFunctions = ['relu', 'sigmoid', 'linear'];
+type NeuronFormFields = {
+  label: string;
+  inactivityThreshold: string;
+  refractoryThreshold: string;
+  signalThreshold: string;
+  fading: string; 
+};
 
 export const useEditSelection = () => {
   const selectedNeuronId = useSelectionStore(state => state.selectedNeuronId);
@@ -15,87 +22,124 @@ export const useEditSelection = () => {
   const updateNeuron = useNetworkStore(state => state.updateNeuron);
   const updateEdgeWeight = useNetworkStore(state => state.updateEdgeWeight);
 
-  const neuron = useMemo(() => neurons.find(n => n.id === selectedNeuronId) || null, [neurons, selectedNeuronId]);
-  const edge = useMemo(() => edges.find(e => e.id === selectedEdgeId) || null, [edges, selectedEdgeId]);
+  const neuron = useMemo(
+    () => neurons.find(n => n.id === selectedNeuronId) || null,
+    [neurons, selectedNeuronId]
+  );
+  const edge = useMemo(
+    () => edges.find(e => e.id === selectedEdgeId) || null,
+    [edges, selectedEdgeId]
+  );
 
-  const [activation, setActivation] = useState('');
-  const [label, setLabel] = useState('');
+  const [form, setForm] = useState<NeuronFormFields>({
+    label: '',
+    inactivityThreshold: '10',
+    refractoryThreshold: '2',
+    signalThreshold: '0.9',
+    fading: '0.95',
+  });
+
+  const [initialForm, setInitialForm] = useState<NeuronFormFields>(form);
+
   const [weight, setWeight] = useState('');
-
-  const [initialActivation, setInitialActivation] = useState('');
-  const [initialLabel, setInitialLabel] = useState('');
-
-  const [inactivityThreshold, setInactivityThreshold] = useState('0');
-  const [initialInactivityThreshold, setInitialInactivityThreshold] = useState('0');
-
-
-
 
   useEffect(() => {
     if (neuron) {
-      setActivation(neuron.activationType);
-      setInitialActivation(neuron.activationType);
-      setLabel(neuron.label ?? '');
-      setInitialLabel(neuron.label ?? '');
-      setInactivityThreshold(String(neuron.inactivityThreshold ?? 10));
-      setInitialInactivityThreshold(String(neuron.inactivityThreshold ?? 10));
+      const newForm: NeuronFormFields = {
+        label: neuron.label ?? '',
+        inactivityThreshold: String(neuron.inactivityThreshold ?? 10),
+        refractoryThreshold: String(neuron.refractoryThreshold ?? 2),
+        signalThreshold: String(neuron.signalThreshold ?? 0.9),
+        fading: String(neuron.fading ?? 0.95), 
+      };
+      setForm(newForm);
+      setInitialForm(newForm);
+    }
+  }, [neuron]);
 
-    }
+  useEffect(() => {
     if (edge) {
-      setWeight(edge.weight.toString());
+      setWeight(String(edge.weight));
     }
-  }, [neuron, edge]);
+  }, [edge]);
 
   const saveNeuron = () => {
     if (!neuron) return;
 
-    const parsed = parseInt(inactivityThreshold as unknown as string, 10);
-    if (isNaN(parsed)) return;
+    const parsedInactivity = parseInt(form.inactivityThreshold, 10);
+    const parsedRefractory = parseInt(form.refractoryThreshold, 10);
+    const parsedSignal = parseFloat(form.signalThreshold);
+    const parsedFading = parseFloat(form.fading);
+
+    if (isNaN(parsedInactivity) || isNaN(parsedRefractory) || 
+        isNaN(parsedSignal) || isNaN(parsedFading)) return;
+
+    if (parsedFading < 0 || parsedFading > 1) return;
 
     updateNeuron(neuron.id, {
-      label,
-      activationType: activation,
-      inactivityThreshold: parsed,
+      label: form.label,
+      inactivityThreshold: parsedInactivity,
+      refractoryThreshold: parsedRefractory,
+      signalThreshold: parsedSignal,
+      fading: parsedFading, 
     });
 
-    setSelectedNeuronId(null);
+    toast.success('Изменения сохранены', {
+      duration: 2000,
+      position: 'top-right'
+    });
   };
-
 
   const saveEdge = () => {
     if (!edge) return;
-    const parsed = parseFloat(weight);
-    if (!isNaN(parsed)) {
-      updateEdgeWeight(edge.id, parsed);
-      setSelectedEdgeId(null);
-    }
+    const parsedWeight = parseFloat(weight);
+    if (isNaN(parsedWeight)) return;
+
+    updateEdgeWeight(edge.id, parsedWeight);
+
+    toast.success('Изменения сохранены', {
+      duration: 2000,
+      position: 'top-right'
+    });
   };
 
   const clearSelection = () => {
     setSelectedNeuronId(null);
     setSelectedEdgeId(null);
+    setForm({ 
+      label: '', 
+      inactivityThreshold: '10',
+      refractoryThreshold: '2',
+      signalThreshold: '0.9',
+      fading: '0.95',
+    });
+    setWeight('');
   };
+
+  const hasNeuronChanges = useMemo(() => {
+    return (
+      form.label !== initialForm.label ||
+      form.inactivityThreshold !== initialForm.inactivityThreshold ||
+      form.refractoryThreshold !== initialForm.refractoryThreshold ||
+      form.signalThreshold !== initialForm.signalThreshold ||
+      form.fading !== initialForm.fading
+    );
+  }, [form, initialForm]);
 
   return {
     neuron,
     neuronID: neuron?.id,
     edge,
-    activation,
-    setActivation,
-    label,
-    setLabel,
+    ...form,
+    setForm: (key: keyof NeuronFormFields, value: string) => {
+      setForm(prev => ({ ...prev, [key]: value }));
+    },
     weight,
     setWeight,
     saveNeuron,
     saveEdge,
     clearSelection,
-    inactivityThreshold,
-    setInactivityThreshold,
-    hasNeuronChanges:
-      activation !== initialActivation ||
-      label !== initialLabel ||
-      inactivityThreshold !== initialInactivityThreshold,
-    activationFunctions,
+    hasNeuronChanges,
     accumulatedSignal: neuron?.accumulatedSignal ?? 0,
   };
 };

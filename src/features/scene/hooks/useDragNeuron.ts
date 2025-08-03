@@ -11,7 +11,8 @@ export function useDragNeuron({ id, selectedTool, onDrag }: DragConfig) {
   const ref = useRef<SVGCircleElement>(null);
 
   useEffect(() => {
-    if (!ref.current) return;
+    const element = ref.current;
+    if (!element) return;
 
     const dragBehavior = d3.drag<SVGCircleElement, unknown>()
       .on('start', (event) => {
@@ -24,10 +25,11 @@ export function useDragNeuron({ id, selectedTool, onDrag }: DragConfig) {
         onDrag(id, event.x, event.y);
       });
 
-    d3.select(ref.current).call(dragBehavior);
+    const selection = d3.select(element);
+    selection.call(dragBehavior);
 
     return () => {
-      d3.select(ref.current).on('.drag', null);
+      selection.on('.drag', null);
     };
   }, [id, selectedTool, onDrag]);
 

@@ -1,5 +1,3 @@
-export type ActivationFunction = (input: number) => number;
-
 export type NeuronId = string;
 export type EdgeId = string;
 export type SignalValue = number;

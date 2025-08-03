@@ -1,7 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import type Neuron from './Neuron';
 import type { EdgeId } from '../types/types';
-import Signal from './Signal';
 
 export default class Edge {
   public readonly id: EdgeId;
@@ -21,15 +20,13 @@ export default class Edge {
     console.log(`[Edge ${this.id}] Создано между ${source.id} → ${target.id} с весом ${weight}`);
   }
 
-  public transmit(rawSignal: number): void {
-    const weightedSignal = rawSignal * this.weight;
-    const signal = new Signal(weightedSignal, this.source.id, this.target.id);
+  public transmit(signal: number): void {
+    const weightedSignal = signal * this.weight;
 
-    console.log(`[Signal ${signal.id}] ${signal.sourceNeuronId} → ${signal.targetNeuronId} | value: ${signal.value}`);
+    console.log(`[Signal передан] | value: ${weightedSignal}`);
     
-    this.target.receive(signal.value);
+    this.target.receive(weightedSignal);
   }
-
 
   public setWeight(newWeight: number): void {
     console.log(`[Edge ${this.id}] Вес изменён: ${this.weight} → ${newWeight}`);
