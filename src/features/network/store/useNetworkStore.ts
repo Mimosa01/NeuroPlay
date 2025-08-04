@@ -19,7 +19,6 @@ type NetworkState = {
   removeNeuron: (id: NeuronId) => void;
   removeEdge: (id: EdgeId) => void;
   resetNetwork: () => void;
-  updateNeuronCoords: (id: NeuronId, x: number, y: number) => void;
   exciteNeuron: (id: NeuronId, signal?: number) => void;
 
   updateNeuron: (id: string, data: Partial<NeuronDTO>) => void;
@@ -56,8 +55,15 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
       neuron.setLabel(data.label);
     }
 
-    if (data.inactivityThreshold !== undefined && typeof neuron.setInactivityThreshold === 'function') {
+    if (data.inactivityThreshold !== undefined) {
       neuron.setInactivityThreshold(data.inactivityThreshold);
+    }
+    if (data.refractoryThreshold !== undefined) {
+      neuron.setRefractoryThreshold(data.refractoryThreshold);
+    }
+
+    if (data.coords !== undefined) {
+      neuron.setCoords(data.coords);
     }
 
     refreshDTO();
@@ -109,14 +115,6 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
       duration: 1000,
       position: 'top-right'
     });
-  },
-
-  updateNeuronCoords: (id, x, y) => {
-    const { network, refreshDTO } = get();
-    const neuron = network.getNeuron(id);
-    if (!neuron) return;
-    neuron.setCoords({ x, y });
-    refreshDTO();
   },
 
   tick: () => {

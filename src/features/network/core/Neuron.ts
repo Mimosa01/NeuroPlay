@@ -17,7 +17,7 @@ export default class Neuron {
   private accumulatedSignal: number = 0;
 
   private inactivityCounter: number = 0;
-  private inactivityThreshold: number = 10;
+  private inactivityThreshold: number = 100;
 
   private coords: Coords;
   private label: string = '';

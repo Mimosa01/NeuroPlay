@@ -11,10 +11,10 @@ interface NeuronHandlers {
 export function useNeuronHandlers(): NeuronHandlers {
   const setSelectedNeuronId = useSelectionStore(state => state.setSelectedNeuronId);
   const selectedTool = useToolStore(state => state.selectedTool);
-  const updateNeuronCoords = useNetworkStore(state => state.updateNeuronCoords);
+  const updateNeuron = useNetworkStore(state => state.updateNeuron);
 
   const onDrag = (id: string, x: number, y: number) => {
-    updateNeuronCoords(id, x, y);
+    updateNeuron(id, {coords: {x: x, y: y}});
   };
 
   const onClick = (e: React.MouseEvent, neuronId: string) => {

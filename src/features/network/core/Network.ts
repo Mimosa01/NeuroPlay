@@ -52,7 +52,6 @@ export default class Network {
     for (const neuron of this.neurons.values()) {
       if (neuron.getReadyToSend()) {
         neuron.fire();
-        break;
       }
     }
 
