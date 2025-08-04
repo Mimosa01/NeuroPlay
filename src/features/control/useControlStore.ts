@@ -4,6 +4,8 @@ import { useNetworkStore } from '../network/store/useNetworkStore';
 type ControlState = {
   isPlaying: boolean;
   timeStep: number;
+  speed: number;
+  setSpeed: (ms: number) => void;
   play: () => void;
   pause: () => void;
   stepForward: () => void;
@@ -14,6 +16,9 @@ type ControlState = {
 export const useControlStore = create<ControlState>((set, get) => ({
   isPlaying: false,
   timeStep: 0,
+  speed: 1000,
+  
+  setSpeed: (speed) => set({ speed }),
 
   play: () => {
     console.log('ControlStore: play');

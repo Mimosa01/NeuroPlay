@@ -3,7 +3,7 @@ import { useControlStore } from "./useControlStore";
 import { useNetworkStore } from "../network/store/useNetworkStore";
 
 export function usePlayback() {
-  const { isPlaying } = useControlStore();
+  const { isPlaying, speed } = useControlStore();
   const { tick } = useNetworkStore();
 
   useEffect(() => {
@@ -12,8 +12,8 @@ export function usePlayback() {
     const interval = setInterval(() => {
       tick();
       useControlStore.setState(state => ({ timeStep: state.timeStep + 1 }));
-    }, 1000);
+    }, speed);
 
     return () => clearInterval(interval);
-  }, [isPlaying, tick]);
+  }, [isPlaying, tick, speed]);
 }
