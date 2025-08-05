@@ -26,6 +26,7 @@ type NetworkState = {
 
   tick: () => void;
   undoTick: () => void;
+  redoTick: () => void;
   refreshDTO: () => void;
 };
 
@@ -151,6 +152,27 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
       future: [...future, currentSnapshot],
     });
     refreshDTO();
+  },
+
+  redoTick: () => {
+    const { network, history, future, refreshDTO } = get();
+    if (future.length === 0) return;
+
+    const nextSnapshot = future[future.length - 1];
+    const newFuture = future.slice(0, future.length - 1);
+    const currentSnapshot = network.createSnapshot();
+
+    network.restoreFromSnapshot(nextSnapshot);
+    set({
+      history: [...history, currentSnapshot],
+      future: newFuture,
+    });
+    refreshDTO();
+    
+    toast.success('Повторено', {
+      duration: 1500,
+      position: 'top-right'
+    });
   },
 
   exciteNeuron: (id, signal = 100) => {
