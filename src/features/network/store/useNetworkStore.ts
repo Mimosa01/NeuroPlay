@@ -21,8 +21,8 @@ type NetworkState = {
   resetNetwork: () => void;
   exciteNeuron: (id: NeuronId, signal?: number) => void;
 
-  updateNeuron: (id: string, data: Partial<NeuronDTO>) => void;
-  updateEdgeWeight: (id: string, newWeight: number) => void;
+  updateNeuron: (id: NeuronId, data: Partial<NeuronDTO>) => void;
+  updateEdge: (id: EdgeId, data: Partial<EdgeDTO>) => void;
 
   tick: () => void;
   undoTick: () => void;
@@ -51,17 +51,25 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
     const neuron = network.getNeuron(id);
     if (!neuron) return;
 
+    // Новые параметры
     if (data.label !== undefined) {
       neuron.setLabel(data.label);
     }
-
     if (data.inactivityThreshold !== undefined) {
       neuron.setInactivityThreshold(data.inactivityThreshold);
     }
-    if (data.refractoryThreshold !== undefined) {
-      neuron.setRefractoryThreshold(data.refractoryThreshold);
+    if (data.refractoryDuration !== undefined) {
+      neuron.setRefractoryDuration(data.refractoryDuration);
     }
-
+    if (data.spikeThreshold !== undefined) {
+      neuron.setSpikeThreshold(data.spikeThreshold);
+    }
+    if (data.spikeAmplitude !== undefined) {
+      neuron.setSpikeAmplitude(data.spikeAmplitude);
+    }
+    if (data.decayFactor !== undefined) {
+      neuron.setDecayFactor(data.decayFactor);
+    }
     if (data.coords !== undefined) {
       neuron.setCoords(data.coords);
     }
@@ -69,13 +77,12 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
     refreshDTO();
   },
 
-
-  updateEdgeWeight: (id, newWeight) => {
+  updateEdge: (id, data) => {
     const edge = get().network.getEdge(id);
     if (!edge) return;
 
-    edge.setWeight(newWeight);
-    get().refreshDTO();
+    if (data.conductance) edge.setConductance(data.conductance);
+    if (data.delay) edge.setDelay(data.delay);
   },
 
   createNeuron: (coords) => {
@@ -104,7 +111,7 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
   },
 
   resetNetwork: () => {
-    const network = get().network;
+    const {network, refreshDTO} = get();
     network.reset();
     set({
       history: [],
@@ -115,6 +122,8 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
       duration: 1000,
       position: 'top-right'
     });
+    
+    refreshDTO();
   },
 
   tick: () => {
@@ -144,12 +153,16 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
     refreshDTO();
   },
 
-
-  exciteNeuron: (id, signal = 1) => {
+  exciteNeuron: (id, signal = 100) => {
     const { network, refreshDTO } = get();
     const neuron = network.getNeuron(id);
     if (!neuron) return;
     neuron.receive(signal);
     refreshDTO();
+    
+    toast.success('Нейрон возбуждён', {
+      duration: 1500,
+      position: 'top-right'
+    });
   },
 }));

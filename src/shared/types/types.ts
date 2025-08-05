@@ -1,4 +1,4 @@
-import type { EdgeId, NeuronId } from "../../features/network/types/types";
+import type { EdgeId, NeuronId, NeuroTransmitterType } from "../../features/network/types/types";
 
 export type ToolType = 'none' | 'add' | 'delete' | 'connect' | 'reconnect' | 'play' | 'pause' | 'clear' | 'back' | 'next';
 
@@ -17,13 +17,20 @@ export type NeuronSnapshot = {
   id: NeuronId;
   coords: Coords;
   label: string;
-  accumulatedSignal: number;
+  membranePotential: number;
+  spikeThreshold: number;
+  spikeAmplitude: number;
   inactivityCounter: number;
   inactivityThreshold: number;
   readyToSend: boolean;
-  signalThreshold: number;
-  refractoryThreshold: number;
-  fading: number;
+  refractoryDuration: number;
+  decayFactor: number;
+  
+  // Для обратной совместимости (временно)
+  accumulatedSignal?: number;
+  signalThreshold?: number;
+  refractoryThreshold?: number;
+  fading?: number;
 };
 
 export type EdgeSnapshot = {
@@ -32,7 +39,13 @@ export type EdgeSnapshot = {
   targetId: NeuronId;
   sourceCoords: Coords;
   targetCoords: Coords;
-  weight: number;
+  conductance: number;
+  delay: number;
+  neurotransmitter: NeuroTransmitterType;
+  
+  // Для обратной совместимости (временно)
+  weight?: number;
+  0?: number;
 };
 
 export type NetworkSnapshot = {

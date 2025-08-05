@@ -8,6 +8,13 @@ export function edgeToDTO(edge: Edge): EdgeDTO {
     targetId: edge.target.id,
     sourceCoords: edge.source.getCoords(),
     targetCoords: edge.target.getCoords(),
-    weight: edge.getWeight(),
+    
+    // Новые параметры
+    conductance: edge.getConductance(),
+    delay: edge.getDelay(),
+    neurotransmitter: edge.getNeurotransmitter(),
+    
+    // Для обратной совместимости
+    weight: edge.getConductance(), // временно
   };
 }

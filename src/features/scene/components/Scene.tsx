@@ -1,7 +1,7 @@
-import { useSceneClickHandler } from "./hooks/useSceneClickHandler";
+import { useSceneClickHandler } from "../hooks/useSceneClickHandler";
 import { NeuronView } from "./NeuronView";
-import { useNetworkStore } from "../network/store/useNetworkStore";
-import { useSelectionStore } from "../editing/store/useSelectionStore";
+import { useNetworkStore } from "../../network/store/useNetworkStore";
+import { useSelectionStore } from "../../editing/store/useSelectionStore";
 import { EdgeView } from "./EdgeView";
 
 export const Scene = () => {

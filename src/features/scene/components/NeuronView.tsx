@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { useDragNeuron } from './hooks/useDragNeuron';
-import { useNeuronHandlers } from './hooks/useNeuronHandlers';
-import { useNeuronGeometry } from './hooks/useNeuronGeometry';
-import { useToolStore } from '../../shared/hooks/useToolStore';
-import type { NeuronDTO } from '../network/dto/neuron.dto';
+import React from 'react';
+import { useToolStore } from '../../../shared/hooks/useToolStore';
+import type { NeuronDTO } from '../../network/dto/neuron.dto';
+import { useDragNeuron } from '../hooks/useDragNeuron';
+import { useNeuronHandlers } from '../hooks/useNeuronHandlers';
+import { getBiologicalColor } from '../utils/neuronUtils';
 
 type Props = {
   neuron: NeuronDTO;
@@ -13,25 +13,26 @@ type Props = {
 export const NeuronView: React.FC<Props> = ({ neuron, isSelected }) => {
   const { x, y } = neuron.coords;
   const { onDrag, onClick, onContextMenu } = useNeuronHandlers();
-  const { radius, signalFactor, signalColor } = useNeuronGeometry(neuron);
   const selectedTool = useToolStore(state => state.selectedTool);
 
-  const [isDragging, setIsDragging] = useState(false);
+  // Биологические параметры вместо signalFactor и signalColor
+  const radius = 12;
+  const membranePotential = neuron.membranePotential ?? -70;
+  const spikeThreshold = neuron.spikeThreshold ?? -55;
+  const isRefractory = neuron.refractoryDuration > 0;
+  const isReadyToSend = neuron.readyToSend ?? false;
 
   const circleRef = useDragNeuron({ 
     id: neuron.id, 
     selectedTool, 
-    onDrag: (id, x, y) => {
-      setIsDragging(true);
-      onDrag(id, x, y);
-      setTimeout(() => setIsDragging(false), 50);
-    }
+    onDrag: (id, x, y) => onDrag(id, x, y)
   });
 
-  const showProgressBar = !isDragging;
+  const biologicalColor = getBiologicalColor(membranePotential, spikeThreshold);
 
   return (
     <g>
+      {/* Фон */}
       <circle
         cx={x}
         cy={y}
@@ -39,42 +40,25 @@ export const NeuronView: React.FC<Props> = ({ neuron, isSelected }) => {
         className="fill-white/20"
       />
       
-      {showProgressBar && (
-        <>
-          <rect
-            x={x - radius}
-            y={y + radius + 5}
-            width={radius * 2}
-            height={3}
-            rx={1.5}
-            className="fill-slate-300"
-          />
-          <rect
-            x={x - radius}
-            y={y + radius + 5}
-            width={(radius * 2) * signalFactor}
-            height={3}
-            rx={1.5}
-            fill={signalColor}
-          />
-        </>
-      )}
-      
+      {/* Основной нейрон */}
       <circle
         ref={circleRef}
         cx={x}
         cy={y}
         r={radius}
-        fill={signalColor}
+        fill={biologicalColor}
         className={`
           transition-all duration-300 ease-out drop-shadow-sm
           ${isSelected && 'stroke-3 stroke-blue-400'}
           ${selectedTool === 'none' ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}
+          ${isReadyToSend && 'animate-pulse'}
+          ${isRefractory && 'opacity-70'}
         `}
         onClick={(e) => onClick(e, neuron.id)}
         onContextMenu={(e) => onContextMenu(e, neuron.id)}
       />
       
+      {/* Подпись */}
       {neuron.label && (
         <text
           x={x}

@@ -6,9 +6,10 @@ import { toast } from 'sonner';
 type NeuronFormFields = {
   label: string;
   inactivityThreshold: string;
-  refractoryThreshold: string;
-  signalThreshold: string;
-  fading: string; 
+  refractoryDuration: string;     // ← новое имя
+  spikeThreshold: string;         // ← новое
+  spikeAmplitude: string;         // ← новое
+  decayFactor: string;            // ← новое
 };
 
 export const useEditSelection = () => {
@@ -20,7 +21,7 @@ export const useEditSelection = () => {
   const neurons = useNetworkStore(state => state.neuronsDTO);
   const edges = useNetworkStore(state => state.edgesDTO);
   const updateNeuron = useNetworkStore(state => state.updateNeuron);
-  const updateEdgeWeight = useNetworkStore(state => state.updateEdgeWeight);
+  const updateEdge = useNetworkStore(state => state.updateEdge);
 
   const neuron = useMemo(
     () => neurons.find(n => n.id === selectedNeuronId) || null,
@@ -31,115 +32,201 @@ export const useEditSelection = () => {
     [edges, selectedEdgeId]
   );
 
-  const [form, setForm] = useState<NeuronFormFields>({
+  const [neuronForm, setNeuronForm] = useState<NeuronFormFields>({
     label: '',
-    inactivityThreshold: '10',
-    refractoryThreshold: '2',
-    signalThreshold: '0.9',
-    fading: '0.95',
+    inactivityThreshold: '100',
+    refractoryDuration: '4',
+    spikeThreshold: '15',
+    spikeAmplitude: '100',
+    decayFactor: '0.95',
   });
 
-  const [initialForm, setInitialForm] = useState<NeuronFormFields>(form);
+  const [initialNeuronForm, setInitialNeuronForm] = useState<NeuronFormFields>(neuronForm);
 
-  const [weight, setWeight] = useState('');
+  const [edgeForm, setEdgeForm] = useState({
+    conductance: '1.0',
+    delay: '1',
+  });
 
+  const [initialEdgeForm, setInitialEdgeForm] = useState(edgeForm);
+
+  // === Нейрон ===
   useEffect(() => {
     if (neuron) {
       const newForm: NeuronFormFields = {
         label: neuron.label ?? '',
-        inactivityThreshold: String(neuron.inactivityThreshold ?? 10),
-        refractoryThreshold: String(neuron.refractoryThreshold ?? 2),
-        signalThreshold: String(neuron.signalThreshold ?? 0.9),
-        fading: String(neuron.fading ?? 0.95), 
+        inactivityThreshold: String(neuron.inactivityThreshold ?? 100),
+        refractoryDuration: String(neuron.refractoryDuration ?? 4),
+        spikeThreshold: String(neuron.spikeThreshold ?? 15),
+        spikeAmplitude: String(neuron.spikeAmplitude ?? 100),
+        decayFactor: String(neuron.decayFactor ?? 0.95),
       };
-      setForm(newForm);
-      setInitialForm(newForm);
+      setNeuronForm(newForm);
+      setInitialNeuronForm(newForm);
     }
   }, [neuron]);
 
+  // === Ребро ===
   useEffect(() => {
     if (edge) {
-      setWeight(String(edge.weight));
+      const newForm = {
+        conductance: String(edge.conductance ?? 1.0),
+        delay: String(edge.delay ?? 1),
+      };
+      setEdgeForm(newForm);
+      setInitialEdgeForm(newForm);
     }
   }, [edge]);
 
+  // === Сохранение нейрона ===
   const saveNeuron = () => {
     if (!neuron) return;
 
-    const parsedInactivity = parseInt(form.inactivityThreshold, 10);
-    const parsedRefractory = parseInt(form.refractoryThreshold, 10);
-    const parsedSignal = parseFloat(form.signalThreshold);
-    const parsedFading = parseFloat(form.fading);
+    const parsedInactivity = parseInt(neuronForm.inactivityThreshold, 10);
+    const parsedRefractory = parseInt(neuronForm.refractoryDuration, 10);
+    const parsedSpikeThreshold = parseInt(neuronForm.spikeThreshold, 10);
+    const parsedSpikeAmplitude = parseInt(neuronForm.spikeAmplitude, 10);
+    const parsedDecay = parseFloat(neuronForm.decayFactor);
 
     if (isNaN(parsedInactivity) || isNaN(parsedRefractory) || 
-        isNaN(parsedSignal) || isNaN(parsedFading)) return;
+        isNaN(parsedSpikeThreshold) || isNaN(parsedSpikeAmplitude) || 
+        isNaN(parsedDecay)) {
+      toast.error('Некорректные значения параметров', {
+        duration: 3000,
+        position: 'top-right'
+      });
+      return;
+    }
 
-    if (parsedFading < 0 || parsedFading > 1) return;
+    // Валидация диапазонов
+    if (parsedDecay < 0.8 || parsedDecay > 0.99) {
+      toast.error('Фактор затухания должен быть от 0.80 до 0.99', {
+        duration: 3000,
+        position: 'top-right'
+      });
+      return;
+    }
 
     updateNeuron(neuron.id, {
-      label: form.label,
+      label: neuronForm.label,
       inactivityThreshold: parsedInactivity,
-      refractoryThreshold: parsedRefractory,
-      signalThreshold: parsedSignal,
-      fading: parsedFading, 
+      refractoryDuration: parsedRefractory,
+      spikeThreshold: parsedSpikeThreshold,
+      spikeAmplitude: parsedSpikeAmplitude,
+      decayFactor: parsedDecay,
     });
 
-    toast.success('Изменения сохранены', {
+    toast.success('Параметры нейрона сохранены', {
       duration: 2000,
       position: 'top-right'
     });
   };
 
+  // === Сохранение ребра ===
   const saveEdge = () => {
     if (!edge) return;
-    const parsedWeight = parseFloat(weight);
-    if (isNaN(parsedWeight)) return;
+    
+    const parsedConductance = parseFloat(edgeForm.conductance);
+    const parsedDelay = parseInt(edgeForm.delay, 10);
 
-    updateEdgeWeight(edge.id, parsedWeight);
+    if (isNaN(parsedConductance) || isNaN(parsedDelay)) {
+      toast.error('Некорректные значения параметров', {
+        duration: 3000,
+        position: 'top-right'
+      });
+      return;
+    }
 
-    toast.success('Изменения сохранены', {
+    // Валидация диапазонов
+    if (parsedConductance < 0.1 || parsedConductance > 10.0) {
+      toast.error('Проводимость должна быть от 0.1 до 10.0 μS', {
+        duration: 3000,
+        position: 'top-right'
+      });
+      return;
+    }
+
+    if (parsedDelay < 0 || parsedDelay > 10) {
+      toast.error('Задержка должна быть от 0 до 10 шагов', {
+        duration: 3000,
+        position: 'top-right'
+      });
+      return;
+    }
+
+    updateEdge(edge.id, {
+      conductance: parsedConductance,
+      delay: parsedDelay
+    });
+
+    toast.success('Параметры связи сохранены', {
       duration: 2000,
       position: 'top-right'
     });
   };
 
+  // === Очистка ===
   const clearSelection = () => {
     setSelectedNeuronId(null);
     setSelectedEdgeId(null);
-    setForm({ 
+    setNeuronForm({ 
       label: '', 
-      inactivityThreshold: '10',
-      refractoryThreshold: '2',
-      signalThreshold: '0.9',
-      fading: '0.95',
+      inactivityThreshold: '100',
+      refractoryDuration: '4',
+      spikeThreshold: '15',
+      spikeAmplitude: '100',
+      decayFactor: '0.95',
     });
-    setWeight('');
+    setEdgeForm({
+      conductance: '1.0',
+      delay: '1',
+    });
   };
 
+  // === Проверка изменений ===
   const hasNeuronChanges = useMemo(() => {
     return (
-      form.label !== initialForm.label ||
-      form.inactivityThreshold !== initialForm.inactivityThreshold ||
-      form.refractoryThreshold !== initialForm.refractoryThreshold ||
-      form.signalThreshold !== initialForm.signalThreshold ||
-      form.fading !== initialForm.fading
+      neuronForm.label !== initialNeuronForm.label ||
+      neuronForm.inactivityThreshold !== initialNeuronForm.inactivityThreshold ||
+      neuronForm.refractoryDuration !== initialNeuronForm.refractoryDuration ||
+      neuronForm.spikeThreshold !== initialNeuronForm.spikeThreshold ||
+      neuronForm.spikeAmplitude !== initialNeuronForm.spikeAmplitude ||
+      neuronForm.decayFactor !== initialNeuronForm.decayFactor
     );
-  }, [form, initialForm]);
+  }, [neuronForm, initialNeuronForm]);
+
+  const hasEdgeChanges = useMemo(() => {
+    return (
+      edgeForm.conductance !== initialEdgeForm.conductance ||
+      edgeForm.delay !== initialEdgeForm.delay
+    );
+  }, [edgeForm, initialEdgeForm]);
 
   return {
     neuron,
     neuronID: neuron?.id,
     edge,
-    ...form,
-    setForm: (key: keyof NeuronFormFields, value: string) => {
-      setForm(prev => ({ ...prev, [key]: value }));
+    
+    // Нейронные поля
+    ...neuronForm,
+    setNeuronForm: (key: keyof NeuronFormFields, value: string) => {
+      setNeuronForm(prev => ({ ...prev, [key]: value }));
     },
-    weight,
-    setWeight,
+    
+    // Ребровые поля
+    ...edgeForm,
+    setEdgeForm: (key: keyof typeof edgeForm, value: string) => {
+      setEdgeForm(prev => ({ ...prev, [key]: value }));
+    },
+    
+    // Методы
     saveNeuron,
     saveEdge,
     clearSelection,
     hasNeuronChanges,
-    accumulatedSignal: neuron?.accumulatedSignal ?? 0,
+    hasEdgeChanges,
+    
+    // Значения для отображения
+    membranePotential: neuron?.membranePotential ?? 0,
   };
 };

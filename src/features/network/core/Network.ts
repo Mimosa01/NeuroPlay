@@ -30,9 +30,10 @@ export default class Network {
     }
   }
 
-  public addEdge(source: Neuron, target: Neuron): void {
-    const edge = new Edge(source, target);
+  public addEdge(source: Neuron, target: Neuron, conductance?: number, delay?: number): Edge {
+    const edge = new Edge(source, target, conductance, delay);
     this.edges.set(edge.id, edge);
+    return edge;
   }
 
   public removeEdge(edgeId: EdgeId): void {
@@ -45,16 +46,19 @@ export default class Network {
   }
 
   public tick(): void {
+    // Phase 1: Обработка нейронов (проверка порога)
     for (const neuron of this.neurons.values()) {
       neuron.process();
     }
 
+    // Phase 2: Стрельба готовых нейронов
     for (const neuron of this.neurons.values()) {
       if (neuron.getReadyToSend()) {
         neuron.fire();
       }
     }
 
+    // Phase 3: Затухание и очистка
     for (const neuron of this.neurons.values()) {
       neuron.decay();
     }
@@ -143,23 +147,23 @@ export default class Network {
   }
 
   public restoreFromSnapshot(snapshot: NetworkSnapshot) {
-    snapshot.neurons.forEach(({ id, coords, accumulatedSignal, inactivityCounter }) => {
+    snapshot.neurons.forEach(({ id, coords, membranePotential, inactivityCounter }) => {
       const neuron = this.neurons.get(id);
       if (neuron) {
         neuron.setCoords(coords);
-        if (accumulatedSignal !== undefined) neuron.setAccumulatedSignal(accumulatedSignal);
+        if (membranePotential !== undefined) neuron.setMembranePotential(membranePotential);
         if (inactivityCounter !== undefined) neuron.setInactivityCounter(inactivityCounter);
       }
     });
 
-    snapshot.edges.forEach(({ id, weight }) => {
+    snapshot.edges.forEach(({ id, conductance, delay }) => {
       const edge = this.edges.get(id);
       if (edge) {
-        edge.setWeight(weight);
+        if (conductance !== undefined) edge.setConductance(conductance);
+        if (delay !== undefined) edge.setDelay(delay);
       }
     });
   }
-
 
   public removeDeadNeurons(): void {
     for (const neuron of Array.from(this.neurons.values())) {
@@ -178,5 +182,4 @@ export default class Network {
       }
     }
   }
-
 }

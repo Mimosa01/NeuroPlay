@@ -27,7 +27,7 @@ export function useNeuronHandlers(): NeuronHandlers {
   const onContextMenu = (e: React.MouseEvent, neuronId: string) => {
     if (e.button === 2) {
       e.preventDefault();
-      useNetworkStore.getState().exciteNeuron(neuronId, 1);
+      useNetworkStore.getState().exciteNeuron(neuronId, 100);
     }
   };
 

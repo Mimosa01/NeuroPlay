@@ -6,12 +6,27 @@ export function neuronToDTO(neuron: Neuron): NeuronDTO {
     id: neuron.id,
     coords: neuron.getCoords(),
     label: neuron.getLabel(),
-    accumulatedSignal: neuron.getAccumulatedSignal(),
+    
+    // Новые параметры
+    membranePotential: neuron.getMembranePotential(),
+    spikeThreshold: neuron.getSpikeThreshold(),
+    spikeAmplitude: neuron.getSpikeAmplitude(),
+    
+    // Счётчики
     inactivityCounter: neuron.getInactivityCounter(),
     inactivityThreshold: neuron.getInactivityThreshold(),
+    
+    // Рефрактерность
+    refractoryDuration: neuron.getRefractoryDuration(),
+    
+    // Затухание
+    decayFactor: neuron.getDecayFactor(),
+    
+    // Состояние
     readyToSend: neuron.getReadyToSend(),
-    signalThreshold: neuron.getSignalTreshold(),
-    refractoryThreshold: neuron.getRefractoryThreshold(),
-    fading: neuron.getFading()
+    
+    // Для обратной совместимости
+    accumulatedSignal: neuron.getMembranePotential(), // временно
+    signalThreshold: neuron.getSpikeThreshold(),     // временно
   };
 }

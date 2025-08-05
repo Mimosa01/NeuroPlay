@@ -1,4 +1,4 @@
-import { Zap, Tag, Clock, Gauge, TrendingDown } from 'lucide-react';
+import { Zap, Tag, Clock, Activity, TrendingUp, TrendingDown } from 'lucide-react';
 import { IconInput } from '../../../shared/components/IconInput';
 import { SaveButton } from '../../../shared/components/SaveButton';
 import { useEditSelection } from '../hooks/useEditSelection';
@@ -12,12 +12,13 @@ export const NeuronBody = () => {
     label,
     saveNeuron,
     hasNeuronChanges,
-    accumulatedSignal,
+    membranePotential,
     inactivityThreshold,
-    refractoryThreshold,
-    signalThreshold,
-    fading,
-    setForm,
+    refractoryDuration,
+    spikeThreshold,
+    spikeAmplitude,
+    decayFactor,
+    setNeuronForm,
   } = useEditSelection();
 
   return (
@@ -27,14 +28,14 @@ export const NeuronBody = () => {
         subtitle={toShortenText(neuronID || '')}
       />
       
-      <SignalIndicator signal={accumulatedSignal ?? 0} />
+      <SignalIndicator signal={membranePotential ?? 0} />
 
       <IconInput
         icon={Tag}
         label="Метка"
         type="text"
         value={label}
-        onChange={e => setForm('label', e.target.value)}
+        onChange={e => setNeuronForm('label', e.target.value)}
         placeholder="Название нейрона"
       />
       
@@ -45,7 +46,8 @@ export const NeuronBody = () => {
         min="1"
         max="1000"
         value={inactivityThreshold}
-        onChange={e => setForm('inactivityThreshold', e.target.value)}
+        onChange={e => setNeuronForm('inactivityThreshold', e.target.value)}
+        helpText="Шагов без активности до удаления"
       />
 
       <IconInput
@@ -53,34 +55,46 @@ export const NeuronBody = () => {
         label="Длительность рефрактерности"
         type="number"
         min="1"
-        max="10"
-        value={refractoryThreshold}
-        onChange={e => setForm('refractoryThreshold', e.target.value)}
-        helpText="Сколько шагов нейрон неактивен после спайка"
+        max="20"
+        value={refractoryDuration}
+        onChange={e => setNeuronForm('refractoryDuration', e.target.value)}
+        helpText="Шагов после спайка без активности"
       />
 
       <IconInput
-        icon={Gauge}
-        label="Порог активации"
+        icon={Activity}
+        label="Порог спайка"
         type="number"
-        step="0.05"
-        min="0.1"
-        max="1.0"
-        value={signalThreshold}
-        onChange={e => setForm('signalThreshold', e.target.value)}
-        helpText="Минимальный сигнал для генерации спайка"
+        step="1"
+        min="5"
+        max="50"
+        value={spikeThreshold}
+        onChange={e => setNeuronForm('spikeThreshold', e.target.value)}
+        helpText="мВ (относительно покоя 0 мВ)"
+      />
+
+      <IconInput
+        icon={TrendingUp}
+        label="Амплитуда спайка"
+        type="number"
+        step="10"
+        min="50"
+        max="200"
+        value={spikeAmplitude}
+        onChange={e => setNeuronForm('spikeAmplitude', e.target.value)}
+        helpText="мВ (размер передаваемого сигнала)"
       />
 
       <IconInput
         icon={TrendingDown}
-        label="Коэффициент затухания"
+        label="Фактор затухания"
         type="number"
-        step="0.05"
-        min="0.1"
-        max="1.0"
-        value={fading}
-        onChange={e => setForm('fading', e.target.value)}
-        helpText="Насколько быстро сигнал уменьшается без входов"
+        step="0.01"
+        min="0.80"
+        max="0.99"
+        value={decayFactor}
+        onChange={e => setNeuronForm('decayFactor', e.target.value)}
+        helpText={`${decayFactor} = ${100 - (Number(decayFactor) * 100)}% затухания за шаг`}
       />
       
       <SaveButton 

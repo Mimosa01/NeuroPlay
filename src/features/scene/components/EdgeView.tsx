@@ -1,9 +1,9 @@
 import { type FC } from 'react';
-import { useEdgeGeometry } from './hooks/useEdgeGeometry';
-import { useEdgeHandlers } from './hooks/useEdgeHandlers';
-import { useEdgeStyles } from './hooks/useEdgeStyles';
-import { useToolStore } from '../../shared/hooks/useToolStore';
-import type { EdgeDTO } from '../network/dto/edge.dto';
+import { useToolStore } from '../../../shared/hooks/useToolStore';
+import type { EdgeDTO } from '../../network/dto/edge.dto';
+import { useEdgeGeometry } from '../hooks/useEdgeGeometry';
+import { useEdgeHandlers } from '../hooks/useEdgeHandlers';
+import { useEdgeStyles } from '../hooks/useEdgeStyles';
 
 export const EdgeView: FC<{ edge: EdgeDTO }> = ({ edge }) => {
   const { 

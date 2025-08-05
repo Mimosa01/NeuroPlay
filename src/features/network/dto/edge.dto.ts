@@ -1,3 +1,4 @@
+// dto/edge.dto.ts
 import type { Coords } from "../../../shared/types/types";
 import type { EdgeId, NeuronId } from "../types/types";
 
@@ -7,5 +8,12 @@ export type EdgeDTO = {
   targetId: NeuronId;
   sourceCoords: Coords;
   targetCoords: Coords;
-  weight: number;
+  
+  // Биологические параметры
+  conductance: number;        // микросименсы (μS)
+  delay: number;             // шагов задержки
+  neurotransmitter: 'glutamate' | 'gaba' | 'acetylcholine' | 'dopamine';
+  
+  // Для обратной совместимости (временно)
+  weight?: number;           // старый параметр
 };

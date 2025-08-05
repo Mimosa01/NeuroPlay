@@ -24,3 +24,5 @@ export interface INeuronActions {
   decay: (factor: number) => void;
   isDead: () => boolean;
 }
+
+export type NeuroTransmitterType = 'glutamate' | 'gaba' | 'acetylcholine' | 'dopamine';
