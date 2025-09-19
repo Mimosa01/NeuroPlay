@@ -93,7 +93,7 @@ _Чуть позже_
 
 ```bash
 git clone https://github.com/Mimosa01/NeuroPlay
-cd neural-playground
+cd NeuroPlay
 npm install
 npm run dev
 ```
