@@ -1,4 +1,4 @@
-import type { EdgeId, NeuronId, NeuroTransmitterType } from "../../features/network/types/types";
+import type { EdgeId, NeuronId } from "../../features/network/types/types";
 
 export type ToolType = 'none' | 'add' | 'delete' | 'connect' | 'reconnect' | 'play' | 'pause' | 'clear' | 'back' | 'next';
 
@@ -41,11 +41,6 @@ export type EdgeSnapshot = {
   targetCoords: Coords;
   conductance: number;
   delay: number;
-  neurotransmitter: NeuroTransmitterType;
-  
-  // Для обратной совместимости (временно)
-  weight?: number;
-  0?: number;
 };
 
 export type NetworkSnapshot = {

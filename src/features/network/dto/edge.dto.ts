@@ -12,7 +12,6 @@ export type EdgeDTO = {
   // Биологические параметры
   conductance: number;        // микросименсы (μS)
   delay: number;             // шагов задержки
-  neurotransmitter: 'glutamate' | 'gaba' | 'acetylcholine' | 'dopamine';
   
   // Для обратной совместимости (временно)
   weight?: number;           // старый параметр

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNetworkStore } from '../store/useNetworkStore';
-import type Neuron from '../core/Neuron';
+import type Neuron from '../core/PyramidalNeuron';
 import { useToolStore } from '../../../shared/hooks/useToolStore';
 import { useControlStore } from '../../control/useControlStore';
 import { useSelectionStore } from '../../editing/store/useSelectionStore';

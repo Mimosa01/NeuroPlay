@@ -1,7 +1,7 @@
-import type Neuron from "../core/Neuron";
+import type { INeuron } from "../interfaces/INeuron.interface";
 import type { NeuronDTO } from "./neuron.dto";
 
-export function neuronToDTO(neuron: Neuron): NeuronDTO {
+export function neuronToDTO(neuron: INeuron): NeuronDTO {
   return {
     id: neuron.id,
     coords: neuron.getCoords(),

@@ -1,7 +1,7 @@
-import type Edge from "../core/Edge";
+import type { IEdge } from "../interfaces/IEdge.interface";
 import type { EdgeDTO } from "./edge.dto";
 
-export function edgeToDTO(edge: Edge): EdgeDTO {
+export function edgeToDTO(edge: IEdge): EdgeDTO {
   return {
     id: edge.id,
     sourceId: edge.source.id,
@@ -9,12 +9,7 @@ export function edgeToDTO(edge: Edge): EdgeDTO {
     sourceCoords: edge.source.getCoords(),
     targetCoords: edge.target.getCoords(),
     
-    // Новые параметры
     conductance: edge.getConductance(),
     delay: edge.getDelay(),
-    neurotransmitter: edge.getNeurotransmitter(),
-    
-    // Для обратной совместимости
-    weight: edge.getConductance(), // временно
   };
 }

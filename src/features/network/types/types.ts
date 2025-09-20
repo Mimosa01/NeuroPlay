@@ -25,4 +25,5 @@ export interface INeuronActions {
   isDead: () => boolean;
 }
 
-export type NeuroTransmitterType = 'glutamate' | 'gaba' | 'acetylcholine' | 'dopamine';
+export type NeuroTransmitterType = 'glutamate' | 'gaba' | 'acetylcholine' | 'dopamine' | 'serotonin' | 'glycine';
+export type NeuronType = 'pyramidal' | 'inhibitory' | 'rs' | 'fs' | 'ds';

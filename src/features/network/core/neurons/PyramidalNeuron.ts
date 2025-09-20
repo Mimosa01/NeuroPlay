@@ -1,28 +1,32 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { EdgeId } from '../types/types';
-import type Edge from './Edge';
-import type { Coords } from '../../../shared/types/types';
+import type { EdgeId, NeuroTransmitterType } from '../../types/types';
+import type Edge from '../Edge';
+import type { Coords } from '../../../../shared/types/types';
+import type { INeuron } from '../../interfaces/INeuron.interface';
+import { DEFAULT_BIOLOGICAL_NEURON_PARAMS as DBNP} from '../../params/defaultNeuronParams';
 
-export default class Neuron {
+
+export default class PyramidalNeuron implements INeuron {
   public readonly id: string; 
   private inputEdges: Map<string, Edge> = new Map();
   private outputEdges: Map<string, Edge> = new Map();
-
+  
   // Биологические параметры в мВ
-  private membranePotential: number = -70;      // мВ (покойный потенциал)
-  private restingPotential: number = -70;       // мВ (базовый уровень) 
-  private spikeThreshold: number = -55;        // мВ (порог спайка)
-  private spikeAmplitude: number = 110;         // мВ (размер спайка)
+  private neuroTransmitter: NeuroTransmitterType = 'glutamate';                  // тип нейромедиатора
+  private membranePotential: number = DBNP.restingPotential;                     // мВ (покойный потенциал)
+  private restingPotential: number = DBNP.restingPotential;                      // мВ (базовый уровень) 
+  private spikeThreshold: number = DBNP.spikeThreshold;                          // мВ (порог спайка)
+  private spikeAmplitude: number = DBNP.spikeAmplitude;                          // мВ (размер спайка)
   
   // Рефрактерность
   private refractory: boolean = false;
   private refractoryCounter: number = 0;
-  private refractoryDuration: number = 4;       // шагов
+  private refractoryDuration: number = DBNP.refractoryDuration;                  // шагов
 
   // Затухание и бездействие
-  private decayFactor: number = 0.95;           // фактор затухания
+  private decayFactor: number = DBNP.decayFactor;                                // фактор затухания
   private inactivityCounter: number = 0;
-  private inactivityThreshold: number = 100;    // шагов до "смерти"
+  private inactivityThreshold: number = DBNP.inactivityThreshold;                // шагов до "смерти"
 
   // Координаты и метка
   private coords: Coords;
@@ -99,6 +103,14 @@ export default class Neuron {
 
   public setDecayFactor (factor: number): void {
     this.decayFactor = Math.max(0.8, Math.min(0.99, factor)); // 0.8-0.99
+  }
+
+  public getNeuroTransmitter(): NeuroTransmitterType {
+    return this.neuroTransmitter;
+  }
+
+  public setNeuroTransmitter (transmitter: NeuroTransmitterType): void {
+    this.neuroTransmitter = transmitter;
   }
 
   // === Рефрактерность ===
