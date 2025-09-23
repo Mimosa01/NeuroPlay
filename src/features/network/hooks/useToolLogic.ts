@@ -1,38 +1,36 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useNetworkStore } from '../store/useNetworkStore';
-import type Neuron from '../core/PyramidalNeuron';
 import { useToolStore } from '../../../shared/hooks/useToolStore';
 import { useControlStore } from '../../control/useControlStore';
 import { useSelectionStore } from '../../editing/store/useSelectionStore';
+import { useNetworkStore } from '../store/useNetworkStore';
+import type { NeuronDTO } from '../dto/neuron.dto';
 
 export function useToolLogic() {
   const { selectedTool } = useToolStore();
   const { setSelectedNeuronId } = useSelectionStore();
-  const { network, createNeuron, removeNeuron, resetNetwork, removeEdge, refreshDTO } = useNetworkStore();
+  const { createNeuron, createEdge, removeNeuron, removeEdge, resetNetwork, findNearestNeuron, findNearestEdge } = useNetworkStore();
   const resetControls = useControlStore(state => state.resetControls);
-  const [firstNeuron, setFirstNeuron] = useState<Neuron | null>(null);
+  const [firstNeuron, setFirstNeuron] = useState<NeuronDTO | null>(null);
 
   const handleClick = useCallback((x: number, y: number) => {
     switch (selectedTool) {
       case 'add': {
-        const neuron = createNeuron({ x, y });
-        refreshDTO();
+        const neuron = createNeuron({ x, y }, 'pyramidal');
         console.log('[ADD] Neuron created', neuron);
         break;
       }
 
       case 'delete': {
-        const neuron = network.findNearestNeuron({ x, y });
+        const neuron = findNearestNeuron({ x, y });
         if (neuron?.id) {
           removeNeuron(neuron.id);
-          refreshDTO();
           console.log('[DELETE] Neuron removed', neuron.id);
         }
         break;
       }
 
       case 'connect': {
-        const clickedNeuron = network.findNearestNeuron({ x, y });
+        const clickedNeuron = findNearestNeuron({ x, y });
         if (!clickedNeuron) return;
 
         if (!firstNeuron) {
@@ -40,8 +38,7 @@ export function useToolLogic() {
           setSelectedNeuronId(clickedNeuron.id);
           console.log('[CONNECT] First neuron selected:', clickedNeuron);
         } else if (firstNeuron !== clickedNeuron) {
-          network.addEdge(firstNeuron, clickedNeuron);
-          refreshDTO();
+          createEdge(firstNeuron.id, clickedNeuron.id);
           console.log(`[CONNECT] Edge created between ${firstNeuron.id} and ${clickedNeuron.id}`);
           setSelectedNeuronId(null);
           setFirstNeuron(null);
@@ -54,10 +51,9 @@ export function useToolLogic() {
       }
 
       case 'reconnect': {
-        const edge = network.findEdgeNear({ x, y });
+        const edge = findNearestEdge({ x, y });
         if (edge) {
           removeEdge(edge.id);
-          refreshDTO();
           console.log('[RECONNECT] Edge removed:', edge.id);
         }
         break;
@@ -66,16 +62,15 @@ export function useToolLogic() {
       default:
         break;
     }
-  }, [selectedTool, createNeuron, refreshDTO, network, removeNeuron, firstNeuron, setSelectedNeuronId, removeEdge]);
+  }, [selectedTool, createNeuron, findNearestNeuron, removeNeuron, firstNeuron, setSelectedNeuronId, createEdge, findNearestEdge, removeEdge]);
 
   useEffect(() => {
     if (selectedTool === 'clear') {
       resetNetwork();
       resetControls();
-      refreshDTO();
       console.log('[CLEAR] Network reset');
     }
-  }, [refreshDTO, resetControls, resetNetwork, selectedTool]);
+  }, [resetControls, selectedTool, resetNetwork]);
 
   return {
     handleClick,

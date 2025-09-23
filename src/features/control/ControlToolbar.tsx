@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { ButtonTool } from './ButtonTool';
+import { Slider } from './Slider';
 import { 
   PauseIcon, 
   PlayIcon, 
@@ -6,17 +8,16 @@ import {
   StepForwardIcon,
   Clock
 } from 'lucide-react';
-import { ButtonTool } from './ButtonTool';
 import { useControlStore } from './useControlStore';
-import { Slider } from './Slider';
+
 
 export function ControlToolbar() {
     const { 
       isPlaying, 
       play, 
       pause, 
-      stepForward, 
-      stepBackward,
+      redo, 
+      undo,
       speed,
       setSpeed
     } = useControlStore();
@@ -32,13 +33,13 @@ export function ControlToolbar() {
         />
         
         <ButtonTool 
-          onClick={stepBackward} 
+          onClick={undo} 
           label="Шаг назад"
           icon={StepBackIcon}
         />
         
         <ButtonTool
-          onClick={stepForward} 
+          onClick={redo} 
           label="Шаг вперед"
           icon={StepForwardIcon}
         />

@@ -8,52 +8,41 @@ type ControlState = {
   setSpeed: (ms: number) => void;
   play: () => void;
   pause: () => void;
-  stepForward: () => void;
-  stepBackward: () => void;
+  redo: () => void;
+  undo: () => void;
   resetControls: () => void;
 };
 
-export const useControlStore = create<ControlState>((set, get) => ({
-  isPlaying: false,
-  timeStep: 0,
-  speed: 1000,
-  
-  setSpeed: (speed) => set({ speed }),
+export const useControlStore = create<ControlState>((set, get) => {
+  const networkStore = useNetworkStore.getState();
 
-  play: () => {
-    console.log('ControlStore: play');
-    set({ isPlaying: true });
-  },
+  return {
+    isPlaying: false,
+    timeStep: 0,
+    speed: 1000,
+    
+    setSpeed: (speed) => set({ speed }),
 
-  pause: () => {
-    console.log('ControlStore: pause');
-    set({ isPlaying: false });
-  },
+    play: () => {
+      set({ isPlaying: true });
+    },
 
-  stepForward: () => {
-    const { timeStep } = get();
-    const { tick } = useNetworkStore.getState();
-    tick();
-    set({ timeStep: timeStep + 1 });
-    console.log(`ControlStore: stepForward to ${timeStep + 1}`);
-  },
+    pause: () => {
+      set({ isPlaying: false });
+    },
 
-  stepBackward: () => {
-    const { timeStep } = get();
-    const { history, undoTick } = useNetworkStore.getState();
+    redo: () => {
+      networkStore.redo();
+      set({ timeStep: get().timeStep + 1 });
+    },
 
-    if (history.length === 0) {
-      console.log('ControlStore: no history to undo');
-      return;
-    }
+    undo: () => {
+      networkStore.undo();
+      set({ timeStep: Math.max(get().timeStep - 1, 0) });
+    },
 
-    undoTick();
-    set({ timeStep: Math.max(timeStep - 1, 0) });
-    console.log(`ControlStore: stepBackward to ${Math.max(timeStep - 1, 0)}`);
-  },
-
-  resetControls: () => {
-    set({ isPlaying: false, timeStep: 0 });
-  },
-
-}));
+    resetControls: () => {
+      set({ isPlaying: false, timeStep: 0 });
+    },
+  }
+});

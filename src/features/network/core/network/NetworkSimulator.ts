@@ -1,14 +1,10 @@
-import type { NetworkSnapshot } from "../../../shared/types/types";
-import { edgeToDTO } from "../dto/edgeTo";
-import { neuronToDTO } from "../dto/neuronTo";
-import type { IEdge } from "../interfaces/IEdge.interface";
-import type { INeuron } from "../interfaces/INeuron.interface";
+import type { IEdge } from "../../interfaces/IEdge.interface";
+import type { INeuron } from "../../interfaces/INeuron.interface";
 import type Network from "./Network";
+
 
 export class NetworkSimulator {
   private network: Network;
-  private history: NetworkSnapshot[] = [];
-  private future: NetworkSnapshot[] = [];
 
   private readyNeuronsCache: INeuron[] = [];
   private edgesCache: IEdge[] = [];
@@ -18,10 +14,6 @@ export class NetworkSimulator {
   }
 
   public tick(): void {
-    const snapshot = this.createSnapshot();
-    this.history.push(snapshot);
-    this.future = [];
-
     // Phase 1: Обработка — только тех, кто может что-то изменить
     this.updateReadyNeuronsCache();
     this.updateEdgesCache();
@@ -52,21 +44,6 @@ export class NetworkSimulator {
     this.removeDeadNeurons();
   }
 
-
-  public undoTick(): void {
-    if (this.history.length === 0) return;
-    const prev = this.history.pop()!;
-    this.future.push(this.createSnapshot());
-    this.restoreFromSnapshot(prev);
-  }
-
-  public redoTick(): void {
-    if (this.future.length === 0) return;
-    const nextSnapshot = this.future.pop()!;
-    this.history.push(this.createSnapshot());
-    this.restoreFromSnapshot(nextSnapshot);
-  }
-
   private updateReadyNeuronsCache(): void {
     this.readyNeuronsCache = Array.from(this.network.neurons.values()).filter(
       n => n.getReadyToSend()
@@ -79,33 +56,7 @@ export class NetworkSimulator {
     );
   }
 
-  public createSnapshot(): NetworkSnapshot {
-      return {
-        neurons: Array.from(this.network.neurons.values()).map(n => neuronToDTO(n)),
-        edges: Array.from(this.network.edges.values()).map(e => edgeToDTO(e))
-      };
-    }
-  
-  public restoreFromSnapshot(snapshot: NetworkSnapshot) {
-    snapshot.neurons.forEach(({ id, coords, membranePotential, inactivityCounter }) => {
-      const neuron = this.network.neurons.get(id);
-      if (neuron) {
-        neuron.setCoords(coords);
-        if (membranePotential !== undefined) neuron.setMembranePotential(membranePotential);
-        if (inactivityCounter !== undefined) neuron.setInactivityCounter(inactivityCounter);
-      }
-    });
-
-    snapshot.edges.forEach(({ id, conductance, delay }) => {
-      const edge = this.network.edges.get(id);
-      if (edge) {
-        if (conductance !== undefined) edge.setConductance(conductance);
-        if (delay !== undefined) edge.setDelay(delay);
-      }
-    });
-  }
-
-  public removeDeadNeurons(): void {
+  private removeDeadNeurons(): void {
     for (const neuron of Array.from(this.network.neurons.values())) {
       if (neuron.isDead()) {
         // Удаляем все входящие ребра

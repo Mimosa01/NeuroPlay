@@ -1,52 +1,58 @@
 import { create } from 'zustand';
-import type { NetworkSnapshot, Coords } from '../../../shared/types/types';
-import Network from '../core/Network';
+import type { Coords } from '../../../shared/types/types';
 import type { EdgeDTO } from '../dto/edge.dto';
 import type { NeuronDTO } from '../dto/neuron.dto';
 import { neuronToDTO } from '../dto/neuronTo';
-import type { NeuronId, EdgeId } from '../types/types';
+import type { NeuronId, EdgeId, NeuronType } from '../types/types';
+import { NetworkSerializer } from '../core/network/NetworkSerealizer';
+import { NetworkFacade } from '../core/network/NetworkFacade';
 import { toast } from 'sonner';
-import { NetworkSimulator } from '../core/NetworkSimulator';
+import { edgeToDTO } from '../dto/edgeTo';
+
+
+const facade = new NetworkFacade();
 
 type NetworkState = {
-  network: Network;
-  simulator: NetworkSimulator;
   neuronsDTO: NeuronDTO[];
   edgesDTO: EdgeDTO[];
-  history: NetworkSnapshot[];
-  future: NetworkSnapshot[];
 
-  createNeuron: (coords: Coords) => NeuronDTO;
+  // Методы сети
+  createNeuron: (coords: Coords, type: NeuronType) => NeuronDTO;
+  createEdge: (sourceId: string, targetId: string) => EdgeDTO | null;
   findNearestNeuron: (coords: Coords, maxDistance?: number) => NeuronDTO | null;
+  findNearestEdge: (coords: Coords, maxDistance?: number) => EdgeDTO | null;
   removeNeuron: (id: NeuronId) => void;
   removeEdge: (id: EdgeId) => void;
   resetNetwork: () => void;
-  exciteNeuron: (id: NeuronId, signal?: number) => void;
 
+  // Методы нейронов и ребер
+  exciteNeuron: (id: NeuronId, signal?: number) => void;
   updateNeuron: (id: NeuronId, data: Partial<NeuronDTO>) => void;
   updateEdge: (id: EdgeId, data: Partial<EdgeDTO>) => void;
 
+  // Методы симуляции
   tick: () => void;
-  undoTick: () => void;
-  redoTick: () => void;
-  refreshDTO: () => void;
+  undo: () => void;
+  redo: () => void;
 };
 
-export const useNetworkStore = create<NetworkState>((set, get) => {
-  const network = new Network();
-  const simulator = new NetworkSimulator(network);
+export const useNetworkStore = create<NetworkState>(( set ) => {
+  const initialSnapshot = facade.getSnapshot();
+
+  facade.subscribe(() => {
+    const snapshot = facade.getSnapshot();
+    set({
+      neuronsDTO: snapshot.neurons,
+      edgesDTO: snapshot.edges,
+    });
+  });
 
   return {
-    network,
-    simulator,
-    history: [],
-    future: [],
-    neuronsDTO: [],
-    edgesDTO: [],
+    neuronsDTO: initialSnapshot.neurons,
+    edgesDTO: initialSnapshot.edges,
 
-    refreshDTO: () => {
-      // const network = get().network;
-      const snapshot = simulator.createSnapshot();
+    refresh: () => {
+      const snapshot = NetworkSerializer.createSnapshot(facade.network);
 
       set({
         neuronsDTO: snapshot.neurons,
@@ -55,144 +61,63 @@ export const useNetworkStore = create<NetworkState>((set, get) => {
     },
 
     updateNeuron: (id, data) => {
-      const { network, refreshDTO } = get();
-      const neuron = network.getNeuron(id);
-      if (!neuron) return;
-
-      // Новые параметры
-      if (data.label !== undefined) {
-        neuron.setLabel(data.label);
-      }
-      if (data.inactivityThreshold !== undefined) {
-        neuron.setInactivityThreshold(data.inactivityThreshold);
-      }
-      if (data.refractoryDuration !== undefined) {
-        neuron.setRefractoryDuration(data.refractoryDuration);
-      }
-      if (data.spikeThreshold !== undefined) {
-        neuron.setSpikeThreshold(data.spikeThreshold);
-      }
-      if (data.spikeAmplitude !== undefined) {
-        neuron.setSpikeAmplitude(data.spikeAmplitude);
-      }
-      if (data.decayFactor !== undefined) {
-        neuron.setDecayFactor(data.decayFactor);
-      }
-      if (data.coords !== undefined) {
-        neuron.setCoords(data.coords);
-      }
-
-      refreshDTO();
+      facade.updateNeuron(id, data);
     },
 
     updateEdge: (id, data) => {
-      const edge = get().network.getEdge(id);
-      if (!edge) return;
-
-      if (data.conductance) edge.setConductance(data.conductance);
-      if (data.delay) edge.setDelay(data.delay);
+      facade.updateEdge(id, data);
     },
 
-    createNeuron: (coords) => {
-      const { network, refreshDTO } = get();
-      const neuron = network.addNeuron(coords, 'pyramidal');
-      refreshDTO();
+    createNeuron: (coords, type = 'pyramidal') => {
+      const neuron = facade.createNeuron(coords, type);
       return neuronToDTO(neuron);
     },
 
+    createEdge: (sourceId, targetId) => {
+      const edge = facade.createEdge(sourceId, targetId);
+      return edge ? edgeToDTO(edge) : null;
+    },
+
     removeEdge: (id) => {
-      const { network, refreshDTO } = get();
-      network.removeEdge(id);
-      refreshDTO();
+      facade.removeEdge(id);
     },
 
     removeNeuron: (id) => {
-      const { network, refreshDTO } = get();
-      network.removeNeuron(id);
-      refreshDTO();
+      facade.removeNeuron(id);
     },
 
     findNearestNeuron: (coords, maxDistance = 30) => {
-      const { network } = get();
-      const neuron = network.findNearestNeuron(coords, maxDistance);
-      return neuron ? neuronToDTO(neuron) : null;
+      const neuron = facade.findNearestNeuron(coords, maxDistance);
+      return neuron ? facade.getSnapshot().neurons.find(n => n.id === neuron.id)! : null;
+    },
+
+    findNearestEdge: (coords, maxDistance = 30) => {
+      const edge = facade.findNearestEdge(coords, maxDistance);
+      return edge ? facade.getSnapshot().edges.find(e => e.id === edge.id)! : null;
     },
 
     resetNetwork: () => {
-      const {network, refreshDTO} = get();
-      network.reset();
-      set({
-        history: [],
-        future: [],
-      });
+      facade.resetNetwork();
 
-      toast.success('Сеть очищена', {
-        duration: 1000,
-        position: 'top-right'
-      });
-      
-      refreshDTO();
-    },
-
-    tick: () => {
-      const { history, refreshDTO } = get();
-      const snapshot = simulator.createSnapshot();
-      set({
-        history: [...history, snapshot],
-        future: [],
-      });
-      simulator.tick();
-      refreshDTO();
-    },
-
-    undoTick: () => {
-      const { history, future, refreshDTO } = get();
-      if (history.length === 0) return;
-
-      const lastSnapshot = history[history.length - 1];
-      const newHistory = history.slice(0, history.length - 1);
-      const currentSnapshot = simulator.createSnapshot();
-
-      simulator.restoreFromSnapshot(lastSnapshot);
-      set({
-        history: newHistory,
-        future: [...future, currentSnapshot],
-      });
-      refreshDTO();
-    },
-
-    redoTick: () => {
-      const { history, future, refreshDTO } = get();
-      if (future.length === 0) return;
-
-      const nextSnapshot = future[future.length - 1];
-      const newFuture = future.slice(0, future.length - 1);
-      const currentSnapshot = simulator.createSnapshot();
-
-      simulator.restoreFromSnapshot(nextSnapshot);
-      set({
-        history: [...history, currentSnapshot],
-        future: newFuture,
-      });
-      refreshDTO();
-      
-      toast.success('Повторено', {
-        duration: 1500,
-        position: 'top-right'
-      });
+      toast.success('Сеть очищена', { duration: 1000 });
     },
 
     exciteNeuron: (id, signal = 100) => {
-      const { network, refreshDTO } = get();
-      const neuron = network.getNeuron(id);
-      if (!neuron) return;
-      neuron.receive(signal);
-      refreshDTO();
+      facade.exciteNeuron(id, signal);
       
-      toast.success('Нейрон возбуждён', {
-        duration: 1500,
-        position: 'top-right'
-      });
+      toast.success('Нейрон возбуждён', { duration: 1500 });
     }, 
+
+    tick: () => {
+      facade.tick();
+    },
+
+    undo: () => {
+      facade.undoTick();
+    },
+
+    redo: () => {
+      facade.redoTick();
+    }
   }
 });

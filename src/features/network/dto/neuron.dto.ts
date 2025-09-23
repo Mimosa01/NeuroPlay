@@ -1,4 +1,3 @@
-// dto/neuron.dto.ts
 import type { Coords } from "../../../shared/types/types";
 import type { NeuronId } from "../types/types";
 
