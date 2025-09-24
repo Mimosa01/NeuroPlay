@@ -1,13 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { NeuroTransmitterType } from '../types/types';
-import type { INeuron } from '../interfaces/INeuron.interface';
+import type { NeuronInstance, NeuroTransmitterType } from '../types/types';
 import { SignalFactory } from './SignalFactory';
 import type { IEdge } from '../interfaces/IEdge.interface';
+import NeuronAccessor from './neurons/NeuronAccessor';
 
 export default class Edge implements IEdge {
   public readonly id: string;
-  public readonly source: INeuron;
-  public readonly target: INeuron;
+  public readonly source: NeuronInstance;
+  public readonly target: NeuronInstance;
   
   // Биологические параметры
   private conductance: number = 1.0;        // микросименсы (μS)
@@ -18,8 +18,8 @@ export default class Edge implements IEdge {
   private delay: number = 1;                // шагов задержки
 
   constructor(
-    source: INeuron, 
-    target: INeuron, 
+    source: NeuronInstance, 
+    target: NeuronInstance, 
     conductance: number = 1.0,
     delay: number = 1,
     transmitter: NeuroTransmitterType
@@ -30,11 +30,6 @@ export default class Edge implements IEdge {
     this.conductance = Math.max(0, Math.min(2.0, conductance)); // 0.0 - 2.0 μS
     this.delay = Math.max(1, Math.min(delay, 10)); // 1-10 шагов
     this.transmitter = transmitter;
-
-    this.source.addOutputEdge(this);
-    this.target.addInputEdge(this);
-
-    console.log(`[Edge ${this.id}] Создано между ${source.id} → ${target.id} | ${this.conductance.toFixed(1)} μS, ${this.delay} шагов`);
   }
 
   // === Геттеры и сеттеры ===
@@ -100,7 +95,7 @@ export default class Edge implements IEdge {
     // Доставляем готовые сигналы
     signalsToDeliver.forEach(signal_mV => {
       const transmitter = SignalFactory.create(this.transmitter, signal_mV * this.conductance);
-      transmitter.applyTo(this.target)
+      transmitter.applyTo(new NeuronAccessor(this.target))
       console.log(`[Edge ${this.id}] Доставлен сигнал: ${signal_mV.toFixed(1)} мВ`);
     });
   }

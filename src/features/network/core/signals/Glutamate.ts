@@ -1,4 +1,4 @@
-import type { INeuron } from "../../interfaces/INeuron.interface";
+import type NeuronAccessor from "../neurons/NeuronAccessor";
 import BaseSignal from "./BaseSignal";
 
 
@@ -9,10 +9,10 @@ export class Glutamate extends BaseSignal {
     super('glutamate', signal_mV);
   }
 
-  public applyTo(target: INeuron): void {
+  public applyTo(target: NeuronAccessor): void {
     target.setMembranePotential(target.getMembranePotential() + this.signal_mV + this.baseEffect);
     target.setInactivityCounter(0);
 
-    console.log(`[GlutamateSignal] Применён к ${target.id}: +${this.signal_mV} мВ`);
+    console.log(`[GlutamateSignal] Применён к ${target.getId()}: +${this.signal_mV} мВ`);
   }
 }

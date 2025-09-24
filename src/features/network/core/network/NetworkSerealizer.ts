@@ -1,12 +1,13 @@
 import { edgeToDTO } from "../../dto/edgeTo";
 import { neuronToDTO } from "../../dto/neuronTo";
+import NeuronAccessor from "../neurons/NeuronAccessor";
 import type Network from "./Network";
 import type { NetworkSnapshot } from "./types/types";
 
 export class NetworkSerializer {
   public static createSnapshot(network: Network): NetworkSnapshot {
     return {
-      neurons: Array.from(network.neurons.values()).map(n => neuronToDTO(n)),
+      neurons: Array.from(network.neurons.values()).map(n => neuronToDTO(new NeuronAccessor(n))),
       edges: Array.from(network.edges.values()).map(e => edgeToDTO(e))
     };
   }
@@ -15,9 +16,10 @@ export class NetworkSerializer {
     snapshot.neurons.forEach(({ id, coords, membranePotential, inactivityCounter }) => {
       const neuron = network.neurons.get(id);
       if (neuron) {
-        neuron.setCoords(coords);
-        if (membranePotential !== undefined) neuron.setMembranePotential(membranePotential);
-        if (inactivityCounter !== undefined) neuron.setInactivityCounter(inactivityCounter);
+        const accessor = new NeuronAccessor(neuron);
+        if (coords !== undefined) accessor.setCoords(coords);
+        if (membranePotential !== undefined) accessor.setMembranePotential(membranePotential);
+        if (inactivityCounter !== undefined) accessor.setInactivityCounter(inactivityCounter);
       }
     });
 

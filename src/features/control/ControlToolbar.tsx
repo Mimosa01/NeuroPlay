@@ -8,7 +8,7 @@ import {
   StepForwardIcon,
   Clock
 } from 'lucide-react';
-import { useControlStore } from './useControlStore';
+import { useControlStore } from './store/useControlStore';
 
 
 export function ControlToolbar() {

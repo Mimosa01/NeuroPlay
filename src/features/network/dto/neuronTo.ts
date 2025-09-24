@@ -1,32 +1,23 @@
-import type { INeuron } from "../interfaces/INeuron.interface";
+import type NeuronAccessor from "../core/neurons/NeuronAccessor";
 import type { NeuronDTO } from "./neuron.dto";
 
-export function neuronToDTO(neuron: INeuron): NeuronDTO {
+
+export function neuronToDTO(accessor: NeuronAccessor): NeuronDTO {
   return {
-    id: neuron.id,
-    coords: neuron.getCoords(),
-    label: neuron.getLabel(),
+    id: accessor.getId(),
+    coords: accessor.getCoords(),
+    label: accessor.getLabel(),
     
-    // Новые параметры
-    membranePotential: neuron.getMembranePotential(),
-    spikeThreshold: neuron.getSpikeThreshold(),
-    spikeAmplitude: neuron.getSpikeAmplitude(),
+    membranePotential: accessor.getMembranePotential(),
+    spikeThreshold: accessor.getSpikeThreshold(),
+    spikeAmplitude: accessor.getSpikeAmplitude(),
     
-    // Счётчики
-    inactivityCounter: neuron.getInactivityCounter(),
-    inactivityThreshold: neuron.getInactivityThreshold(),
+    inactivityCounter: accessor.getInactivityCounter(),
+    inactivityThreshold: accessor.getInactivityThreshold(),
     
-    // Рефрактерность
-    refractoryDuration: neuron.getRefractoryDuration(),
+    refractoryDuration: accessor.getRefractoryDuration(),
     
-    // Затухание
-    decayFactor: neuron.getDecayFactor(),
-    
-    // Состояние
-    readyToSend: neuron.getReadyToSend(),
-    
-    // Для обратной совместимости
-    accumulatedSignal: neuron.getMembranePotential(), // временно
-    signalThreshold: neuron.getSpikeThreshold(),     // временно
+    decayFactor: accessor.getDecayFactor(),
+    readyToSend: accessor.getReadyToSend(),
   };
 }

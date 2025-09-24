@@ -1,13 +1,14 @@
 import type { Coords } from "../../../../shared/types/types";
 import type { IEdge } from "../../interfaces/IEdge.interface";
 import type { INeuron } from "../../interfaces/INeuron.interface";
-import type { NeuronType } from "../../types/types";
+import type { NeuronInstance, NeuronType } from "../../types/types";
 import Edge from "../Edge";
 import { NeuronFactory } from "../NeuronFactory";
+import NeuronAccessor from "../neurons/NeuronAccessor";
 
 
 export default class Network {
-  public readonly neurons: Map<string, INeuron> = new Map();
+  public readonly neurons: Map<string, NeuronInstance> = new Map();
   public readonly edges: Map<string, IEdge> = new Map();
 
   constructor () {};
@@ -28,8 +29,10 @@ export default class Network {
     }
   }
 
-  public createEdge(source: INeuron, target: INeuron, conductance?: number, delay?: number): IEdge {
-    const edge = new Edge(source, target, conductance, delay, source.getNeuroTransmitter());
+  public createEdge(source: NeuronInstance, target: NeuronInstance, conductance?: number, delay?: number): IEdge {
+    const edge = new Edge(source, target, conductance, delay, new NeuronAccessor(source).getNeuroTransmitter());
+    source.addOutputEdge(edge);
+    target.addInputEdge(edge);
     this.edges.set(edge.id, edge);
     return edge;
   }
@@ -48,7 +51,7 @@ export default class Network {
     this.edges.clear();
   }
 
-  public getNeuron(id: string): INeuron | undefined {
+  public getNeuron(id: string): NeuronInstance | undefined {
     return this.neurons.get(id);
   }
 
@@ -61,8 +64,9 @@ export default class Network {
     let minDistance = Infinity;
 
     for (const neuron of this.neurons.values()) {
-      const dx = neuron.getCoords().x - coords.x;
-      const dy = neuron.getCoords().y - coords.y;
+      const accessor = new NeuronAccessor(neuron);
+      const dx = accessor.getCoords().x - coords.x;
+      const dy = accessor.getCoords().y - coords.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
 
       if (dist < minDistance && dist <= maxDistance) {
@@ -80,8 +84,8 @@ export default class Network {
     const { x, y } = coords;
 
     for (const edge of this.edges.values()) {
-      const { x: x1, y: y1 } = edge.source.getCoords();
-      const { x: x2, y: y2 } = edge.target.getCoords();
+      const { x: x1, y: y1 } = new NeuronAccessor(edge.source).getCoords();
+      const { x: x2, y: y2 } = new NeuronAccessor(edge.target).getCoords();
 
       const dx = x2 - x1;
       const dy = y2 - y1;

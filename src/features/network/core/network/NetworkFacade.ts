@@ -5,6 +5,7 @@ import type { IEdge } from "../../interfaces/IEdge.interface";
 import type { INeuron } from "../../interfaces/INeuron.interface";
 import type { NeuronType } from "../../types/types";
 import { HistoryManager } from "../HistoryManager";
+import NeuronAccessor from "../neurons/NeuronAccessor";
 import Network from "./Network";
 import { NetworkSerializer } from "./NetworkSerealizer";
 import { NetworkSimulator } from "./NetworkSimulator";
@@ -90,26 +91,28 @@ export class NetworkFacade {
     const neuron = this.network.getNeuron(id);
     if (!neuron) return;
 
+    const accessor = new NeuronAccessor(neuron);
+
     if (data.label !== undefined) {
-      neuron.setLabel(data.label);
+      accessor.setLabel(data.label);
     }
     if (data.inactivityThreshold !== undefined) {
-      neuron.setInactivityThreshold(data.inactivityThreshold);
+      accessor.setInactivityThreshold(data.inactivityThreshold);
     }
     if (data.refractoryDuration !== undefined) {
-      neuron.setRefractoryDuration(data.refractoryDuration);
+      accessor.setRefractoryDuration(data.refractoryDuration);
     }
     if (data.spikeThreshold !== undefined) {
-      neuron.setSpikeThreshold(data.spikeThreshold);
+      accessor.setSpikeThreshold(data.spikeThreshold);
     }
     if (data.spikeAmplitude !== undefined) {
-      neuron.setSpikeAmplitude(data.spikeAmplitude);
+      accessor.setSpikeAmplitude(data.spikeAmplitude);
     }
     if (data.decayFactor !== undefined) {
-      neuron.setDecayFactor(data.decayFactor);
+      accessor.setDecayFactor(data.decayFactor);
     }
     if (data.coords !== undefined) {
-      neuron.setCoords(data.coords);
+      accessor.setCoords(data.coords);
     }
 
     this.notifyChange();

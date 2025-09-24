@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { useControlStore } from "./useControlStore";
-import { useNetworkStore } from "../network/store/useNetworkStore";
+import { useNetworkStore } from "../../network/store/useNetworkStore";
+import { useControlStore } from "../store/useControlStore";
 
 export function usePlayback() {
   const { isPlaying, speed } = useControlStore();

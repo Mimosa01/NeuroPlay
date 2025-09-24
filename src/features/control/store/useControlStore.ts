@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { useNetworkStore } from '../network/store/useNetworkStore';
+import { useNetworkStore } from '../../network/store/useNetworkStore';
 
 type ControlState = {
   isPlaying: boolean;

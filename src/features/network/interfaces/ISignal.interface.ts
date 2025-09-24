@@ -1,9 +1,10 @@
+import type NeuronAccessor from "../core/neurons/NeuronAccessor";
 import type { NeuroTransmitterType } from "../types/types";
-import type { INeuron } from "./INeuron.interface";
+
 
 export interface ISignal {
   readonly id: string;
   readonly type: NeuroTransmitterType;
   
-  applyTo (target: INeuron): void;
+  applyTo (target: NeuronAccessor): void;
 }

@@ -6,25 +6,15 @@ export type NeuronDTO = {
   coords: Coords;
   label: string;
   
-  // Биологические параметры
-  membranePotential: number;     // милливольты (мВ)
-  spikeThreshold: number;        // порог спайка (мВ)
-  spikeAmplitude: number;        // амплитуда спайка (мВ)
+  membranePotential: number;
+  spikeThreshold: number;
+  spikeAmplitude: number;
   
-  // Счётчики
   inactivityCounter: number;
   inactivityThreshold: number;
   
-  // Рефрактерность
   refractoryDuration: number;
-  
-  // Затухание
+
   decayFactor: number;
-  
-  // Состояние
   readyToSend: boolean;
-  
-  // Для обратной совместимости
-  accumulatedSignal?: number;     // старый параметр
-  signalThreshold?: number;      // старый параметр
 };

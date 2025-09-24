@@ -2,13 +2,13 @@ import { useEffect } from 'react';
 import { useToolStore } from '../../../shared/hooks/useToolStore';
 import { useNetworkStore } from '../../network/store/useNetworkStore';
 import { useSelectionStore } from '../../editing/store/useSelectionStore';
-import { useControlStore } from '../../control/useControlStore';
 import { useHotkeyStore } from '../store/useHotKeyStore';
 import { parseKeyboardEvent, hotkeysMatch } from '../utils/hotKeyParser';
+import { useControlStore } from '../../control/store/useControlStore';
 
 export function useHotkey() {
   const { bindings } = useHotkeyStore();
-  const { isPlaying, play, pause, stepForward, stepBackward, setSpeed } = useControlStore();
+  const { isPlaying, play, pause, redo, undo, setSpeed } = useControlStore();
   const { setSelectedTool } = useToolStore();
   const { exciteNeuron } = useNetworkStore();
   const { selectedNeuronId } = useSelectionStore();
@@ -44,11 +44,11 @@ export function useHotkey() {
           break;
           
         case 'stepForward':
-          stepForward();
+          redo();
           break;
           
         case 'stepBackward':
-          stepBackward();
+          undo();
           break;
           
         case 'speedUp':
@@ -90,7 +90,7 @@ export function useHotkey() {
 
         // === Навигация ===
         case 'undo':
-          useNetworkStore.getState().undoTick();
+          useNetworkStore.getState().undo();
           break;
           
         case 'redo':
@@ -147,5 +147,5 @@ export function useHotkey() {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keypress', handleKeyPress);
     };
-  }, [bindings, isPlaying, play, pause, stepForward, stepBackward, setSelectedTool, selectedNeuronId, setSpeed, exciteNeuron]);
+  }, [bindings, isPlaying, play, pause, setSelectedTool, selectedNeuronId, setSpeed, exciteNeuron, redo, undo]);
 }

@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { NeuroTransmitterType } from '../../types/types';
 import type { ISignal } from '../../interfaces/ISignal.interface';
-import type { INeuron } from '../../interfaces/INeuron.interface';
+import type NeuronAccessor from '../neurons/NeuronAccessor';
 
 export default abstract class BaseSignal implements ISignal {
   public readonly id: string;
@@ -15,5 +15,5 @@ export default abstract class BaseSignal implements ISignal {
     this.signal_mV = signal_mV
   }
 
-  public abstract applyTo(target: INeuron): void;
+  public abstract applyTo(target: NeuronAccessor): void;
 }

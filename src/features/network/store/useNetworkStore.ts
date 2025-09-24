@@ -8,6 +8,7 @@ import { NetworkSerializer } from '../core/network/NetworkSerealizer';
 import { NetworkFacade } from '../core/network/NetworkFacade';
 import { toast } from 'sonner';
 import { edgeToDTO } from '../dto/edgeTo';
+import NeuronAccessor from '../core/neurons/NeuronAccessor';
 
 
 const facade = new NetworkFacade();
@@ -70,7 +71,7 @@ export const useNetworkStore = create<NetworkState>(( set ) => {
 
     createNeuron: (coords, type = 'pyramidal') => {
       const neuron = facade.createNeuron(coords, type);
-      return neuronToDTO(neuron);
+      return neuronToDTO(new NeuronAccessor(neuron));
     },
 
     createEdge: (sourceId, targetId) => {

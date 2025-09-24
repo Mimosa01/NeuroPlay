@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useToolStore } from '../../../shared/hooks/useToolStore';
-import { useControlStore } from '../../control/useControlStore';
 import { useSelectionStore } from '../../editing/store/useSelectionStore';
 import { useNetworkStore } from '../store/useNetworkStore';
 import type { NeuronDTO } from '../dto/neuron.dto';
+import { useControlStore } from '../../control/store/useControlStore';
 
 export function useToolLogic() {
   const { selectedTool } = useToolStore();

@@ -1,12 +1,13 @@
 import type { IEdge } from "../../interfaces/IEdge.interface";
-import type { INeuron } from "../../interfaces/INeuron.interface";
+import type { NeuronInstance } from "../../types/types";
+import NeuronAccessor from "../neurons/NeuronAccessor";
 import type Network from "./Network";
 
 
 export class NetworkSimulator {
   private network: Network;
 
-  private readyNeuronsCache: INeuron[] = [];
+  private readyNeuronsCache: NeuronInstance[] = [];
   private edgesCache: IEdge[] = [];
 
   constructor(network: Network) {
@@ -25,7 +26,8 @@ export class NetworkSimulator {
 
     // Phase 3: fire() — только готовые к стрельбе
     for (const neuron of this.readyNeuronsCache) {
-      if (neuron.getReadyToSend()) {
+      const accessor = new NeuronAccessor(neuron);
+      if (accessor.getReadyToSend()) {
         neuron.fire();
       }
     }
@@ -46,7 +48,7 @@ export class NetworkSimulator {
 
   private updateReadyNeuronsCache(): void {
     this.readyNeuronsCache = Array.from(this.network.neurons.values()).filter(
-      n => n.getReadyToSend()
+      n => new NeuronAccessor(n).getReadyToSend()
     );
   }
 
@@ -60,11 +62,11 @@ export class NetworkSimulator {
     for (const neuron of Array.from(this.network.neurons.values())) {
       if (neuron.isDead()) {
         // Удаляем все входящие ребра
-        for (const edge of neuron.getInputEdges().values()) {
+        for (const edge of new NeuronAccessor(neuron).getInputEdges().values()) {
           this.network.removeEdge(edge.id);
         }
         // Удаляем все исходящие ребра
-        for (const edge of neuron.getOutputEdges().values()) {
+        for (const edge of new NeuronAccessor(neuron).getOutputEdges().values()) {
           this.network.removeEdge(edge.id);
         }
         // Удаляем нейрон из сети

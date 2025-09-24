@@ -1,3 +1,6 @@
+import type { INeuron } from "../interfaces/INeuron.interface";
+import type { INeuronLogic } from "../interfaces/INeuronLogic.interface";
+
 export type NeuronId = string;
 export type EdgeId = string;
 export type SignalValue = number;
@@ -27,3 +30,5 @@ export interface INeuronActions {
 
 export type NeuroTransmitterType = 'glutamate' | 'gaba' | 'acetylcholine' | 'dopamine' | 'serotonin' | 'glycine';
 export type NeuronType = 'pyramidal' | 'inhibitory' | 'rs' | 'fs' | 'ds';
+
+export type NeuronInstance = INeuron & INeuronLogic;

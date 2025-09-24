@@ -3,20 +3,34 @@ import { NeuronView } from "./NeuronView";
 import { useNetworkStore } from "../../network/store/useNetworkStore";
 import { useSelectionStore } from "../../editing/store/useSelectionStore";
 import { EdgeView } from "./EdgeView";
+import { useToolStore } from "../../../shared/hooks/useToolStore";
 
 export const Scene = () => {
   const { svgRef, gRef, onClick } = useSceneClickHandler();
-  const neurons = useNetworkStore(state => state.neuronsDTO);
-  const edges = useNetworkStore(state => state.edgesDTO);
+  const neurons = useNetworkStore((state) => state.neuronsDTO);
+  const edges = useNetworkStore((state) => state.edgesDTO);
+  const selectedNeuronId = useSelectionStore((state) => state.selectedNeuronId);
+  const selectedTool = useToolStore((state) => state.selectedTool);
 
-  const selectedNeuronId = useSelectionStore(state => state.selectedNeuronId);
+  // Определяем курсор в зависимости от инструмента
+  const getCursor = () => {
+    if (selectedTool === 'pan') return 'grab';
+    if (selectedTool === 'none') return 'default'; // drag handled per neuron
+    return 'crosshair'; // например, для создания нейронов
+  };
 
   return (
     <svg
       ref={svgRef}
-      className="w-full h-[100vh] bg-slate-50 cursor-grab"
+      className="w-full h-[100vh] select-none"
       onClick={onClick}
+      style={{
+        // Мягкий градиентный фон вместо плоского серого
+        background: 'radial-gradient(circle at center, #f8fafc 0%, #f1f5f9 100%)',
+        cursor: getCursor(),
+      }}
     >
+      {/* Глобальный маркер стрелки (fallback, но EdgeView использует свои) */}
       <defs>
         <marker
           id="arrowhead"
@@ -31,12 +45,15 @@ export const Scene = () => {
         </marker>
       </defs>
 
+      {/* Контейнер для zoom/pan */}
       <g ref={gRef}>
-        {edges.map(edge => (
+        {/* Сначала — связи (чтобы были под нейронами) */}
+        {edges.map((edge) => (
           <EdgeView key={edge.id} edge={edge} />
         ))}
 
-        {neurons.map(neuron => (
+        {/* Потом — нейроны (сверху) */}
+        {neurons.map((neuron) => (
           <NeuronView
             key={neuron.id}
             neuron={neuron}
