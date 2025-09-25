@@ -56,8 +56,8 @@ export const SignalIndicator = ({ signal }: { signal: number }) => {
 
         {/* Легенда */}
         <div className="flex justify-between text-[10px] text-slate-500 mt-1 px-0.5">
-          <span>Деполяризация</span>
           <span>Гиперполяризация</span>
+          <span>Деполяризация</span>
         </div>
       </div>
     </div>

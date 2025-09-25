@@ -3,19 +3,19 @@ import type { NeuronInstance, NeuroTransmitterType } from '../types/types';
 import { SignalFactory } from './SignalFactory';
 import type { IEdge } from '../interfaces/IEdge.interface';
 import NeuronAccessor from './neurons/NeuronAccessor';
+import { BASE_POSTSYNAPTIC_EFFECTS as BPE} from '../params/defaultNeuronParams';
 
 export default class Edge implements IEdge {
   public readonly id: string;
   public readonly source: NeuronInstance;
   public readonly target: NeuronInstance;
   
-  // Биологические параметры
-  private conductance: number = 1.0;        // микросименсы (μS)
+  private conductance: number;        // условные единицы (0.1–2.0)
   private transmitter: NeuroTransmitterType;
+  private delay: number;              // шагов задержки
 
   // Состояние
-  private signalQueue: Array<{signal_mV: number, delay: number}> = [];
-  private delay: number = 1;                // шагов задержки
+  private signalQueue: Array<{ effect_mV: number; delay: number }> = [];
 
   constructor(
     source: NeuronInstance, 
@@ -27,8 +27,8 @@ export default class Edge implements IEdge {
     this.id = uuidv4();
     this.source = source;
     this.target = target;
-    this.conductance = Math.max(0, Math.min(2.0, conductance)); // 0.0 - 2.0 μS
-    this.delay = Math.max(1, Math.min(delay, 10)); // 1-10 шагов
+    this.conductance = Math.max(0.1, Math.min(2.0, conductance)); // 0.1–2.0
+    this.delay = Math.max(1, Math.min(10, delay)); // 1–10 шагов
     this.transmitter = transmitter;
   }
 
@@ -36,8 +36,8 @@ export default class Edge implements IEdge {
   
   public setConductance(newConductance: number): void {
     const old = this.conductance;
-    this.conductance = Math.max(0.1, Math.min(10.0, newConductance));
-    console.log(`[Edge ${this.id}] Проводимость изменена: ${old.toFixed(1)} → ${this.conductance.toFixed(1)} μS`);
+    this.conductance = Math.max(0.1, Math.min(2.0, newConductance));
+    console.log(`[Edge ${this.id}] Проводимость изменена: ${old.toFixed(1)} → ${this.conductance.toFixed(1)}`);
   }
 
   public getConductance(): number {
@@ -46,7 +46,7 @@ export default class Edge implements IEdge {
 
   public setDelay(newDelay: number): void {
     const old = this.delay;
-    this.delay = Math.max(0, Math.min(10, newDelay));
+    this.delay = Math.max(1, Math.min(10, newDelay));
     console.log(`[Edge ${this.id}] Задержка изменена: ${old} → ${this.delay} шагов`);
   }
 
@@ -54,49 +54,65 @@ export default class Edge implements IEdge {
     return this.delay;
   }
 
-  // === Для отладки и визуализации ===
+  // === Передача сигнала (вызывается при спайке источника) ===
   
-  public getPendingSignalsCount(): number {
-    return this.signalQueue.length;
-  }
-
-  public getPendingSignals(): Array<{signal_mV: number, delay: number}> {
-    return [...this.signalQueue]; // копия
-  }
-
-  // === Передача сигнала с задержкой ===
-  
-  public transmit(signal_mV: number): void {
-    console.log(`[Edge ${this.id}] Сигнал ${signal_mV.toFixed(1)} мВ × ${this.conductance.toFixed(1)} μS = ${(signal_mV * this.conductance).toFixed(1)} мВ (задержка: ${this.delay})`);
+  public transmit(): void {
+    // Определяем базовый постсинаптический эффект для этого медиатора
+    const baseEffect = BPE[this.transmitter] ?? 0;
     
-    // Добавляем в очередь с задержкой
+    // Итоговое влияние = базовый эффект × проводимость синапса
+    const totalEffect_mV = baseEffect * this.conductance;
+
+    console.log(`[Edge ${this.id}] ${this.transmitter} → ${totalEffect_mV.toFixed(1)} мВ (задержка: ${this.delay})`);
+    
+    // Ставим в очередь
     this.signalQueue.push({
-      signal_mV: signal_mV * this.conductance,
+      effect_mV: totalEffect_mV,
       delay: this.delay,
     });
   }
 
-  // === Доставка сигналов по истечении задержки ===
+  // === Доставка сигналов (вызывается симулятором каждый шаг) ===
   
   public deliverSignals(): void {
     const signalsToDeliver: number[] = [];
     
-    // Обновляем задержки и собираем готовые сигналы
+    // Обновляем задержки
     this.signalQueue = this.signalQueue.filter(signalObj => {
       signalObj.delay--;
-      
       if (signalObj.delay <= 0) {
-        signalsToDeliver.push(signalObj.signal_mV);
-        return false; // удаляем из очереди
+        signalsToDeliver.push(signalObj.effect_mV);
+        return false;
       }
-      return true; // остаётся в очереди
+      return true;
     });
 
-    // Доставляем готовые сигналы
-    signalsToDeliver.forEach(signal_mV => {
-      const transmitter = SignalFactory.create(this.transmitter, signal_mV * this.conductance);
-      transmitter.applyTo(new NeuronAccessor(this.target))
-      console.log(`[Edge ${this.id}] Доставлен сигнал: ${signal_mV.toFixed(1)} мВ`);
+    // Применяем сигналы к целевому нейрону
+    signalsToDeliver.forEach(effect_mV => {
+      // Для модуляторов (DA, 5-HT) effect_mV = 0 → можно пропустить
+      if (effect_mV === 0 && this.isModulator(this.transmitter)) {
+        // Позже: вызывать модуляцию, а не изменение Vm
+        console.log(`[Edge ${this.id}] Модулятор ${this.transmitter} — влияет на параметры, не на Vm`);
+        return;
+      }
+
+      const signal = SignalFactory.create(this.transmitter, effect_mV);
+      signal.applyTo(new NeuronAccessor(this.target));
+      console.log(`[Edge ${this.id}] Доставлено: ${effect_mV.toFixed(1)} мВ`);
     });
+  }
+
+  // Вспомогательный метод (можно вынести в утилиты)
+  private isModulator(nt: NeuroTransmitterType): boolean {
+    return ['dopamine', 'serotonin', 'acetylcholine'].includes(nt);
+  }
+
+  // === Для отладки ===
+  public getPendingSignalsCount(): number {
+    return this.signalQueue.length;
+  }
+
+  public getPendingSignals(): Array<{ effect_mV: number; delay: number }> {
+    return [...this.signalQueue];
   }
 }

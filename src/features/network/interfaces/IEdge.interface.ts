@@ -12,8 +12,8 @@ export interface IEdge {
   setConductance (conductance: number): void;
 
   getPendingSignalsCount (): number;
-  getPendingSignals (): Array<{signal_mV: number, delay: number}>;
+  getPendingSignals (): Array<{delay: number}>;
   
-  transmit (signal_mV: number): void;
+  transmit (): void;
   deliverSignals (): void;
 }

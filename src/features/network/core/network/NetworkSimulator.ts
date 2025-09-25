@@ -1,77 +1,42 @@
-import type { IEdge } from "../../interfaces/IEdge.interface";
-import type { NeuronInstance } from "../../types/types";
-import NeuronAccessor from "../neurons/NeuronAccessor";
 import type Network from "./Network";
-
 
 export class NetworkSimulator {
   private network: Network;
-
-  private readyNeuronsCache: NeuronInstance[] = [];
-  private edgesCache: IEdge[] = [];
 
   constructor(network: Network) {
     this.network = network;
   }
 
   public tick(): void {
-    // Phase 1: Обработка — только тех, кто может что-то изменить
-    this.updateReadyNeuronsCache();
-    this.updateEdgesCache();
+    // === Phase 1: Доставка сигналов от рёбер ===
+    // Все рёбра обновляют задержки и применяют готовые сигналы
+    for (const edge of this.network.edges.values()) {
+      edge.deliverSignals(); // внутри вызывает neuron.receive(effect_mV)
+    }
 
-    // Phase 2: process() — только для нейронов, которые могут измениться
+    // === Phase 2: Обработка всех нейронов ===
     for (const neuron of this.network.neurons.values()) {
-      neuron.process();
+      neuron.step(); // ← ВСЁ внутри: утечка, спайк, рефрактер
     }
 
-    // Phase 3: fire() — только готовые к стрельбе
-    for (const neuron of this.readyNeuronsCache) {
-      const accessor = new NeuronAccessor(neuron);
-      if (accessor.getReadyToSend()) {
-        neuron.fire();
-      }
-    }
-
-    // Phase 4: deliver — только для рёбер, у которых есть очередь
-    for (const edge of this.edgesCache) {
-      edge.deliverSignals();
-    }
-
-    // Phase 5: decay — для всех, но можно оптимизировать позже
-    for (const neuron of this.network.neurons.values()) {
-      neuron.decay();
-    }
-
-    // Phase 6: удаление мёртвых — в Simulator, т.к. влияет на состояние
+    // === Phase 3: Удаление мёртвых нейронов (опционально — можно реже) ===
     this.removeDeadNeurons();
-  }
-
-  private updateReadyNeuronsCache(): void {
-    this.readyNeuronsCache = Array.from(this.network.neurons.values()).filter(
-      n => new NeuronAccessor(n).getReadyToSend()
-    );
-  }
-
-  private updateEdgesCache(): void {
-    this.edgesCache = Array.from(this.network.edges.values()).filter(
-      edge => edge.getPendingSignalsCount() > 0
-    );
   }
 
   private removeDeadNeurons(): void {
     for (const neuron of Array.from(this.network.neurons.values())) {
       if (neuron.isDead()) {
-        // Удаляем все входящие ребра
-        for (const edge of new NeuronAccessor(neuron).getInputEdges().values()) {
+        // Удаляем входящие рёбра
+        for (const edge of neuron.inputEdges.values()) {
           this.network.removeEdge(edge.id);
         }
-        // Удаляем все исходящие ребра
-        for (const edge of new NeuronAccessor(neuron).getOutputEdges().values()) {
+        // Удаляем исходящие рёбра
+        for (const edge of neuron.outputEdges.values()) {
           this.network.removeEdge(edge.id);
         }
-        // Удаляем нейрон из сети
+        // Удаляем нейрон
         this.network.removeNeuron(neuron.id);
-        console.log(`[Network] Нейрон ${neuron.id} и все его ребра удалены (мертвый)`);
+        console.log(`[Network] Нейрон ${neuron.id} удалён (мертвый)`);
       }
     }
   }

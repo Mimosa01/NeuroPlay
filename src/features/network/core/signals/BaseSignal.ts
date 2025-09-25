@@ -8,7 +8,6 @@ export default abstract class BaseSignal implements ISignal {
   public readonly signal_mV: number;
   public readonly type: NeuroTransmitterType;
 
-
   constructor(type: NeuroTransmitterType, signal_mV: number) {
     this.id = uuidv4();
     this.type = type;
