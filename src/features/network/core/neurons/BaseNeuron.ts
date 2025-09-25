@@ -59,7 +59,7 @@ export default abstract class BaseNeuron implements NeuronInstance {
 
     // 2. Применяем утечку (возвращаем к restingPotential)
     const diff = this.membranePotential - this.restingPotential;
-    this.membranePotential -= diff / this.tau; // тут надо поправить сильно дольше работает
+    this.membranePotential -= diff / this.tau;
 
     // 3. Обновляем счётчик бездействия
     if (Math.abs(diff) < 0.1) {
@@ -84,15 +84,6 @@ export default abstract class BaseNeuron implements NeuronInstance {
     if (signal_mV > 0) this.inactivityCounter = 0;
   }
 
-  public fire(): void {
-    for (const edge of this.outputEdges.values()) {
-      edge.transmit(); // ← без аргументов!
-    }
-
-    this.refractorySteps = this.refractoryDuration;
-    this.membranePotential = -75;
-  }
-
   public isRefractory(): boolean {
     return this.refractorySteps > 0;
   }
@@ -102,7 +93,6 @@ export default abstract class BaseNeuron implements NeuronInstance {
   }
 
   public modulation(effect: ModulationEffect): void {
-    // Если уже в модуляции — не перезаписываем (или можно накапливать)
     if (this.modulationSteps > 0) return;
 
     // Сохраняем оригинальные значения
@@ -111,14 +101,13 @@ export default abstract class BaseNeuron implements NeuronInstance {
 
     // Применяем эффекты
     if (effect.thresholdDelta !== undefined) {
-      this.spikeThreshold += effect.thresholdDelta; // например, -2 мВ → легче спайкнуть
+      this.spikeThreshold += effect.thresholdDelta;
     }
     if (effect.tauDelta !== undefined) {
-      this.tau += effect.tauDelta; // например, +5 → медленнее утечка
+      this.tau += effect.tauDelta;
     }
-    // Можно добавить: conductanceMultiplier, refractoryDelta и т.д.
 
-    this.modulationSteps = effect.duration; // например, 100 шагов
+    this.modulationSteps = effect.duration;
     console.log(`[Neuron ${this.id}] Применена модуляция: порог ${this.spikeThreshold} мВ`);
   }
 
@@ -139,5 +128,7 @@ export default abstract class BaseNeuron implements NeuronInstance {
     console.log(`[Neuron ${this.id}] Модуляция завершена`);
   }
 
-  public abstract checkForSpike(): void;
+  public abstract checkForSpike (): void;
+  
+  public abstract fire (): void;
 }

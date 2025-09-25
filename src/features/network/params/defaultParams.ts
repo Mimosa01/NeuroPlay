@@ -32,6 +32,6 @@ export const BASE_POSTSYNAPTIC_EFFECTS: Record<NeuroTransmitterType, number> = {
 
 
 export const DOPAMINE = { thresholdDelta: -2.0, tauDelta: 5, duration: 100 };
-export const SEROTONIN = { thresholdDelta: +2.0, tauDelta: -5, duration: 150 };
-export const ACETYLHOLINE = { thresholdDelta: -3.0, tauDelta: +8, duration: 80 };
-export const NOREPINEPHRINE = { thresholdDelta: -2.5, tauDelta: +5, duration: 120 };
+export const SEROTONIN = { thresholdDelta: 2.0, tauDelta: -5, duration: 150 };
+export const ACETYLHOLINE = { thresholdDelta: -3.0, tauDelta: 8, duration: 80 };
+export const NOREPINEPHRINE = { thresholdDelta: -2.5, tauDelta: 5, duration: 120 };
