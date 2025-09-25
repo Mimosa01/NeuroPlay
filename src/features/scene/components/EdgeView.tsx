@@ -6,22 +6,23 @@ import { useEdgeHandlers } from '../hooks/useEdgeHandlers';
 import { useEdgeStyles } from '../hooks/useEdgeStyles';
 
 export const EdgeView: FC<{ edge: EdgeDTO }> = ({ edge }) => {
-  const { x1, y1, x2, y2, labelX, labelY, width, divRef } = useEdgeGeometry(edge);
+  const { x1, y1, x2, y2, labelX, labelY, width, divRef, lineWidth } = useEdgeGeometry(edge);
   const { onClick } = useEdgeHandlers(edge.id);
   const { colors, isSelected } = useEdgeStyles(edge);
   const selectedTool = useToolStore((state) => state.selectedTool);
 
   const [isHovered, setIsHovered] = useState(false);
   const isInteractive = selectedTool === 'none';
+  const displayWidth = isSelected || isHovered ? lineWidth * 1.5 : lineWidth;
 
-  // Толщина линии: базовая + при наведении/выделении
-  const baseLineWidth = 2;
-  const activeLineWidth = isSelected || isHovered ? 3 : baseLineWidth;
+  // Если линия вырождена (слишком короткая)
+  if (x1 === x2 && y1 === y2) {
+    return null;
+  }
 
   return (
     <g>
       <defs>
-        {/* Единая стрелка — цвет меняется динамически */}
         <marker
           id={`arrowhead-${edge.id}`}
           markerWidth="8"
@@ -33,20 +34,19 @@ export const EdgeView: FC<{ edge: EdgeDTO }> = ({ edge }) => {
         >
           <path
             d="M 0 0 L 8 4 L 0 8 Z"
-            fill={isSelected ? '#60a5fa' /* blue-400 */ : colors.arrow}
+            fill={isSelected ? '#60a5fa' : colors.arrow}
             className="transition-colors duration-200"
           />
         </marker>
       </defs>
 
-      {/* Основная линия */}
       <line
         x1={x1}
         y1={y1}
         x2={x2}
         y2={y2}
         stroke={isSelected ? '#60a5fa' : colors.line}
-        strokeWidth={activeLineWidth}
+        strokeWidth={displayWidth}
         markerEnd={`url(#arrowhead-${edge.id})`}
         className={`
           transition-all duration-200 ease-out
@@ -60,11 +60,10 @@ export const EdgeView: FC<{ edge: EdgeDTO }> = ({ edge }) => {
         }}
       />
 
-      {/* Метка веса */}
       <foreignObject
         x={labelX - width / 2}
         y={labelY - 12}
-        width={Math.max(width, 28)} // минимум 28px, чтобы не сжималось
+        width={Math.max(width, 28)}
         height={24}
         style={{ pointerEvents: 'none' }}
       >

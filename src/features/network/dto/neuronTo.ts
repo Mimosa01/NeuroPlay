@@ -7,17 +7,19 @@ export function neuronToDTO(accessor: NeuronAccessor): NeuronDTO {
     id: accessor.getId(),
     coords: accessor.getCoords(),
     label: accessor.getLabel(),
+    readyToSend: accessor.getReadyToSend(),
+
+    inputEdges: accessor.getInputEdges(),
+    outputEdges: accessor.getOutputEdges(),
     
+    neuroTransmitter: accessor.getNeuroTransmitter(),
     membranePotential: accessor.getMembranePotential(),
+    restingPotential: accessor.getRestingPotential(), 
     spikeThreshold: accessor.getSpikeThreshold(),
-    spikeAmplitude: accessor.getSpikeAmplitude(),
-    
-    inactivityCounter: accessor.getInactivityCounter(),
-    inactivityThreshold: accessor.getInactivityThreshold(),
+    tau: accessor.getTau(),
     
     refractoryDuration: accessor.getRefractoryDuration(),
-    
-    decayFactor: accessor.getDecayFactor(),
-    readyToSend: accessor.getReadyToSend(),
+    inactivityCounter: accessor.getInactivityCounter(),
+    inactivityThreshold: accessor.getInactivityThreshold(),
   };
 }

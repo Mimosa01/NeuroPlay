@@ -1,12 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { NeuroTransmitterType } from '../../types/types';
 import type { ISignal } from '../../interfaces/ISignal.interface';
-import type NeuronAccessor from '../neurons/NeuronAccessor';
+import { DOPAMINE } from '../../params/defaultParams';
+import type { NeuroTransmitterType, ModulationEffect, NeuronInstance } from '../../types/types';
 
 export default abstract class BaseSignal implements ISignal {
   public readonly id: string;
   public readonly signal_mV: number;
   public readonly type: NeuroTransmitterType;
+  public readonly effect: ModulationEffect = DOPAMINE;
 
   constructor(type: NeuroTransmitterType, signal_mV: number) {
     this.id = uuidv4();
@@ -14,5 +15,5 @@ export default abstract class BaseSignal implements ISignal {
     this.signal_mV = signal_mV
   }
 
-  public abstract applyTo(target: NeuronAccessor): void;
+  public abstract applyTo(target: NeuronInstance): void;
 }

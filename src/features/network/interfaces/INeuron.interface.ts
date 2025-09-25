@@ -11,7 +11,7 @@ export interface INeuron {
   membranePotential: number;
   restingPotential: number; 
   spikeThreshold: number;
-  spikeAmplitude: number;
+  tau: number;
   
   refractoryDuration: number;
   inactivityCounter: number;

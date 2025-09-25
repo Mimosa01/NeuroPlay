@@ -58,22 +58,6 @@ export default class NeuronAccessor {
     this.neuron.spikeThreshold = Math.max(5, Math.min(50, threshold)); // 5-50 мВ
   }
 
-  public getSpikeAmplitude (): number {
-    return this.neuron.spikeAmplitude;
-  }
-
-  public setSpikeAmplitude (amplitude: number): void {
-    this.neuron.spikeAmplitude = Math.max(50, Math.min(200, amplitude)); // 50-200 мВ
-  }
-
-  public getDecayFactor (): number {
-    return this.neuron.decayFactor;
-  }
-
-  public setDecayFactor (factor: number): void {
-    this.neuron.decayFactor = Math.max(0.8, Math.min(0.99, factor)); // 0.8-0.99
-  }
-
   public getNeuroTransmitter(): NeuroTransmitterType {
     return this.neuron.neuroTransmitter;
   }
@@ -104,5 +88,21 @@ export default class NeuronAccessor {
 
   public setInactivityThreshold (threshold: number): void {
     this.neuron.inactivityThreshold = threshold;
+  }
+
+  public getTau (): number {
+    return this.neuron.tau;
+  }
+
+  public setTau (tau: number): void {
+    this.neuron.tau = tau;
+  }
+
+  public getRestingPotential (): number {
+    return this.neuron.restingPotential;
+  }
+
+  public setRestingPotential (potential: number): void {
+    this.neuron.restingPotential = potential;
   }
 }

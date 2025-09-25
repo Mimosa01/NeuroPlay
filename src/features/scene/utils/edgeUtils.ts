@@ -5,7 +5,7 @@ export function getWeightColors(weight: number | string): {
 } {
   const weightValue = parseFloat(weight.toString()) || 0;
   
-  if (weightValue > 0) {
+  if (weightValue > 1) {
     return {
       line: '#10b981',    // green-500
       text: '#059669',    // emerald-600
@@ -13,7 +13,7 @@ export function getWeightColors(weight: number | string): {
     };
   }
   
-  if (weightValue < 0) {
+  if (weightValue < 1) {
     return {
       line: '#ef4444',    // red-500
       text: '#dc2626',    // rose-600
@@ -30,5 +30,5 @@ export function getWeightColors(weight: number | string): {
 
 export function getLineWidth(weight: number | string): number {
   const weightValue = Math.abs(parseFloat(weight.toString()) || 0);
-  return Math.min(3, 1 + weightValue * 1.5); // от 1 до 3px
+  return Math.min(2, 1 + weightValue * 1.5); // от 1 до 3px
 }

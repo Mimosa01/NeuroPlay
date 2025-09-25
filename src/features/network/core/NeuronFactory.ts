@@ -1,5 +1,4 @@
 import type { Coords } from "../../../shared/types/types";
-// import type { INeuron } from "../interfaces/INeuron.interface";
 import type { NeuronInstance, NeuronType } from "../types/types";
 import PyramidalNeuron from "./neurons/PyramidalNeuron";
 

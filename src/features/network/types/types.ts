@@ -1,34 +1,38 @@
 import type { INeuron } from "../interfaces/INeuron.interface";
 import type { INeuronLogic } from "../interfaces/INeuronLogic.interface";
 
-export type NeuronId = string;
-export type EdgeId = string;
 export type SignalValue = number;
 export type Timestamp = number;
 
 export interface IEdgeState {
-  id: EdgeId;
-  from: NeuronId;
-  to: NeuronId;
+  id: string;
+  from: string;
+  to: string;
   weight: number;
 }
 
 export interface INeuronState {
-  id: NeuronId;
+  id: string;
 }
 
 export interface INeuronActions {
   addInputEdge: (edge: IEdgeState) => void;
   addOutputEdge: (edge: IEdgeState) => void;
-  removeInputEdge: (edgeId: EdgeId) => void;
-  removeOutputEdge: (edgeId: EdgeId) => void;
+  removeInputEdge: (edgeId: string) => void;
+  removeOutputEdge: (edgeId: string) => void;
   receive: (signal: number) => void;
   tick: () => void;
   decay: (factor: number) => void;
   isDead: () => boolean;
 }
 
-export type NeuroTransmitterType = 'glutamate' | 'gaba' | 'acetylcholine' | 'dopamine' | 'serotonin' | 'glycine';
+export type NeuroTransmitterType = 'glutamate' | 'gaba' | 'acetylcholine' | 'dopamine' | 'serotonin' | 'glycine' | 'norepinephrine';
 export type NeuronType = 'pyramidal' | 'inhibitory' | 'rs' | 'fs' | 'ds';
 
 export type NeuronInstance = INeuron & INeuronLogic;
+
+export interface ModulationEffect {
+  thresholdDelta?: number;
+  tauDelta?: number;
+  duration: number;
+}

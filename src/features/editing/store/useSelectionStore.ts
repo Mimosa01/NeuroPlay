@@ -1,12 +1,11 @@
 import { create } from "zustand";
-import type { NeuronId, EdgeId } from "../../network/types/types";
 
 type SelectionState = {
-  selectedNeuronId: NeuronId | null;
-  selectedEdgeId: EdgeId | null;
+  selectedNeuronId: string | null;
+  selectedEdgeId: string | null;
 
-  setSelectedNeuronId: (id: NeuronId | null) => void;
-  setSelectedEdgeId: (id: EdgeId | null) => void;
+  setSelectedNeuronId: (id: string | null) => void;
+  setSelectedEdgeId: (id: string | null) => void;
   clearSelection: () => void;
 };
 

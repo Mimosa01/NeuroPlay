@@ -30,7 +30,7 @@ export default class Network {
   }
 
   public createEdge(source: NeuronInstance, target: NeuronInstance, conductance?: number, delay?: number): IEdge {
-    const edge = new Edge(source, target, conductance, delay, new NeuronAccessor(source).getNeuroTransmitter());
+    const edge = new Edge(source, target, conductance, delay);
     source.addOutputEdge(edge);
     target.addInputEdge(edge);
     this.edges.set(edge.id, edge);

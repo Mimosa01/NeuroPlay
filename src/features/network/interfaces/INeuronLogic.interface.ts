@@ -1,3 +1,4 @@
+import type { ModulationEffect } from "../types/types";
 import type { IEdge } from "./IEdge.interface";
 
 export interface INeuronLogic {
@@ -5,6 +6,8 @@ export interface INeuronLogic {
   fire (): void;
   step(): void;
   isDead (): boolean;
+  modulation (effect: ModulationEffect): void;
+  applySignal (signal: number): void;
 
   addInputEdge (edge: IEdge): void;
   addOutputEdge (edge: IEdge): void;

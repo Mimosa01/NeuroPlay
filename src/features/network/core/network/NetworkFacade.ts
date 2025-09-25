@@ -93,27 +93,13 @@ export class NetworkFacade {
 
     const accessor = new NeuronAccessor(neuron);
 
-    if (data.label !== undefined) {
-      accessor.setLabel(data.label);
-    }
-    if (data.inactivityThreshold !== undefined) {
-      accessor.setInactivityThreshold(data.inactivityThreshold);
-    }
-    if (data.refractoryDuration !== undefined) {
-      accessor.setRefractoryDuration(data.refractoryDuration);
-    }
-    if (data.spikeThreshold !== undefined) {
-      accessor.setSpikeThreshold(data.spikeThreshold);
-    }
-    if (data.spikeAmplitude !== undefined) {
-      accessor.setSpikeAmplitude(data.spikeAmplitude);
-    }
-    if (data.decayFactor !== undefined) {
-      accessor.setDecayFactor(data.decayFactor);
-    }
-    if (data.coords !== undefined) {
-      accessor.setCoords(data.coords);
-    }
+    if (data.label !== undefined) accessor.setLabel(data.label);
+    if (data.inactivityThreshold !== undefined) accessor.setInactivityThreshold(data.inactivityThreshold);
+    if (data.refractoryDuration !== undefined) accessor.setRefractoryDuration(data.refractoryDuration);
+    if (data.spikeThreshold !== undefined) accessor.setSpikeThreshold(data.spikeThreshold);
+    if (data.coords !== undefined) accessor.setCoords(data.coords);
+    if (data.tau !== undefined) accessor.setTau(data.tau);
+    if (data.neuroTransmitter !== undefined) accessor.setNeuroTransmitter(data.neuroTransmitter);
 
     this.notifyChange();
   }

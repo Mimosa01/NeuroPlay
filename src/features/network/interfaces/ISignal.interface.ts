@@ -1,10 +1,10 @@
-import type NeuronAccessor from "../core/neurons/NeuronAccessor";
-import type { NeuroTransmitterType } from "../types/types";
+import type { ModulationEffect, NeuronInstance, NeuroTransmitterType } from "../types/types";
 
 
 export interface ISignal {
   readonly id: string;
   readonly type: NeuroTransmitterType;
+  readonly effect: ModulationEffect;
   
-  applyTo (target: NeuronAccessor): void;
+  applyTo (target: NeuronInstance): void;
 }

@@ -1,12 +1,11 @@
-import type { NeuronInstance } from "../../types/types";
+import type { NeuronInstance } from "../../types/types"
 import BaseSignal from "./BaseSignal";
 
-
-export class Glutamate extends BaseSignal {
+export class GABA extends BaseSignal {
   constructor(signal_mV: number) {
-    super('glutamate', signal_mV);
+    super('gaba', signal_mV);
   }
-
+  
   public applyTo(target: NeuronInstance): void {
     target.applySignal(this.signal_mV);
   }

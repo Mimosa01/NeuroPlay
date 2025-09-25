@@ -3,7 +3,7 @@ import type { Coords } from '../../../shared/types/types';
 import type { EdgeDTO } from '../dto/edge.dto';
 import type { NeuronDTO } from '../dto/neuron.dto';
 import { neuronToDTO } from '../dto/neuronTo';
-import type { NeuronId, EdgeId, NeuronType } from '../types/types';
+import type { NeuronType } from '../types/types';
 import { NetworkSerializer } from '../core/network/NetworkSerealizer';
 import { NetworkFacade } from '../core/network/NetworkFacade';
 import { toast } from 'sonner';
@@ -22,14 +22,14 @@ type NetworkState = {
   createEdge: (sourceId: string, targetId: string) => EdgeDTO | null;
   findNearestNeuron: (coords: Coords, maxDistance?: number) => NeuronDTO | null;
   findNearestEdge: (coords: Coords, maxDistance?: number) => EdgeDTO | null;
-  removeNeuron: (id: NeuronId) => void;
-  removeEdge: (id: EdgeId) => void;
+  removeNeuron: (id: string) => void;
+  removeEdge: (id: string) => void;
   resetNetwork: () => void;
 
   // Методы нейронов и ребер
-  exciteNeuron: (id: NeuronId, signal?: number) => void;
-  updateNeuron: (id: NeuronId, data: Partial<NeuronDTO>) => void;
-  updateEdge: (id: EdgeId, data: Partial<EdgeDTO>) => void;
+  exciteNeuron: (id: string, signal?: number) => void;
+  updateNeuron: (id: string, data: Partial<NeuronDTO>) => void;
+  updateEdge: (id: string, data: Partial<EdgeDTO>) => void;
 
   // Методы симуляции
   tick: () => void;

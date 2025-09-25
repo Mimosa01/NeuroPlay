@@ -2,8 +2,8 @@ import { v4 as uuidv4 } from 'uuid';
 import type { NeuronInstance, NeuroTransmitterType } from '../types/types';
 import { SignalFactory } from './SignalFactory';
 import type { IEdge } from '../interfaces/IEdge.interface';
+import { BASE_POSTSYNAPTIC_EFFECTS as BPE} from '../params/defaultParams';
 import NeuronAccessor from './neurons/NeuronAccessor';
-import { BASE_POSTSYNAPTIC_EFFECTS as BPE} from '../params/defaultNeuronParams';
 
 export default class Edge implements IEdge {
   public readonly id: string;
@@ -11,10 +11,9 @@ export default class Edge implements IEdge {
   public readonly target: NeuronInstance;
   
   private conductance: number;        // условные единицы (0.1–2.0)
-  private transmitter: NeuroTransmitterType;
+  private sourceAccessor: NeuronAccessor;
   private delay: number;              // шагов задержки
 
-  // Состояние
   private signalQueue: Array<{ effect_mV: number; delay: number }> = [];
 
   constructor(
@@ -22,14 +21,13 @@ export default class Edge implements IEdge {
     target: NeuronInstance, 
     conductance: number = 1.0,
     delay: number = 1,
-    transmitter: NeuroTransmitterType
   ) {
     this.id = uuidv4();
     this.source = source;
     this.target = target;
     this.conductance = Math.max(0.1, Math.min(2.0, conductance)); // 0.1–2.0
     this.delay = Math.max(1, Math.min(10, delay)); // 1–10 шагов
-    this.transmitter = transmitter;
+    this.sourceAccessor = new NeuronAccessor(this.source);
   }
 
   // === Геттеры и сеттеры ===
@@ -57,13 +55,10 @@ export default class Edge implements IEdge {
   // === Передача сигнала (вызывается при спайке источника) ===
   
   public transmit(): void {
-    // Определяем базовый постсинаптический эффект для этого медиатора
-    const baseEffect = BPE[this.transmitter] ?? 0;
+    const baseEffect = BPE[this.sourceAccessor.getNeuroTransmitter()];
+    console.log(`EFFECT% ${baseEffect}`)
     
-    // Итоговое влияние = базовый эффект × проводимость синапса
     const totalEffect_mV = baseEffect * this.conductance;
-
-    console.log(`[Edge ${this.id}] ${this.transmitter} → ${totalEffect_mV.toFixed(1)} мВ (задержка: ${this.delay})`);
     
     // Ставим в очередь
     this.signalQueue.push({
@@ -89,16 +84,14 @@ export default class Edge implements IEdge {
 
     // Применяем сигналы к целевому нейрону
     signalsToDeliver.forEach(effect_mV => {
-      // Для модуляторов (DA, 5-HT) effect_mV = 0 → можно пропустить
-      if (effect_mV === 0 && this.isModulator(this.transmitter)) {
-        // Позже: вызывать модуляцию, а не изменение Vm
-        console.log(`[Edge ${this.id}] Модулятор ${this.transmitter} — влияет на параметры, не на Vm`);
-        return;
+      if (this.isModulator(this.sourceAccessor.getNeuroTransmitter())) {
+        // Для модуляторов effect_mV = 0 — создаём сигнал без аргументов
+        const signal = SignalFactory.create(this.sourceAccessor.getNeuroTransmitter(), 0);
+        signal.applyTo(this.target);
+      } else {
+        const signal = SignalFactory.create(this.sourceAccessor.getNeuroTransmitter(), effect_mV);
+        signal.applyTo(this.target);
       }
-
-      const signal = SignalFactory.create(this.transmitter, effect_mV);
-      signal.applyTo(new NeuronAccessor(this.target));
-      console.log(`[Edge ${this.id}] Доставлено: ${effect_mV.toFixed(1)} мВ`);
     });
   }
 

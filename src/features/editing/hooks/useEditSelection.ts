@@ -2,14 +2,15 @@ import { useEffect, useMemo, useState } from 'react';
 import { useSelectionStore } from '../store/useSelectionStore';
 import { useNetworkStore } from '../../network/store/useNetworkStore';
 import { toast } from 'sonner';
+import type { NeuroTransmitterType } from '../../network/types/types';
 
 type NeuronFormFields = {
   label: string;
   inactivityThreshold: string;
-  refractoryDuration: string;     // ← новое имя
-  spikeThreshold: string;         // ← новое
-  spikeAmplitude: string;         // ← новое
-  decayFactor: string;            // ← новое
+  refractoryDuration: string;
+  spikeThreshold: string;
+  tau: string;
+  transmitter: NeuroTransmitterType;
 };
 
 export const useEditSelection = () => {
@@ -37,8 +38,8 @@ export const useEditSelection = () => {
     inactivityThreshold: '100',
     refractoryDuration: '4',
     spikeThreshold: '15',
-    spikeAmplitude: '100',
-    decayFactor: '0.95',
+    tau: '15',
+    transmitter: 'glutamate'
   });
 
   const [initialNeuronForm, setInitialNeuronForm] = useState<NeuronFormFields>(neuronForm);
@@ -58,8 +59,8 @@ export const useEditSelection = () => {
         inactivityThreshold: String(neuron.inactivityThreshold ?? 100),
         refractoryDuration: String(neuron.refractoryDuration ?? 4),
         spikeThreshold: String(neuron.spikeThreshold ?? 15),
-        spikeAmplitude: String(neuron.spikeAmplitude ?? 100),
-        decayFactor: String(neuron.decayFactor ?? 0.95),
+        tau: String(neuron.tau ?? 15),
+        transmitter: neuron.neuroTransmitter
       };
       setNeuronForm(newForm);
       setInitialNeuronForm(newForm);
@@ -85,12 +86,14 @@ export const useEditSelection = () => {
     const parsedInactivity = parseInt(neuronForm.inactivityThreshold, 10);
     const parsedRefractory = parseInt(neuronForm.refractoryDuration, 10);
     const parsedSpikeThreshold = parseInt(neuronForm.spikeThreshold, 10);
-    const parsedSpikeAmplitude = parseInt(neuronForm.spikeAmplitude, 10);
-    const parsedDecay = parseFloat(neuronForm.decayFactor);
+    const parsedTau = parseInt(neuronForm.tau, 10);
 
-    if (isNaN(parsedInactivity) || isNaN(parsedRefractory) || 
-        isNaN(parsedSpikeThreshold) || isNaN(parsedSpikeAmplitude) || 
-        isNaN(parsedDecay)) {
+    if (
+      isNaN(parsedInactivity) || 
+      isNaN(parsedRefractory) || 
+      isNaN(parsedSpikeThreshold) ||
+      isNaN(parsedTau)
+    ) {
       toast.error('Некорректные значения параметров', {
         duration: 3000,
         position: 'top-right'
@@ -98,9 +101,9 @@ export const useEditSelection = () => {
       return;
     }
 
-    // Валидация диапазонов
-    if (parsedDecay < 0.8 || parsedDecay > 0.99) {
-      toast.error('Фактор затухания должен быть от 0.80 до 0.99', {
+    // Валидация tau (например, 1–100)
+    if (parsedTau < 1 || parsedTau > 100) {
+      toast.error('Постоянная времени (τ) должна быть от 1 до 100', {
         duration: 3000,
         position: 'top-right'
       });
@@ -112,8 +115,8 @@ export const useEditSelection = () => {
       inactivityThreshold: parsedInactivity,
       refractoryDuration: parsedRefractory,
       spikeThreshold: parsedSpikeThreshold,
-      spikeAmplitude: parsedSpikeAmplitude,
-      decayFactor: parsedDecay,
+      tau: parsedTau,
+      neuroTransmitter: neuronForm.transmitter,
     });
 
     toast.success('Параметры нейрона сохранены', {
@@ -137,7 +140,6 @@ export const useEditSelection = () => {
       return;
     }
 
-    // Валидация диапазонов
     if (parsedConductance < 0.1 || parsedConductance > 10.0) {
       toast.error('Проводимость должна быть от 0.1 до 10.0 μS', {
         duration: 3000,
@@ -174,8 +176,8 @@ export const useEditSelection = () => {
       inactivityThreshold: '100',
       refractoryDuration: '4',
       spikeThreshold: '15',
-      spikeAmplitude: '100',
-      decayFactor: '0.95',
+      tau: '15',
+      transmitter: 'glutamate'
     });
     setEdgeForm({
       conductance: '1.0',
@@ -183,15 +185,15 @@ export const useEditSelection = () => {
     });
   };
 
-  // === Проверка изменений ===
+  // === Проверка изменений — ОБНОВЛЕНО! ===
   const hasNeuronChanges = useMemo(() => {
     return (
       neuronForm.label !== initialNeuronForm.label ||
       neuronForm.inactivityThreshold !== initialNeuronForm.inactivityThreshold ||
       neuronForm.refractoryDuration !== initialNeuronForm.refractoryDuration ||
       neuronForm.spikeThreshold !== initialNeuronForm.spikeThreshold ||
-      neuronForm.spikeAmplitude !== initialNeuronForm.spikeAmplitude ||
-      neuronForm.decayFactor !== initialNeuronForm.decayFactor
+      neuronForm.tau !== initialNeuronForm.tau || // ✅
+      neuronForm.transmitter !== initialNeuronForm.transmitter // ✅
     );
   }, [neuronForm, initialNeuronForm]);
 
