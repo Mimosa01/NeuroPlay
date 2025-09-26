@@ -1,4 +1,4 @@
-import { ControlToolbar } from "../../features/control/ControlToolbar"
+import { ControlToolbar } from "../../features/control/components/ControlToolbar"
 import { TOOL_BUTTONS } from "../constants/buttons"
 import { Logo } from "./Logo"
 import { Toolbar } from "./Toolbar"

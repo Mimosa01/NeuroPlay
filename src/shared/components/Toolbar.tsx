@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import type { Tool } from "../types/types";
-import { ButtonTool } from "../../features/control/ButtonTool";
+import { ButtonTool } from "./ButtonTool";
 import { useToolStore } from "../../features/scene/store/useToolStore";
 
 type ToolbarProps = {
@@ -12,7 +12,7 @@ export const Toolbar: FC<ToolbarProps> = ({ tools }) => {
   const selectedTool = useToolStore((state) => state.selectedTool);
 
   return (
-    <div className="flex flex-col gap-4 p-2 w-fit shadow-md backdrop-blur-sm rounded-lg">
+    <div className="flex flex-col gap-4 p-2 w-fit bg-white/40 shadow-md backdrop-blur-sm rounded-lg">
       {tools.map((tool) => (
         <ButtonTool 
           key={tool.id}

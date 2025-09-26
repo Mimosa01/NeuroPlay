@@ -45,6 +45,7 @@ export const EditPanel: React.FC = () => {
       <div className="
         flex flex-col 
         max-h-[80vh] 
+        bg-white/40
         backdrop-blur-sm 
         rounded-xl 
         shadow-sm 

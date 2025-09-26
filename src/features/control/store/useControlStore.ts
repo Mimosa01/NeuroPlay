@@ -5,44 +5,39 @@ type ControlState = {
   isPlaying: boolean;
   timeStep: number;
   speed: number;
+  showSpeedSlider: boolean;
+  
   setSpeed: (ms: number) => void;
   play: () => void;
   pause: () => void;
   redo: () => void;
   undo: () => void;
   resetControls: () => void;
+  setShowSpeedSlider: (show: boolean) => void;
 };
 
-export const useControlStore = create<ControlState>((set, get) => {
-  const networkStore = useNetworkStore.getState();
+export const useControlStore = create<ControlState>((set) => ({
+  isPlaying: false,
+  timeStep: 0,
+  speed: 1000,
+  showSpeedSlider: false,
 
-  return {
-    isPlaying: false,
-    timeStep: 0,
-    speed: 1000,
-    
-    setSpeed: (speed) => set({ speed }),
+  setSpeed: (speed) => set({ speed }),
 
-    play: () => {
-      set({ isPlaying: true });
-    },
+  play: () => set({ isPlaying: true }),
+  pause: () => set({ isPlaying: false }),
 
-    pause: () => {
-      set({ isPlaying: false });
-    },
+  redo: () => {
+    useNetworkStore.getState().redo();
+    set(state => ({ timeStep: state.timeStep + 1 }));
+  },
 
-    redo: () => {
-      networkStore.redo();
-      set({ timeStep: get().timeStep + 1 });
-    },
+  undo: () => {
+    useNetworkStore.getState().undo();
+    set(state => ({ timeStep: Math.max(state.timeStep - 1, 0) }));
+  },
 
-    undo: () => {
-      networkStore.undo();
-      set({ timeStep: Math.max(get().timeStep - 1, 0) });
-    },
+  resetControls: () => set({ isPlaying: false, timeStep: 0 }),
 
-    resetControls: () => {
-      set({ isPlaying: false, timeStep: 0 });
-    },
-  }
-});
+  setShowSpeedSlider: (show) => set({ showSpeedSlider: show }),
+}));

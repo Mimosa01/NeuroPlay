@@ -4,9 +4,10 @@ type SliderProps = {
   value: number;
   setValue: (value: number) => void;
   label?: string;
+  onClose?: () => void;
 }
 
-export const Slider: FC<SliderProps> = ({ value, setValue, label }) => {
+export const Slider: FC<SliderProps> = ({ value, setValue, label, onClose }) => {
   return (
     <div className="
       absolute left-full ml-4 top-1/2 transform -translate-y-1/2
@@ -38,6 +39,12 @@ export const Slider: FC<SliderProps> = ({ value, setValue, label }) => {
       <div className="text-xs text-slate-600 w-12">
         {value}{label}
       </div>
+      <button
+        onClick={onClose}
+        className="text-xs text-slate-500 hover:text-slate-700"
+      >
+        ×
+      </button>
     </div>
   )
 }

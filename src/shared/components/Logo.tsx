@@ -5,6 +5,7 @@ export const Logo = () => {
     <div className="
       flex items-center gap-2
       px-3 py-2
+      bg-white/40
       backdrop-blur-sm
       rounded-xl
       border border-white/30 dark:border-slate-700/50
