@@ -2,7 +2,7 @@ import { LayoutUI } from "./shared/components/LayoutUI";
 import { Scene } from "./features/scene/components/Scene";
 import { EditPanel } from "./features/editing/components/EditPanel";
 import { Toaster } from "sonner";
-import { HotkeyProvider } from "./features/hotKey/HotkeyProvider";
+import { HotkeyProvider } from "./features/hotkey/HotkeyProvider";
 import { usePlayback } from "./features/control/hooks/usePlayback";
 
 

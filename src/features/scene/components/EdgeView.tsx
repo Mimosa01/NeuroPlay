@@ -1,8 +1,8 @@
-import { type FC } from 'react';
+import { memo, type FC } from 'react';
 import type { EdgeDTO } from '../../network/dto/edge.dto';
 import { useEdgeController } from '../hooks/useEdgeController';
 
-export const EdgeView: FC<{ edge: EdgeDTO }> = ({ edge }) => {
+const EdgeView: FC<{ edge: EdgeDTO }> = ({ edge }) => {
   const { handlers, state, geometry, styles, label } = useEdgeController(edge);
 
   const { x1, y1, x2, y2, labelX, labelY } = geometry;
@@ -78,3 +78,7 @@ export const EdgeView: FC<{ edge: EdgeDTO }> = ({ edge }) => {
     </g>
   );
 };
+
+
+const EdgeViewMemo = memo(EdgeView);
+export default EdgeViewMemo;

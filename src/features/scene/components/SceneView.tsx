@@ -1,6 +1,6 @@
 import { useNetworkStore } from '../../network/store/useNetworkStore';
 import NeuronViewMemo from './NeuronView';
-import { EdgeView } from './EdgeView';
+import EdgeViewMemo from './EdgeView';
 import type { useSceneController } from '../hooks/useSceneController';
 
 interface Props {
@@ -39,7 +39,7 @@ export const SceneView: React.FC<Props> = ({ controller }) => {
       <g ref={gRef}>
         {/* Рёбра сначала */}
         {edges.map((edge) => (
-          <EdgeView key={edge.id} edge={edge} />
+          <EdgeViewMemo key={edge.id} edge={edge} />
         ))}
 
         {/* Нейроны сверху */}

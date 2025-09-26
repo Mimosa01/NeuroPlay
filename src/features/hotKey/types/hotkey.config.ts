@@ -1,4 +1,11 @@
-import type { HotkeyConfig } from "./hotKey.types";
+import type { HotkeyConfig } from "./hotkey.types";
+
+export const CATEGORY_NAMES: Record<string, string> = {
+  'simulation': 'Симуляция',
+  'editing': 'Редактирование',
+  'navigation': 'Навигация',
+  'system': 'Системные'
+};
 
 export const DEFAULT_HOTKEYS: HotkeyConfig[] = [
   // Симуляция

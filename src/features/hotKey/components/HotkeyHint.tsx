@@ -1,5 +1,5 @@
 import { useHintHotkey } from '../hooks/useHintHotkey';
-import { hotkeyToString } from '../utils/hotKeyParser';
+import { hotkeyToString } from '../utils/hotkeyParser';
 
 export const HotkeyHint = () => {
   const { 
@@ -10,7 +10,7 @@ export const HotkeyHint = () => {
     categoryNames 
   } = useHintHotkey();
 
-  if (!isHelpVisible) return
+  if (!isHelpVisible) return null;
 
   return (
     <div 
@@ -26,6 +26,7 @@ export const HotkeyHint = () => {
           <button 
             onClick={toggleHelp}
             className="text-slate-500 hover:text-slate-700 text-2xl"
+            aria-label="Закрыть"
           >
             ×
           </button>
@@ -46,7 +47,10 @@ export const HotkeyHint = () => {
                     : '—';
                   
                   return (
-                    <div key={action} className="flex justify-between items-center p-2 bg-slate-50 rounded-lg">
+                    <div 
+                      key={action} 
+                      className="flex justify-between items-center p-2 bg-slate-50 rounded-lg"
+                    >
                       <span className="text-slate-700 text-sm">{label}</span>
                       <kbd className="bg-slate-700 text-white px-2 py-1 rounded text-xs font-mono">
                         {keyText}

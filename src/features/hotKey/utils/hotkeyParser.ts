@@ -1,4 +1,4 @@
-import type { HotkeyCombination } from "../types/hotKey.types";
+import type { HotkeyCombination } from "../types/hotkey.types";
 
 export function parseKeyboardEvent(event: KeyboardEvent): HotkeyCombination {
   return {
@@ -10,71 +10,46 @@ export function parseKeyboardEvent(event: KeyboardEvent): HotkeyCombination {
   };
 }
 
-// utils/hotkeyParser.ts
-export function normalizeKey(key: string): string {
-  const lowerKey = key.toLowerCase();
-  
-  // Специальные клавиши
-  switch (lowerKey) {
-    case ' ':
-    case 'spacebar':
-    case 'space':
-      return ' ';
-      
-    case 'arrowright':
-    case 'rightarrow':
-      return 'arrowright';
-      
-    case 'arrowleft':
-    case 'leftarrow':
-      return 'arrowleft';
-      
-    case 'arrowup':
-    case 'uparrow':
-      return 'arrowup';
-      
-    case 'arrowdown':
-    case 'downarrow':
-      return 'arrowdown';
-      
-    case 'delete':
-    case 'del':
-      return 'delete';
-      
-    case 'escape':
-    case 'esc':
-      return 'escape';
-      
-    case 'f1': case 'f2': case 'f3': case 'f4': case 'f5':
-    case 'f6': case 'f7': case 'f8': case 'f9': case 'f10':
-    case 'f11': case 'f12':
-      return lowerKey; // f1, f2, ...
-      
-    default:
-      return lowerKey;
-  }
-}
+// Словарь для локализации
+const KEY_LABELS: Record<string, string> = {
+  ' ': 'Space',
+  'arrowright': '→',
+  'arrowleft': '←',
+  'arrowup': '↑',
+  'arrowdown': '↓',
+  'delete': 'Backspace',
+  'backspace': 'Backspace',
+  'escape': 'Esc',
+  'tab': 'Tab',
+  'enter': 'Enter',
+  'capslock': 'Caps Lock',
+  'shift': 'Shift',
+  'ctrl': 'Ctrl',
+  'alt': 'Alt',
+  'meta': 'Cmd',
+};
+
+// Модификаторы для красивого отображения
+const MODIFIER_LABELS: Record<string, string> = {
+  ctrl: 'Ctrl',
+  shift: 'Shift',
+  alt: 'Alt',
+  meta: 'Cmd',
+};
 
 export function hotkeyToString(combination: HotkeyCombination): string {
   const parts: string[] = [];
-  
-  if (combination.ctrl) parts.push('Ctrl');
-  if (combination.shift) parts.push('Shift');
-  if (combination.alt) parts.push('Alt');
-  if (combination.meta) parts.push('Cmd');
-  
-  // Красивые названия клавиш
-  const keyName = combination.key
-    .replace(' ', 'Space')
-    .replace('arrowright', '→')
-    .replace('arrowleft', '←')
-    .replace('arrowup', '↑')
-    .replace('arrowdown', '↓')
-    .replace('delete', 'backspace')
-    .replace('escape', 'esc');
-  
-  parts.push(keyName.charAt(0).toUpperCase() + keyName.slice(1));
-  
+
+  // Добавляем модификаторы
+  if (combination.ctrl) parts.push(MODIFIER_LABELS.ctrl);
+  if (combination.shift) parts.push(MODIFIER_LABELS.shift);
+  if (combination.alt) parts.push(MODIFIER_LABELS.alt);
+  if (combination.meta) parts.push(MODIFIER_LABELS.meta);
+
+  // Получаем имя клавиши
+  const keyLabel = KEY_LABELS[combination.key] || combination.key;
+  parts.push(keyLabel.charAt(0).toUpperCase() + keyLabel.slice(1));
+
   return parts.join('+');
 }
 
