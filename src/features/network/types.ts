@@ -1,3 +1,5 @@
+import type { EdgeDTO } from "../dto/edge.dto";
+import type { NeuronDTO } from "../dto/neuron.dto";
 import type { INeuron } from "../interfaces/INeuron.interface";
 import type { INeuronLogic } from "../interfaces/INeuronLogic.interface";
 
@@ -36,3 +38,13 @@ export interface ModulationEffect {
   tauDelta?: number;
   duration: number;
 }
+
+export type Coords = {
+  x: number;
+  y: number;
+}
+
+export type NetworkSnapshot = {
+  neurons: NeuronDTO[];
+  edges: EdgeDTO[];
+};

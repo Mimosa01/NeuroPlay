@@ -1,7 +1,6 @@
-import type { Coords } from "../../../../shared/types/types";
 import type { IEdge } from "../../interfaces/IEdge.interface";
 import type { INeuron } from "../../interfaces/INeuron.interface";
-import type { NeuronInstance, NeuronType } from "../../types/types";
+import type { NeuronInstance, Coords, NeuronType } from "../../types";
 import Edge from "../Edge";
 import { NeuronFactory } from "../NeuronFactory";
 import NeuronAccessor from "../neurons/NeuronAccessor";

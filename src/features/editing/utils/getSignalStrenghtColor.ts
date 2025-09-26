@@ -1,4 +1,4 @@
-import { SIGNAL_STRENGTH_COLORS } from '../constants/signalColors';
+import { SIGNAL_STRENGTH_COLORS } from "../../../shared/constants/signalColors.constants.ts";
 
 export function getSignalStrengthColor(value: number): string {
   const clampedValue = Math.max(0, Math.min(100, value));

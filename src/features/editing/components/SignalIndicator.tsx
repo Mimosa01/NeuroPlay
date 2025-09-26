@@ -1,6 +1,6 @@
 import { Signal } from "lucide-react";
-import { normalizeMembranePotential } from "../../../shared/utils/signalNormalization";
-import { getSignalStrengthColor } from "../../../shared/utils/getSignalStrenghtColor";
+import { normalizeMembranePotential } from "../utils/signalNormalization";
+import { getSignalStrengthColor } from "../utils/getSignalStrenghtColor";
 
 export const SignalIndicator = ({ signal }: { signal: number }) => {
   const normalizedValue = normalizeMembranePotential(signal);
@@ -63,4 +63,3 @@ export const SignalIndicator = ({ signal }: { signal: number }) => {
     </div>
   );
 };
- 

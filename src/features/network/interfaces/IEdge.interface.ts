@@ -1,4 +1,4 @@
-import type { NeuronInstance } from "../types/types";
+import type { NeuronInstance } from "../types";
 
 export interface IEdge {
   readonly id: string;

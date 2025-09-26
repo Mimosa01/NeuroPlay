@@ -1,9 +1,8 @@
-import type { Coords } from "../../../../shared/types/types";
 import type { EdgeDTO } from "../../dto/edge.dto";
 import type { NeuronDTO } from "../../dto/neuron.dto";
 import type { IEdge } from "../../interfaces/IEdge.interface";
 import type { INeuron } from "../../interfaces/INeuron.interface";
-import type { NeuronType } from "../../types/types";
+import type { Coords, NeuronType } from "../../types";
 import { HistoryManager } from "../HistoryManager";
 import NeuronAccessor from "../neurons/NeuronAccessor";
 import Network from "./Network";

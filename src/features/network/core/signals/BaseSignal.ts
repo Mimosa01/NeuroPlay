@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { ISignal } from '../../interfaces/ISignal.interface';
-import type { NeuroTransmitterType, ModulationEffect, NeuronInstance } from '../../types/types';
 import { BASE_MODULATOR } from '../../../../shared/constants/signals.constants';
+import type { NeuroTransmitterType, ModulationEffect, NeuronInstance } from '../../types';
 
 export default abstract class BaseSignal implements ISignal {
   public readonly id: string;

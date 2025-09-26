@@ -1,12 +1,12 @@
 import { Zap, Tag, Clock, Activity, Waves, FlaskConical } from 'lucide-react';
 import { IconInput } from '../../../shared/components/IconInput';
-import { SaveButton } from '../../../shared/components/SaveButton';
+import { SaveButton } from './SaveButton';
 import { useEditNeuron } from '../hooks/useEditNeuron';
 import { HeaderCard } from './HeaderCard';
 import { SignalIndicator } from './SignalIndicator';
 import toShortenText from '../utils/toShortenText';
 import { TRANSMITTER_CONFIG } from '../utils/constants';
-import type { NeuroTransmitterType } from '../../network/types/types';
+import type { NeuroTransmitterType } from '../../network/types';
 
 export const NeuronBody = () => {
   const {

@@ -1,6 +1,5 @@
-import type { Coords } from "../../../shared/types/types";
 import type { IEdge } from "../interfaces/IEdge.interface";
-import type { NeuroTransmitterType } from "../types/types";
+import type { NeuroTransmitterType, Coords } from "../types";
 
 export type NeuronDTO = {
   id: string;

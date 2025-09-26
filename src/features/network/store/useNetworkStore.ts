@@ -1,14 +1,13 @@
 import { create } from 'zustand';
-import type { Coords } from '../../../shared/types/types';
 import type { EdgeDTO } from '../dto/edge.dto';
 import type { NeuronDTO } from '../dto/neuron.dto';
 import { neuronToDTO } from '../dto/neuronTo';
-import type { NeuronType } from '../types/types';
 import { NetworkSerializer } from '../core/network/NetworkSerealizer';
 import { NetworkFacade } from '../core/network/NetworkFacade';
 import { toast } from 'sonner';
 import { edgeToDTO } from '../dto/edgeTo';
 import NeuronAccessor from '../core/neurons/NeuronAccessor';
+import type { Coords, NeuronType } from '../types';
 
 
 const facade = new NetworkFacade();
@@ -89,12 +88,12 @@ export const useNetworkStore = create<NetworkState>(( set ) => {
 
     findNearestNeuron: (coords, maxDistance = 30) => {
       const neuron = facade.findNearestNeuron(coords, maxDistance);
-      return neuron ? facade.getSnapshot().neurons.find(n => n.id === neuron.id)! : null;
+      return neuron ? facade.getSnapshot().neurons.find((n: { id: string; }) => n.id === neuron.id)! : null;
     },
 
     findNearestEdge: (coords, maxDistance = 30) => {
       const edge = facade.findNearestEdge(coords, maxDistance);
-      return edge ? facade.getSnapshot().edges.find(e => e.id === edge.id)! : null;
+      return edge ? facade.getSnapshot().edges.find((e: { id: string; }) => e.id === edge.id)! : null;
     },
 
     resetNetwork: () => {

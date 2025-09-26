@@ -5,7 +5,7 @@ import {
   GitPullRequestClosed, 
   Trash2 
 } from "lucide-react";
-import type { Tool } from "../types/types";
+import type { Tool } from "../../features/scene/types";
 
 export const TOOL_BUTTONS: Tool[] = [
   {

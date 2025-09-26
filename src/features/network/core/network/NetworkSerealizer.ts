@@ -1,8 +1,8 @@
 import { edgeToDTO } from "../../dto/edgeTo";
 import { neuronToDTO } from "../../dto/neuronTo";
+import type { NetworkSnapshot } from "../../types";
 import NeuronAccessor from "../neurons/NeuronAccessor";
 import type Network from "./Network";
-import type { NetworkSnapshot } from "./types/types";
 
 export class NetworkSerializer {
   public static createSnapshot(network: Network): NetworkSnapshot {

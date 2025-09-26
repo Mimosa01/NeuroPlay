@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { ToolType } from '../../../shared/types/types';
+import type { ToolType } from '../types';
 
 type UIState = {
   selectedTool: ToolType;

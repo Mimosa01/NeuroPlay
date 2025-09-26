@@ -1,5 +1,5 @@
 import { Check, Save } from 'lucide-react';
-import { Button } from "./Button";
+import { Button } from "../../../shared/components/Button";
 
 export const SaveButton = ({ 
   hasChanges, 

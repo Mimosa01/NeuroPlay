@@ -5,8 +5,3 @@ export type Tool = {
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   label: string;
 }
-
-export type Coords = {
-  x: number;
-  y: number;
-}

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSelectionStore } from '../store/useSelectionStore';
 import { useNetworkStore } from '../../network/store/useNetworkStore';
 import { toast } from 'sonner';
-import type { NeuroTransmitterType } from '../../network/types/types';
+import type { NeuroTransmitterType } from '../../network/types';
 
 type NeuronFormFields = {
   label: string;

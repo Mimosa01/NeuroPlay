@@ -1,5 +1,4 @@
-import type { Coords } from "../../../shared/types/types";
-import type { NeuronInstance, NeuronType } from "../types/types";
+import type { Coords, NeuronInstance, NeuronType } from "../types";
 import PyramidalNeuron from "./neurons/PyramidalNeuron";
 
 export class NeuronFactory {

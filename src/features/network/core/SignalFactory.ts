@@ -1,5 +1,5 @@
 import type { ISignal } from "../interfaces/ISignal.interface";
-import type { NeuroTransmitterType } from "../types/types";
+import type { NeuroTransmitterType } from "../types";
 import { Acetylholine } from "./signals/Acetylholine";
 import { Dopamine } from "./signals/Dopamine";
 import { GABA } from "./signals/GABA";

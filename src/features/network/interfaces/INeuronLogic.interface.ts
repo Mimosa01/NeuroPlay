@@ -1,4 +1,4 @@
-import type { ModulationEffect } from "../types/types";
+import type { ModulationEffect } from "../types";
 import type { IEdge } from "./IEdge.interface";
 
 export interface INeuronLogic {

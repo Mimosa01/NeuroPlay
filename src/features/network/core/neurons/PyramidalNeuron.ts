@@ -1,4 +1,4 @@
-import type { Coords } from '../../../../shared/types/types';
+import type { Coords } from '../../types';
 import BaseNeuron from './BaseNeuron';
 
 export default class PyramidalNeuron extends BaseNeuron {

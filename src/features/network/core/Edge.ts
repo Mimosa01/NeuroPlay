@@ -1,9 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { NeuronInstance, NeuroTransmitterType } from '../types/types';
 import { SignalFactory } from './SignalFactory';
 import type { IEdge } from '../interfaces/IEdge.interface';
 import { BASE_POSTSYNAPTIC_EFFECTS as BPE } from '../../../shared/constants/signals.constants';
 import NeuronAccessor from './neurons/NeuronAccessor';
+import type { NeuronInstance, NeuroTransmitterType } from '../types';
 
 export default class Edge implements IEdge {
   public readonly id: string;

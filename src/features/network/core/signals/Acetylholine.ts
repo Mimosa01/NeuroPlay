@@ -1,5 +1,5 @@
 import { ACETYLHOLINE } from "../../../../shared/constants/signals.constants";
-import type { ModulationEffect, NeuronInstance } from "../../types/types";
+import type { ModulationEffect, NeuronInstance } from "../../types";
 import BaseSignal from "./BaseSignal";
 
 export class Acetylholine extends BaseSignal {

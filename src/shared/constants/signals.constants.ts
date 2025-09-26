@@ -1,4 +1,4 @@
-import type { NeuroTransmitterType } from "../../features/network/types/types";
+import type { NeuroTransmitterType } from "../../features/network/types";
 
 export const DOPAMINE = { thresholdDelta: -2.0, tauDelta: 5, duration: 100 };
 export const SEROTONIN = { thresholdDelta: 2.0, tauDelta: -5, duration: 150 };

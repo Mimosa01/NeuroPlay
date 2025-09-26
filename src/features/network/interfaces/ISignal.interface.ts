@@ -1,5 +1,4 @@
-import type { ModulationEffect, NeuronInstance, NeuroTransmitterType } from "../types/types";
-
+import type { NeuroTransmitterType, ModulationEffect, NeuronInstance } from "../types";
 
 export interface ISignal {
   readonly id: string;

@@ -1,6 +1,6 @@
 import { useEditEdge } from "../hooks/useEditEdge";
 import { Link, Activity, Clock } from 'lucide-react';
-import { SaveButton } from "../../../shared/components/SaveButton";
+import { SaveButton } from "./SaveButton";
 import { HeaderCard } from "./HeaderCard";
 import toShortenText from "../utils/toShortenText";
 import { IconInput } from "../../../shared/components/IconInput";
