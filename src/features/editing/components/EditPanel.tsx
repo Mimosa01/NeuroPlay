@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
-import { useEditSelection } from '../hooks/useEditSelection';
+import { useEditNeuron } from '../hooks/useEditNeuron';
+import { useEditEdge } from '../hooks/useEditEdge';
+import { useSelectionStore } from '../store/useSelectionStore';
 import { EdgeBody } from './EdgeBody';
 import { NeuronBody } from './NeuronBody';
 
 export const EditPanel: React.FC = () => {
-  const {
-    neuron,
-    edge,
-    clearSelection,
-  } = useEditSelection();
+  const { neuron } = useEditNeuron();
+  const { edge } = useEditEdge();
+  const clearSelection = useSelectionStore(state => state.clearSelection);
 
   const [isVisible, setIsVisible] = useState(false);
 
@@ -19,7 +19,7 @@ export const EditPanel: React.FC = () => {
       return () => clearTimeout(timer);
     } else {
       setIsVisible(false);
-    }
+    } 
   }, [neuron, edge]);
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { useEditSelection } from "../hooks/useEditSelection";
+import { useEditEdge } from "../hooks/useEditEdge";
 import { Link, Activity, Clock } from 'lucide-react';
 import { SaveButton } from "../../../shared/components/SaveButton";
 import { HeaderCard } from "./HeaderCard";
@@ -7,23 +7,24 @@ import { IconInput } from "../../../shared/components/IconInput";
 
 export const EdgeBody = () => {
   const {
-    conductance,
-    delay,
-    setEdgeForm,
-    saveEdge,
-    hasEdgeChanges,
     edge,
-  } = useEditSelection();
+    form,
+    setForm,
+    save,
+    hasChanges,
+  } = useEditEdge();
 
-  const sourceId = toShortenText(edge?.sourceId || '');
-  const targetId = toShortenText(edge?.targetId || '');
+  if (!edge) return null;
+
+  const sourceId = toShortenText(edge.sourceId || '');
+  const targetId = toShortenText(edge.targetId || '');
 
   // Проводимость: 0.1 → 2.0 → 0% → 100%
-  const conductanceValue = parseFloat(conductance) || 0.1;
+  const conductanceValue = parseFloat(form.conductance) || 0.1;
   const conductancePercent = Math.min(100, Math.max(0, ((conductanceValue - 0.1) / (2.0 - 0.1)) * 100));
 
   // Задержка: 1 → 10 → 0% → 100%
-  const delayValue = parseFloat(delay) || 1;
+  const delayValue = parseFloat(form.delay) || 1;
   const delayPercent = Math.min(100, Math.max(0, ((delayValue - 1) / (10 - 1)) * 100));
 
   return (
@@ -42,8 +43,8 @@ export const EdgeBody = () => {
           step="0.1"
           min="0.1"
           max="2.0"
-          value={conductance}
-          onChange={(e) => setEdgeForm('conductance', e.target.value)}
+          value={form.conductance}
+          onChange={(e) => setForm(prev => ({ ...prev, conductance: e.target.value }))}
           helpText="μS (микросименсы)"
           autoFocus
         />
@@ -73,8 +74,8 @@ export const EdgeBody = () => {
           step="1"
           min="1"
           max="10"
-          value={delay}
-          onChange={(e) => setEdgeForm('delay', e.target.value)}
+          value={form.delay}
+          onChange={(e) => setForm(prev => ({ ...prev, delay: e.target.value }))}
           helpText="шагов"
         />
         
@@ -96,8 +97,8 @@ export const EdgeBody = () => {
 
       <div className="pt-2">
         <SaveButton 
-          hasChanges={hasEdgeChanges}
-          onClick={saveEdge}
+          hasChanges={hasChanges}
+          onClick={save}
         />
       </div>
     </div>

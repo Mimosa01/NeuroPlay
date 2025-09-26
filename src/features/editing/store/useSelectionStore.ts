@@ -12,7 +12,7 @@ type SelectionState = {
 export const useSelectionStore = create<SelectionState>((set) => ({
   selectedNeuronId: null,
   selectedEdgeId: null,
-
+ 
   setSelectedNeuronId: (id) =>
     set({ selectedNeuronId: id, selectedEdgeId: null }),
 

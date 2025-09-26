@@ -63,3 +63,4 @@ export const SignalIndicator = ({ signal }: { signal: number }) => {
     </div>
   );
 };
+ 
