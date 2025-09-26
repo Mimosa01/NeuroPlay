@@ -26,6 +26,7 @@ export default class PyramidalNeuron extends BaseNeuron {
       : -55;
 
     if (!this.isRefractory() && this.membranePotential >= effectiveThreshold) {
+      console.log(`${this.id} - ${this.membranePotential}`)
       this.fire();
     }
   }

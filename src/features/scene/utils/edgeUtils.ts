@@ -1,34 +1,20 @@
-export function getWeightColors(weight: number | string): { 
-  line: string; 
-  text: string; 
-  arrow: string 
-} {
-  const weightValue = parseFloat(weight.toString()) || 0;
-  
-  if (weightValue > 1) {
-    return {
-      line: '#10b981',    // green-500
-      text: '#059669',    // emerald-600
-      arrow: '#10b981'
-    };
-  }
-  
-  if (weightValue < 1) {
-    return {
-      line: '#ef4444',    // red-500
-      text: '#dc2626',    // rose-600
-      arrow: '#ef4444'
-    };
-  }
-  
-  return {
-    line: '#94a3b8',      // slate-400
-    text: '#64748b',      // slate-500
-    arrow: '#94a3b8'
-  };
+import { WEIGHT_COLORS, LINE_WIDTH_MAX, LINE_WIDTH_MIN, LINE_WIDTH_FACTOR } from "../../../shared/constants/edge.constants";
+
+type Weight = number;
+
+interface WeightColors {
+  line: string;
+  text: string;
+  arrow: string;
 }
 
-export function getLineWidth(weight: number | string): number {
-  const weightValue = Math.abs(parseFloat(weight.toString()) || 0);
-  return Math.min(2, 1 + weightValue * 1.5); // от 1 до 3px
+export function getWeightColors(weight: Weight): WeightColors {
+  if (weight > 1) return WEIGHT_COLORS.positive;
+  if (weight < 1) return WEIGHT_COLORS.negative;
+  return WEIGHT_COLORS.neutral;
+}
+
+export function getLineWidth(weight: Weight): number {
+  const value = Math.abs(weight);
+  return Math.min(LINE_WIDTH_MAX, LINE_WIDTH_MIN + value * LINE_WIDTH_FACTOR);
 }

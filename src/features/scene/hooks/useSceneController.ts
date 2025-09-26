@@ -1,10 +1,17 @@
-import { useRef, useCallback } from 'react';
-import { useD3Zoom } from './useD3Zoom';
-import { useToolLogic } from '../../network/hooks/useToolLogic';
+import { useCallback, useRef } from 'react';
+import { useD3Zoom } from '../hooks/useD3Zoom';
+import { useToolLogic } from './useToolLogic';
 
-export function useSceneClickHandler() {
-  const svgRef = useRef<SVGSVGElement | null>(null);
-  const gRef = useRef<SVGGElement | null>(null);
+
+interface SceneController {
+  svgRef: React.RefObject<SVGSVGElement>;
+  gRef: React.RefObject<SVGGElement>;
+  onClick: (e: React.MouseEvent<SVGSVGElement>) => void;
+}
+
+export function useSceneController(): SceneController {
+  const svgRef = useRef<SVGSVGElement>(null!);
+  const gRef = useRef<SVGGElement>(null!);
   useD3Zoom(svgRef, gRef);
   const { handleClick } = useToolLogic();
 
@@ -22,5 +29,9 @@ export function useSceneClickHandler() {
     handleClick(transformedPoint.x, transformedPoint.y);
   }, [handleClick]);
 
-  return { svgRef, gRef, onClick };
+  return {
+    svgRef,
+    gRef,
+    onClick
+  };
 }

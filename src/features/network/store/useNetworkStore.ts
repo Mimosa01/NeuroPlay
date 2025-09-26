@@ -27,7 +27,7 @@ type NetworkState = {
   resetNetwork: () => void;
 
   // Методы нейронов и ребер
-  exciteNeuron: (id: string, signal?: number) => void;
+  exciteNeuron: (id: string, signal: number) => void;
   updateNeuron: (id: string, data: Partial<NeuronDTO>) => void;
   updateEdge: (id: string, data: Partial<EdgeDTO>) => void;
 
@@ -103,7 +103,7 @@ export const useNetworkStore = create<NetworkState>(( set ) => {
       toast.success('Сеть очищена', { duration: 1000 });
     },
 
-    exciteNeuron: (id, signal = 100) => {
+    exciteNeuron: (id, signal) => {
       facade.exciteNeuron(id, signal);
       
       toast.success('Нейрон возбуждён', { duration: 1500 });

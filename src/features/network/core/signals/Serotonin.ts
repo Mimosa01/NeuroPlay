@@ -1,4 +1,4 @@
-import { SEROTONIN } from "../../params/defaultParams";
+import { SEROTONIN } from "../../../../shared/constants/signals.constants";
 import type { ModulationEffect, NeuronInstance } from "../../types/types";
 import BaseSignal from "./BaseSignal";
 

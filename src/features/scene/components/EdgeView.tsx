@@ -1,19 +1,12 @@
-import { type FC, useState } from 'react';
-import { useToolStore } from '../../../shared/hooks/useToolStore';
+import { type FC } from 'react';
 import type { EdgeDTO } from '../../network/dto/edge.dto';
-import { useEdgeGeometry } from '../hooks/useEdgeGeometry';
-import { useEdgeHandlers } from '../hooks/useEdgeHandlers';
-import { useEdgeStyles } from '../hooks/useEdgeStyles';
+import { useEdgeController } from '../hooks/useEdgeController';
 
 export const EdgeView: FC<{ edge: EdgeDTO }> = ({ edge }) => {
-  const { x1, y1, x2, y2, labelX, labelY, width, divRef, lineWidth } = useEdgeGeometry(edge);
-  const { onClick } = useEdgeHandlers(edge.id);
-  const { colors, isSelected } = useEdgeStyles(edge);
-  const selectedTool = useToolStore((state) => state.selectedTool);
+  const { handlers, state, geometry, styles, label } = useEdgeController(edge);
 
-  const [isHovered, setIsHovered] = useState(false);
-  const isInteractive = selectedTool === 'none';
-  const displayWidth = isSelected || isHovered ? lineWidth * 1.5 : lineWidth;
+  const { x1, y1, x2, y2, labelX, labelY } = geometry;
+  const { onClick, onMouseEnter, onMouseLeave } = handlers;
 
   // Если линия вырождена (слишком короткая)
   if (x1 === x2 && y1 === y2) {
@@ -34,7 +27,7 @@ export const EdgeView: FC<{ edge: EdgeDTO }> = ({ edge }) => {
         >
           <path
             d="M 0 0 L 8 4 L 0 8 Z"
-            fill={isSelected ? '#60a5fa' : colors.arrow}
+            fill={styles.arrowColor}
             className="transition-colors duration-200"
           />
         </marker>
@@ -45,41 +38,41 @@ export const EdgeView: FC<{ edge: EdgeDTO }> = ({ edge }) => {
         y1={y1}
         x2={x2}
         y2={y2}
-        stroke={isSelected ? '#60a5fa' : colors.line}
-        strokeWidth={displayWidth}
+        stroke={styles.lineColor}
+        strokeWidth={state.displayWidth}
         markerEnd={`url(#arrowhead-${edge.id})`}
         className={`
           transition-all duration-200 ease-out
-          ${isInteractive ? 'cursor-pointer' : 'cursor-default'}
+          ${state.isInteractive ? 'cursor-pointer' : 'cursor-default'}
         `}
         onClick={onClick}
-        onMouseEnter={() => isInteractive && setIsHovered(true)}
-        onMouseLeave={() => isInteractive && setIsHovered(false)}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
         style={{
           filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.08))',
         }}
       />
 
       <foreignObject
-        x={labelX - width / 2}
+        x={labelX - label.width / 2}
         y={labelY - 12}
-        width={Math.max(width, 28)}
+        width={Math.max(label.width, 28)}
         height={24}
         style={{ pointerEvents: 'none' }}
       >
         <div
-          ref={divRef}
+          ref={label.divRef}
           className={`
             w-full text-xs font-medium text-center whitespace-nowrap
             rounded-md px-2 py-0.5
             transition-all duration-200 ease-out
-            ${isSelected || isHovered
+            ${state.isSelected || state.isHovered
               ? 'bg-blue-500/90 text-white shadow-md'
               : 'bg-white/80 text-slate-700 border border-white/40 backdrop-blur-sm'
             }
           `}
         >
-          {typeof edge.conductance === 'number' ? edge.conductance.toFixed(1) : edge.conductance}
+          {label.text}
         </div>
       </foreignObject>
     </g>

@@ -1,17 +1,17 @@
-export function calculateNeuronRadius(accumulatedSignal: number): number {
-  const baseRadius = 12;
-  const maxGrowth = 6;
-  const signalFactor = Math.min(1, accumulatedSignal ?? 0);
-  return baseRadius + (signalFactor * maxGrowth);
-}
+import { MEMBRANE_POTENTIAL_COLORS, RESTING_POTENTIAL } from "../../../shared/constants/neuron.constants";
 
-export function getSignalFactor(accumulatedSignal: number): number {
-  return Math.min(1, accumulatedSignal ?? 0);
-}
+type MembranePotential = number;
+type SpikeThreshold = number;
 
-export function getBiologicalColor (membranePotential: number, spikeThreshold: number) {
-    if (membranePotential >= spikeThreshold) return '#ef4444'; // красный - спайк
-    if (membranePotential > -70) return '#f59e0b'; // оранжевый - деполяризация
-    if (membranePotential < -70) return '#60a5fa'; // синий - гиперполяризация
-    return '#94a3b8'; // серый - покой
-  };
+export function getBiologicalColor(membranePotential: MembranePotential, spikeThreshold: SpikeThreshold): string {
+  if (membranePotential >= spikeThreshold) {
+    return MEMBRANE_POTENTIAL_COLORS.spike;
+  }
+  if (membranePotential > RESTING_POTENTIAL) {
+    return MEMBRANE_POTENTIAL_COLORS.depolarization;
+  }
+  if (membranePotential < RESTING_POTENTIAL) {
+    return MEMBRANE_POTENTIAL_COLORS.hyperpolarization;
+  }
+  return MEMBRANE_POTENTIAL_COLORS.resting;
+}

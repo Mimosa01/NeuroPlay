@@ -1,4 +1,4 @@
-import { ACETYLHOLINE } from "../../params/defaultParams";
+import { ACETYLHOLINE } from "../../../../shared/constants/signals.constants";
 import type { ModulationEffect, NeuronInstance } from "../../types/types";
 import BaseSignal from "./BaseSignal";
 

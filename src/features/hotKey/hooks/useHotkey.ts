@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useToolStore } from '../../../shared/hooks/useToolStore';
+import { useToolStore } from '../../scene/store/useToolStore';
 import { useNetworkStore } from '../../network/store/useNetworkStore';
 import { useSelectionStore } from '../../editing/store/useSelectionStore';
 import { useHotkeyStore } from '../store/useHotKeyStore';

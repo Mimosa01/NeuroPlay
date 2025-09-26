@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { Coords } from "../../../../shared/types/types";
 import type { IEdge } from "../../interfaces/IEdge.interface";
-import { DEFAULT_BIOLOGICAL_NEURON_PARAMS as DBNP} from '../../params/defaultParams';
+import { DEFAULT_BIOLOGICAL_NEURON_PARAMS as DBNP } from '../../../../shared/constants/neuron.constants';
 import type { ModulationEffect, NeuronInstance, NeuroTransmitterType } from '../../types/types';
 
 
@@ -112,7 +112,7 @@ export default abstract class BaseNeuron implements NeuronInstance {
   }
 
   public applySignal (signal: number): void {
-    this.membranePotential = signal;
+    this.membranePotential += signal;
     this.inactivityCounter = 0
   }
 

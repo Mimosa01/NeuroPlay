@@ -1,7 +1,7 @@
 import type { FC } from "react";
 import type { Tool } from "../types/types";
 import { ButtonTool } from "../../features/control/ButtonTool";
-import { useToolStore } from "../hooks/useToolStore";
+import { useToolStore } from "../../features/scene/store/useToolStore";
 
 type ToolbarProps = {
   tools: Tool[];

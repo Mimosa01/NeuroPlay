@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import type { NeuronInstance, NeuroTransmitterType } from '../types/types';
 import { SignalFactory } from './SignalFactory';
 import type { IEdge } from '../interfaces/IEdge.interface';
-import { BASE_POSTSYNAPTIC_EFFECTS as BPE} from '../params/defaultParams';
+import { BASE_POSTSYNAPTIC_EFFECTS as BPE } from '../../../shared/constants/signals.constants';
 import NeuronAccessor from './neurons/NeuronAccessor';
 
 export default class Edge implements IEdge {
@@ -56,7 +56,6 @@ export default class Edge implements IEdge {
   
   public transmit(): void {
     const baseEffect = BPE[this.sourceAccessor.getNeuroTransmitter()];
-    console.log(`EFFECT% ${baseEffect}`)
     
     const totalEffect_mV = baseEffect * this.conductance;
     
@@ -85,7 +84,6 @@ export default class Edge implements IEdge {
     // Применяем сигналы к целевому нейрону
     signalsToDeliver.forEach(effect_mV => {
       if (this.isModulator(this.sourceAccessor.getNeuroTransmitter())) {
-        // Для модуляторов effect_mV = 0 — создаём сигнал без аргументов
         const signal = SignalFactory.create(this.sourceAccessor.getNeuroTransmitter(), 0);
         signal.applyTo(this.target);
       } else {

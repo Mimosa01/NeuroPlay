@@ -1,62 +1,30 @@
-import React from 'react';
-import { useToolStore } from '../../../shared/hooks/useToolStore';
+import React, { memo } from 'react';
 import type { NeuronDTO } from '../../network/dto/neuron.dto';
-import { useDragNeuron } from '../hooks/useDragNeuron';
-import { useNeuronHandlers } from '../hooks/useNeuronHandlers';
-import { getBiologicalColor } from '../utils/neuronUtils';
+import { useToolStore } from '../store/useToolStore';
+import { useNeuronController } from '../hooks/useNeuronController';
+import { TRANSMITTER_STYLES } from '../../../shared/constants/transmitter.constants';
 
-// Цвета и символы для каждого типа
-const TRANSMITTER_STYLES = {
-  glutamate: { color: '#10b981', symbol: '+' }, // возбуждающий
-  gaba: { color: '#ef4444', symbol: '–' },     // тормозной
-  dopamine: { color: '#3b82f6', symbol: 'D' },
-  serotonin: { color: '#8b5cf6', symbol: 'S' },
-} as const;
-
-type Props = {
+interface Props {
   neuron: NeuronDTO;
-  isSelected?: boolean;
-};
+}
 
-export const NeuronView: React.FC<Props> = ({ neuron, isSelected }) => {
-  const { x, y } = neuron.coords;
-  const { onDrag, onClick, onContextMenu } = useNeuronHandlers();
-  const selectedTool = useToolStore((state) => state.selectedTool);
+const NeuronView: React.FC<Props> = ({ neuron }) => {
+  const { handlers, state, circleRef } = useNeuronController(neuron);
+  const selectedTool = useToolStore(state => state.selectedTool);
 
-  const baseRadius = 16;
-  const membranePotential = neuron.membranePotential ?? -70;
-  const spikeThreshold = neuron.spikeThreshold ?? -55;
-  const isRefractory = neuron.refractoryDuration > 0;
-  const isReadyToSend = neuron.readyToSend ?? false;
-  const isSpiking = membranePotential >= spikeThreshold && !isRefractory;
+  const style = TRANSMITTER_STYLES[neuron.neuroTransmitter as keyof typeof TRANSMITTER_STYLES] || TRANSMITTER_STYLES.glutamate;
 
-  const [isHovered, setIsHovered] = React.useState(false);
-  const displayRadius = baseRadius * (isHovered ? 1.2 : 1);
-
-  const circleRef = useDragNeuron({
-    id: neuron.id,
-    selectedTool,
-    onDrag: (id, newX, newY) => onDrag(id, newX, newY),
-  });
-
-  const biologicalColor = getBiologicalColor(membranePotential, spikeThreshold);
-
-  // Получаем стиль по типу медиатора
-  const transmitter = neuron.neuroTransmitter || 'glutamate';
-  const style = TRANSMITTER_STYLES[transmitter as keyof typeof TRANSMITTER_STYLES] || TRANSMITTER_STYLES.glutamate;
-
-  // Позиция флажка: смещение от центра вправо-вверх
-  const badgeX = x + displayRadius * 0.6;
-  const badgeY = y - displayRadius * 0.6;
+  const badgeX = neuron.coords.x + state.displayRadius * 0.6;
+  const badgeY = neuron.coords.y - state.displayRadius * 0.6;
 
   return (
     <g>
       {/* Спайк */}
-      {isSpiking && (
+      {state.isSpiking && (
         <circle
-          cx={x}
-          cy={y}
-          r={displayRadius + 8}
+          cx={neuron.coords.x}
+          cy={neuron.coords.y}
+          r={state.displayRadius + 8}
           className="fill-yellow-300 opacity-80 animate-ping"
           style={{ animationDuration: '0.8s' }}
         />
@@ -65,23 +33,22 @@ export const NeuronView: React.FC<Props> = ({ neuron, isSelected }) => {
       {/* Основной нейрон */}
       <circle
         ref={circleRef}
-        cx={x}
-        cy={y}
-        r={displayRadius}
-        fill={biologicalColor}
+        cx={neuron.coords.x}
+        cy={neuron.coords.y}
+        r={state.displayRadius}
+        fill={state.biologicalColor}
         className={`
           transition-all duration-200 ease-out
-          ${isSelected ? 'stroke-2 stroke-blue-500 drop-shadow-md' : 'drop-shadow-sm'}
+          ${state.isSelected ? 'stroke-2 stroke-blue-500 drop-shadow-md' : 'drop-shadow-sm'}
           ${selectedTool === 'none' ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}
-          ${isRefractory ? 'opacity-80' : 'opacity-100'}
-          ${isReadyToSend && !isSpiking ? 'ring-2 ring-green-400/60' : ''}
-          ${isReadyToSend && !isSpiking ? 'animate-pulse' : ''}
+          ${state.isRefractory ? 'opacity-80' : 'opacity-100'}
+          ${state.isReadyToSend && !state.isSpiking ? 'ring-2 ring-green-400/60 animate-pulse' : ''}
           focus:outline-none
         `}
-        onClick={(e) => onClick(e, neuron.id)}
-        onContextMenu={(e) => onContextMenu(e, neuron.id)}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onClick={handlers.onClick}
+        onContextMenu={handlers.onContextMenu}
+        onMouseEnter={handlers.onMouseEnter}
+        onMouseLeave={handlers.onMouseLeave}
         tabIndex={0}
         aria-label={`Neuron ${neuron.label || neuron.id}`}
       />
@@ -109,8 +76,8 @@ export const NeuronView: React.FC<Props> = ({ neuron, isSelected }) => {
       {/* Подпись */}
       {neuron.label && (
         <text
-          x={x}
-          y={y - displayRadius - 10}
+          x={neuron.coords.x}
+          y={neuron.coords.y - state.displayRadius - 10}
           textAnchor="middle"
           dominantBaseline="middle"
           className="text-xs font-medium select-none pointer-events-none"
@@ -125,3 +92,7 @@ export const NeuronView: React.FC<Props> = ({ neuron, isSelected }) => {
     </g>
   );
 };
+
+
+const NeuronViewMemo = memo(NeuronView);
+export default NeuronViewMemo;

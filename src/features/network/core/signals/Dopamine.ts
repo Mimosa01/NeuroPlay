@@ -1,4 +1,4 @@
-import { DOPAMINE } from "../../params/defaultParams";
+import { DOPAMINE } from "../../../../shared/constants/signals.constants";
 import type { ModulationEffect, NeuronInstance } from "../../types/types";
 import BaseSignal from "./BaseSignal";
 

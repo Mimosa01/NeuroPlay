@@ -1,5 +1,5 @@
-import { hotkeyToString } from '../utils/hotKeyParser';
 import { useHintHotkey } from '../hooks/useHintHotkey';
+import { hotkeyToString } from '../utils/hotKeyParser';
 
 export const HotkeyHint = () => {
   const { 
