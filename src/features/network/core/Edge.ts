@@ -1,9 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
-import { SignalFactory } from './SignalFactory';
 import type { IEdge } from '../interfaces/IEdge.interface';
-import { BASE_POSTSYNAPTIC_EFFECTS as BPE } from '../../../shared/constants/signals.constants';
+import { BASE_POSTSYNAPTIC_EFFECTS as BPE, MODULATORS, type ModulatorType } from '../constants/signals.constants';
 import NeuronAccessor from './neurons/NeuronAccessor';
-import type { NeuronInstance, NeuroTransmitterType } from '../types';
+import type { NeuronInstance } from '../types';
 
 export default class Edge implements IEdge {
   public readonly id: string;
@@ -81,21 +80,19 @@ export default class Edge implements IEdge {
       return true;
     });
 
-    // Применяем сигналы к целевому нейрону
     signalsToDeliver.forEach(effect_mV => {
-      if (this.isModulator(this.sourceAccessor.getNeuroTransmitter())) {
-        const signal = SignalFactory.create(this.sourceAccessor.getNeuroTransmitter(), 0);
-        signal.applyTo(this.target);
+      if (!this.target.hasReceptor(this.sourceAccessor.getNeuroTransmitter())) {
+        return;
+      }
+
+      const transmitter = this.sourceAccessor.getNeuroTransmitter();
+      if (transmitter in MODULATORS) {
+        const effect = MODULATORS[transmitter as ModulatorType];
+        this.target.modulation(effect);
       } else {
-        const signal = SignalFactory.create(this.sourceAccessor.getNeuroTransmitter(), effect_mV);
-        signal.applyTo(this.target);
+        this.target.receive(effect_mV);
       }
     });
-  }
-
-  // Вспомогательный метод (можно вынести в утилиты)
-  private isModulator(nt: NeuroTransmitterType): boolean {
-    return ['dopamine', 'serotonin', 'acetylcholine'].includes(nt);
   }
 
   // === Для отладки ===

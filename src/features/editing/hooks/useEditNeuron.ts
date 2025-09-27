@@ -11,6 +11,7 @@ type NeuronFormFields = {
   spikeThreshold: string;
   tau: string;
   transmitter: NeuroTransmitterType;
+  receptors: Set<NeuroTransmitterType>
 };
 
 export const useEditNeuron = () => {
@@ -26,10 +27,20 @@ export const useEditNeuron = () => {
     refractoryDuration: '4',
     spikeThreshold: '15',
     tau: '15',
-    transmitter: 'glutamate'
+    transmitter: 'glutamate',
+    receptors: new Set(), // ← по умолчанию пустой Set
   });
 
   const [initialForm, setInitialForm] = useState<NeuronFormFields>(form);
+
+  // Вспомогательная функция для сравнения Set'ов
+  const setsAreEqual = (a: Set<NeuroTransmitterType>, b: Set<NeuroTransmitterType>): boolean => {
+    if (a.size !== b.size) return false;
+    for (const item of a) {
+      if (!b.has(item)) return false;
+    }
+    return true;
+  };
 
   // Обновляем форму при смене нейрона
   useEffect(() => {
@@ -40,27 +51,23 @@ export const useEditNeuron = () => {
         refractoryDuration: String(neuron.refractoryDuration ?? 4),
         spikeThreshold: String(neuron.spikeThreshold ?? 15),
         tau: String(neuron.tau ?? 15),
-        transmitter: neuron.neuroTransmitter
+        transmitter: neuron.neuroTransmitter,
+        receptors: new Set(neuron.receptors || []),
       };
       setForm(newForm);
       setInitialForm(newForm);
     } else {
-      setForm({
+      const emptyForm: NeuronFormFields = {
         label: '',
         inactivityThreshold: '100',
         refractoryDuration: '4',
         spikeThreshold: '15',
         tau: '15',
-        transmitter: 'glutamate'
-      });
-      setInitialForm({
-        label: '',
-        inactivityThreshold: '100',
-        refractoryDuration: '4',
-        spikeThreshold: '15',
-        tau: '15',
-        transmitter: 'glutamate'
-      });
+        transmitter: 'glutamate',
+        receptors: new Set(),
+      };
+      setForm(emptyForm);
+      setInitialForm(emptyForm);
     }
   }, [neuron]);
 
@@ -72,7 +79,12 @@ export const useEditNeuron = () => {
     const parsedSpikeThreshold = parseInt(form.spikeThreshold, 10);
     const parsedTau = parseInt(form.tau, 10);
 
-    if (isNaN(parsedInactivity) || isNaN(parsedRefractory) || isNaN(parsedSpikeThreshold) || isNaN(parsedTau)) {
+    if (
+      isNaN(parsedInactivity) ||
+      isNaN(parsedRefractory) ||
+      isNaN(parsedSpikeThreshold) ||
+      isNaN(parsedTau)
+    ) {
       toast.error('Некорректные значения параметров', { duration: 3000, position: 'top-right' });
       return;
     }
@@ -89,9 +101,10 @@ export const useEditNeuron = () => {
       spikeThreshold: parsedSpikeThreshold,
       tau: parsedTau,
       neuroTransmitter: form.transmitter,
+      receptors: form.receptors, // ← сохраняем как массив
     });
 
-    setInitialForm(form);
+    setInitialForm({ ...form }); // важно: создать новый объект
     toast.success('Параметры нейрона сохранены', { duration: 2000, position: 'top-right' });
   };
 
@@ -101,7 +114,8 @@ export const useEditNeuron = () => {
     form.refractoryDuration !== initialForm.refractoryDuration ||
     form.spikeThreshold !== initialForm.spikeThreshold ||
     form.tau !== initialForm.tau ||
-    form.transmitter !== initialForm.transmitter
+    form.transmitter !== initialForm.transmitter ||
+    !setsAreEqual(form.receptors, initialForm.receptors) // ← сравниваем Set'ы
   );
 
   return {

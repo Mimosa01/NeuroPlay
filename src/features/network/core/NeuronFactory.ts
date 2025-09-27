@@ -1,12 +1,12 @@
 import type { Coords, NeuronInstance, NeuronType } from "../types";
-import PyramidalNeuron from "./neurons/PyramidalNeuron";
+import RelayNeuron from "./neurons/RelayNeuron";
 
 export class NeuronFactory {
-  static create(type: NeuronType | undefined = 'pyramidal', coords: Coords): NeuronInstance {
+  static create(type: NeuronType | undefined = 'relay', coords: Coords): NeuronInstance {
     switch (type) {
-      case 'pyramidal':
+      case 'relay':
       default:
-        return new PyramidalNeuron(coords);
+        return new RelayNeuron(coords);
     }
   }
 }

@@ -26,6 +26,18 @@ export const NeuronBody = () => {
 
   const transmitterConfig = TRANSMITTER_CONFIG[form.transmitter] || TRANSMITTER_CONFIG.glutamate;
 
+  const toggleReceptor = (type: NeuroTransmitterType) => {
+    setForm(prev => {
+      const newReceptors = new Set(prev.receptors);
+      if (newReceptors.has(type)) {
+        newReceptors.delete(type);
+      } else {
+        newReceptors.add(type);
+      }
+      return { ...prev, receptors: newReceptors };
+    });
+  };
+
   return (
     <div className="space-y-5 text-slate-800">
       {/* Заголовок с типом нейромедиатора */}
@@ -76,8 +88,8 @@ export const NeuronBody = () => {
             label="Порог спайка"
             type="number"
             step="1"
-            min="5"
-            max="50"
+            min="-100"
+            max="100"
             value={form.spikeThreshold}
             onChange={e => setForm(prev => ({ ...prev, spikeThreshold: e.target.value }))}
             helpText={`${form.spikeThreshold} мВ (относительно покоя)`}
@@ -144,7 +156,6 @@ export const NeuronBody = () => {
         <label className="block text-sm font-medium text-slate-800 mb-3">
           Нейромедиатор
         </label>
-        {/* Адаптивная сетка: 2 на мобильных, 3-4 на десктопе */}
         <div className="grid grid-cols-2 gap-2">
           {(Object.entries(TRANSMITTER_CONFIG) as [NeuroTransmitterType, typeof TRANSMITTER_CONFIG[NeuroTransmitterType]][])
             .map(([key, config]) => (
@@ -166,6 +177,45 @@ export const NeuronBody = () => {
                 </span>
               </button>
             ))}
+        </div>
+      </div>
+
+      {/* 🔹 РЕЦЕПТОРЫ */}
+      <div className="pt-2 border-t border-slate-200/40">
+        <label className="block text-sm font-medium text-slate-800 mb-3">
+          Рецепторы
+        </label>
+        <p className="text-xs text-slate-600 mb-2">
+          Нейрон реагирует на выбранные нейромедиаторы
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          {(Object.entries(TRANSMITTER_CONFIG) as [NeuroTransmitterType, typeof TRANSMITTER_CONFIG[NeuroTransmitterType]][])
+            .map(([key, config]) => {
+              const isSelected = form.receptors.has(key);
+              return (
+                <button
+                  key={`receptor-${key}`}
+                  type="button"
+                  onClick={() => toggleReceptor(key)}
+                  title={`Рецептор для ${config.label}`}
+                  className={`
+                    flex flex-col items-center justify-center p-2.5 rounded-lg border transition-all
+                    ${isSelected
+                      ? `${config.bg} border-green-500 ring-2 ring-green-500/30`
+                      : 'bg-white border-slate-200 hover:bg-slate-50'}
+                  `}
+                >
+                  <FlaskConical
+                    className={`w-4 h-4 mb-1 ${
+                      isSelected ? config.iconColor : 'text-slate-400'
+                    }`}
+                  />
+                  <span className="text-[10px] font-medium text-center leading-tight">
+                    {config.label}
+                  </span>
+                </button>
+              );
+            })}
         </div>
       </div>
 

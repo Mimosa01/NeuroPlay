@@ -1,12 +1,8 @@
 import type { Coords } from '../../types';
 import BaseNeuron from './BaseNeuron';
 
-export default class PyramidalNeuron extends BaseNeuron {
-  private static readonly ADAPTATION_DELTA = 3.0;
-  private static readonly ADAPTATION_DURATION = 50;
-
-  private adaptationCounter: number = 0;
-
+export default class RelayNeuron extends BaseNeuron {
+  
   constructor(coords: Coords) {
     super(coords);
     this.membranePotential = -70;
@@ -39,7 +35,7 @@ export default class PyramidalNeuron extends BaseNeuron {
     this.refractorySteps = this.refractoryDuration;
     this.membranePotential = -75;
 
-    this.spikeThreshold = -55 + PyramidalNeuron.ADAPTATION_DELTA;
-    this.adaptationCounter = PyramidalNeuron.ADAPTATION_DURATION;
+    this.spikeThreshold = -55 + this.adaptationDelta;
+    this.adaptationCounter = this.adaptationDuration;
   }
 }

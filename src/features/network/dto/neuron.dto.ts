@@ -11,6 +11,7 @@ export type NeuronDTO = {
   restingPotential: number; 
   spikeThreshold: number;
   tau: number;
+  receptors: Set<NeuroTransmitterType>;
   
   refractoryDuration: number;
   inactivityCounter: number;

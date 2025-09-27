@@ -1,6 +1,6 @@
 import { Signal } from "lucide-react";
-import { normalizeMembranePotential } from "../utils/signalNormalization";
 import { getSignalStrengthColor } from "../utils/getSignalStrenghtColor";
+import { normalizeMembranePotential } from "../utils/signalNormalization";
 
 export const SignalIndicator = ({ signal }: { signal: number }) => {
   const normalizedValue = normalizeMembranePotential(signal);
@@ -18,10 +18,11 @@ export const SignalIndicator = ({ signal }: { signal: number }) => {
       
       <div className="
         p-3 
-        bg-gradient-to-br from-slate-50 to-white 
+        bg-gradient-to-br from-slate-50/80 to-white/80 
         border border-slate-200/60 
         rounded-xl 
         shadow-sm
+        backdrop-blur-sm
       ">
         {/* Значение */}
         <div className="text-xs font-mono mb-2 flex justify-between items-center">
@@ -35,12 +36,12 @@ export const SignalIndicator = ({ signal }: { signal: number }) => {
 
         {/* Индикатор */}
         <div 
-          className="group relative w-full h-2.5 bg-slate-200 rounded-full overflow-hidden"
+          className="group relative w-full h-3 bg-slate-200 rounded-full overflow-hidden"
           title={`Потенциал: ${signal.toFixed(1)} мВ\nПорог спайка: -55 мВ`}
         >
           {/* Порог спайка (фиксированная метка) */}
           <div 
-            className="absolute top-0 bottom-0 w-px bg-red-400/60"
+            className="absolute top-0 bottom-0 w-px bg-red-400/60 z-10"
             style={{ left: '72%' }} // ≈ (-55 - (-70)) / (30 - (-70)) = 15/100 → но визуально ~72%
           />
 

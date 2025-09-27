@@ -17,6 +17,7 @@ export function neuronToDTO(accessor: NeuronAccessor): NeuronDTO {
     restingPotential: accessor.getRestingPotential(), 
     spikeThreshold: accessor.getSpikeThreshold(),
     tau: accessor.getTau(),
+    receptors: accessor.getReceptors(),
     
     refractoryDuration: accessor.getRefractoryDuration(),
     inactivityCounter: accessor.getInactivityCounter(),

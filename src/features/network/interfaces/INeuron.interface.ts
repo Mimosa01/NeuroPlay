@@ -15,6 +15,7 @@ export interface INeuron {
   refractoryDuration: number;
   inactivityCounter: number;
   inactivityThreshold: number;
+  receptors: Set<NeuroTransmitterType>;
 
   coords: Coords;
   label: string;

@@ -19,10 +19,15 @@ export default abstract class BaseNeuron implements NeuronInstance {
   public inactivityThreshold: number = DBNP.inactivityThreshold;   // шагов до "смерти"
   public neuroTransmitter: NeuroTransmitterType = 'glutamate';     // тип нейромедиатора
   public tau: number = DBNP.tau || 15;                          // мембранная постоянная (в шагах)
+  public receptors: Set<NeuroTransmitterType> = new Set();
 
   public spikeThreshold: number = DBNP.spikeThreshold;             // мВ (порог спайка)
 
   public readyToSend: boolean = false;
+
+  protected adaptationDelta: number = 3.0;
+  protected adaptationDuration: number = 50;
+  protected adaptationCounter: number = 0;
 
   // Сохраняем исходные значения для отката
   private originalThreshold: number | null = null;
@@ -48,6 +53,18 @@ export default abstract class BaseNeuron implements NeuronInstance {
 
   public removeOutputEdge (edgeId: string): void {
     this.outputEdges.delete(edgeId);
+  }
+
+  public hasReceptor(transmitter: NeuroTransmitterType): boolean {
+    return this.receptors.has(transmitter);
+  }
+
+  public addReceptor(type: NeuroTransmitterType): void {
+    this.receptors.add(type);
+  }
+
+  public removeReceptor(type: NeuroTransmitterType): void {
+    this.receptors.delete(type);
   }
 
   public step(): void {
@@ -108,11 +125,6 @@ export default abstract class BaseNeuron implements NeuronInstance {
 
     this.modulationSteps = effect.duration;
     console.log(`[Neuron ${this.id}] Применена модуляция: порог ${this.spikeThreshold} мВ`);
-  }
-
-  public applySignal (signal: number): void {
-    this.membranePotential += signal;
-    this.inactivityCounter = 0
   }
 
   private restoreOriginalParameters(): void {

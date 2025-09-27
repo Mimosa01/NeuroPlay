@@ -99,6 +99,7 @@ export class NetworkFacade {
     if (data.coords !== undefined) accessor.setCoords(data.coords);
     if (data.tau !== undefined) accessor.setTau(data.tau);
     if (data.neuroTransmitter !== undefined) accessor.setNeuroTransmitter(data.neuroTransmitter);
+    if (data.receptors !== undefined) accessor.setReceptors(data.receptors);
 
     this.notifyChange();
   }

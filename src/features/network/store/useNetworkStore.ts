@@ -68,7 +68,7 @@ export const useNetworkStore = create<NetworkState>(( set ) => {
       facade.updateEdge(id, data);
     },
 
-    createNeuron: (coords, type = 'pyramidal') => {
+    createNeuron: (coords, type = 'relay') => {
       const neuron = facade.createNeuron(coords, type);
       return neuronToDTO(new NeuronAccessor(neuron));
     },

@@ -54,7 +54,7 @@ export default class NeuronAccessor {
   }
 
   public setSpikeThreshold (threshold: number): void {
-    this.neuron.spikeThreshold = Math.max(5, Math.min(50, threshold)); // 5-50 мВ
+    this.neuron.spikeThreshold = Math.max(-60, Math.min(-40, threshold))
   }
 
   public getNeuroTransmitter(): NeuroTransmitterType {
@@ -70,7 +70,7 @@ export default class NeuronAccessor {
   }
 
   public setRefractoryDuration (duration: number): void {
-    this.neuron.refractoryDuration = Math.max(1, Math.min(20, duration)); // 1-20 шагов
+    this.neuron.refractoryDuration = Math.max(1, Math.min(20, duration));
   }
   
   public getInactivityCounter (): number {
@@ -103,5 +103,14 @@ export default class NeuronAccessor {
 
   public setRestingPotential (potential: number): void {
     this.neuron.restingPotential = potential;
+  }
+
+  public getReceptors (): Set<NeuroTransmitterType> {
+    return this.neuron.receptors;
+  }
+
+  // Пока в нем не уверен
+  public setReceptors (receptors: Set<NeuroTransmitterType>): void {
+    this.neuron.receptors = receptors
   }
 }
