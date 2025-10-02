@@ -6,7 +6,7 @@ import { HeaderCard } from './HeaderCard';
 import { SignalIndicator } from './SignalIndicator';
 import toShortenText from '../utils/toShortenText';
 import { TRANSMITTER_CONFIG } from '../utils/constants';
-import type { NeuroTransmitterType } from '../../network/types';
+import type { NeuroTransmitterType } from '../../network/types/types';
 
 export const NeuronBody = () => {
   const {

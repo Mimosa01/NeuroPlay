@@ -1,6 +1,6 @@
-import type { NeuronInstance } from "../types";
+import type { NeuronInstance } from "../types/types";
 
-export interface IEdge {
+export interface ISynaps {
   readonly id: string;
   readonly source: NeuronInstance;
   readonly target: NeuronInstance;
@@ -16,4 +16,7 @@ export interface IEdge {
   
   transmit (): void;
   deliverSignals (): void;
+
+  resetConductance(): void;
+  applyConductanceMultiplier(multiplier: number): void;
 }

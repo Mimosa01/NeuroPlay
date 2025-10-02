@@ -3,31 +3,31 @@ import { useSelectionStore } from '../store/useSelectionStore';
 import { useNetworkStore } from '../../network/store/useNetworkStore';
 import { toast } from 'sonner';
 
-type EdgeFormFields = {
+type SynapsFormFields = {
   conductance: string;
   delay: string;
 };
 
-export const useEditEdge = () => {
-  const selectedEdgeId = useSelectionStore(state => state.selectedEdgeId);
-  const edges = useNetworkStore(state => state.edgesDTO);
-  const updateEdge = useNetworkStore(state => state.updateEdge);
+export const useEditSynaps = () => {
+  const selectedSynapsId = useSelectionStore(state => state.selectedSynapsId);
+  const synapses = useNetworkStore(state => state.synapsesDTO);
+  const updateSynaps = useNetworkStore(state => state.updateSynaps);
 
-  const edge = edges.find(e => e.id === selectedEdgeId) || null;
+  const synaps = synapses.find(e => e.id === selectedSynapsId) || null;
 
-  const [form, setForm] = useState<EdgeFormFields>({
+  const [form, setForm] = useState<SynapsFormFields>({
     conductance: '1.0',
     delay: '1',
   });
 
-  const [initialForm, setInitialForm] = useState<EdgeFormFields>(form);
+  const [initialForm, setInitialForm] = useState<SynapsFormFields>(form);
 
-  // Обновляем форму при смене ребра
+  // Обновляем форму при смене синапса
   useEffect(() => {
-    if (edge) {
+    if (synaps) {
       const newForm = {
-        conductance: String(edge.conductance ?? 1.0),
-        delay: String(edge.delay ?? 1),
+        conductance: String(synaps.conductance ?? 1.0),
+        delay: String(synaps.delay ?? 1),
       };
       setForm(newForm);
       setInitialForm(newForm);
@@ -41,10 +41,10 @@ export const useEditEdge = () => {
         delay: '1',
       });
     }
-  }, [edge]);
+  }, [synaps]);
 
   const save = () => {
-    if (!edge) return;
+    if (!synaps) return;
 
     const parsedConductance = parseFloat(form.conductance);
     const parsedDelay = parseInt(form.delay, 10);
@@ -64,7 +64,7 @@ export const useEditEdge = () => {
       return;
     }
 
-    updateEdge(edge.id, {
+    updateSynaps(synaps.id, {
       conductance: parsedConductance,
       delay: parsedDelay
     });
@@ -79,7 +79,7 @@ export const useEditEdge = () => {
   );
 
   return {
-    edge,
+    synaps,
     form,
     setForm,
     save,

@@ -1,13 +1,14 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { IEdge } from "../../interfaces/IEdge.interface";
+import type { ISynaps } from "../../interfaces/ISynaps.interface";
 import { DEFAULT_BIOLOGICAL_NEURON_PARAMS as DBNP } from '../../../../shared/constants/neuron.constants';
-import type { NeuronInstance, Coords, NeuroTransmitterType, ModulationEffect } from '../../types';
+import type { NeuronInstance, Coords, NeuroTransmitterType, ChemicalSignalType } from '../../types/types';
+import type { ModulatorEffect } from '../../types/modulator.types';
 
 
 export default abstract class BaseNeuron implements NeuronInstance {
   public readonly id: string;
-  public inputEdges: Map<string, IEdge> = new Map();
-  public outputEdges: Map<string, IEdge> = new Map();
+  public inputSynapses: Map<string, ISynaps> = new Map();
+  public outputSynapses: Map<string, ISynaps> = new Map();
   public label: string = '';
   public coords: Coords;
 
@@ -17,9 +18,9 @@ export default abstract class BaseNeuron implements NeuronInstance {
   public membranePotential: number = DBNP.restingPotential;        // мВ (покойный потенциал)
   public inactivityCounter: number = 0;
   public inactivityThreshold: number = DBNP.inactivityThreshold;   // шагов до "смерти"
-  public neuroTransmitter: NeuroTransmitterType = 'glutamate';     // тип нейромедиатора
+  public neuroTransmitter: ChemicalSignalType = 'glutamate';     // тип нейромедиатора
   public tau: number = DBNP.tau || 15;                          // мембранная постоянная (в шагах)
-  public receptors: Set<NeuroTransmitterType> = new Set();
+  public receptors: Set<ChemicalSignalType> = new Set();
 
   public spikeThreshold: number = DBNP.spikeThreshold;             // мВ (порог спайка)
 
@@ -28,31 +29,37 @@ export default abstract class BaseNeuron implements NeuronInstance {
   protected adaptationDelta: number = 3.0;
   protected adaptationDuration: number = 50;
   protected adaptationCounter: number = 0;
+  public adaptationThresholdShift: number = 0;
 
-  // Сохраняем исходные значения для отката
-  private originalThreshold: number | null = null;
-  private originalTau: number | null = null;
-  private modulationSteps: number = 0;
+  // В BaseNeuron, рядом с другими полями:
+  public readonly baseSpikeThreshold: number = DBNP.spikeThreshold;
+  public readonly baseTau: number = DBNP.tau || 15;
+
+  public readonly baseConductanceMultiplier: number = 1;
+  
+  public currentThresholdShift: number = 0;
+  public currentTauMultiplier: number = 1;
+  // public currentConductanceMultiplier: number = 1;
 
   constructor (coords: Coords) {
     this.id = uuidv4();
     this.coords = coords;
   }
   
-  public addInputEdge (edge: IEdge): void {
-    this.inputEdges.set(edge.id, edge);
+  public addInputSynaps (synaps: ISynaps): void {
+    this.inputSynapses.set(synaps.id, synaps);
   }
 
-  public addOutputEdge (edge: IEdge): void {
-    this.outputEdges.set(edge.id, edge);
+  public addOutputSynaps (synaps: ISynaps): void {
+    this.outputSynapses.set(synaps.id, synaps);
   }
 
-  public removeInputEdge (edgeId: string): void {
-    this.inputEdges.delete(edgeId);
+  public removeInputSynaps (synapsId: string): void {
+    this.inputSynapses.delete(synapsId);
   }
 
-  public removeOutputEdge (edgeId: string): void {
-    this.outputEdges.delete(edgeId);
+  public removeOutputSynaps (synapsId: string): void {
+    this.outputSynapses.delete(synapsId);
   }
 
   public hasReceptor(transmitter: NeuroTransmitterType): boolean {
@@ -73,6 +80,13 @@ export default abstract class BaseNeuron implements NeuronInstance {
       this.refractorySteps--;
     }
 
+    if (this.adaptationCounter > 0) {
+      this.adaptationCounter--;
+      if (this.adaptationCounter === 0) {
+        this.adaptationThresholdShift = 0;
+      }
+    }
+
     // 2. Применяем утечку (возвращаем к restingPotential)
     const diff = this.membranePotential - this.restingPotential;
     this.membranePotential -= diff / this.tau;
@@ -82,13 +96,6 @@ export default abstract class BaseNeuron implements NeuronInstance {
       this.inactivityCounter++;
     } else {
       this.inactivityCounter = 0;
-    }
-
-    if (this.modulationSteps > 0) {
-      this.modulationSteps--;
-      if (this.modulationSteps === 0) {
-        this.restoreOriginalParameters();
-      }
     }
 
     // 4. Проверяем, нужно ли генерировать спайк
@@ -108,35 +115,51 @@ export default abstract class BaseNeuron implements NeuronInstance {
     return this.inactivityCounter >= this.inactivityThreshold;
   }
 
-  public modulation(effect: ModulationEffect): void {
-    if (this.modulationSteps > 0) return;
+  // public applyModulationEffect(effect: ModulatorEffect): void {
+  //   if (effect.thresholdShift !== undefined) {
+  //     this.currentThresholdShift += effect.thresholdShift;
+  //   }
+  //   if (effect.tauMultiplier !== undefined) {
+  //     this.currentTauMultiplier *= effect.tauMultiplier;
+  //   }
+  //   if (effect.conductanceMultiplier !== undefined) {
+  //     this.currentConductanceMultiplier *= effect.conductanceMultiplier;
+  //   }
+  // }
 
-    // Сохраняем оригинальные значения
-    this.originalThreshold = this.spikeThreshold;
-    this.originalTau = this.tau;
+  // public finalizeModulation(): void {
+  //   this.spikeThreshold = this.baseSpikeThreshold + this.currentThresholdShift + this.adaptationThresholdShift;
+  //   this.tau = this.baseTau * this.currentTauMultiplier;
+    
+  //   // Сбрасываем аккумуляторы
+  //   this.currentThresholdShift = 0;
+  //   this.currentTauMultiplier = 1;
+  //   this.currentConductanceMultiplier = 1; // ← сбрасываем после применения
+  // }
 
-    // Применяем эффекты
-    if (effect.thresholdDelta !== undefined) {
-      this.spikeThreshold += effect.thresholdDelta;
+  public applyModulationEffect(effect: ModulatorEffect): void {
+    console.log(`EFFECT% ${effect} --- NEURON: ${this.id}`);  
+    if (effect.thresholdShift !== undefined) {
+      this.currentThresholdShift += effect.thresholdShift;
     }
-    if (effect.tauDelta !== undefined) {
-      this.tau += effect.tauDelta;
+    if (effect.tauMultiplier !== undefined) {
+      this.currentTauMultiplier *= effect.tauMultiplier;
     }
-
-    this.modulationSteps = effect.duration;
-    console.log(`[Neuron ${this.id}] Применена модуляция: порог ${this.spikeThreshold} мВ`);
   }
 
-  private restoreOriginalParameters(): void {
-    if (this.originalThreshold !== null) {
-      this.spikeThreshold = this.originalThreshold;
-      this.originalThreshold = null;
-    }
-    if (this.originalTau !== null) {
-      this.tau = this.originalTau;
-      this.originalTau = null;
-    }
-    console.log(`[Neuron ${this.id}] Модуляция завершена`);
+  public finalizeModulation(): void {
+    // Суммируем все эффекты: базовый + модуляция + адаптация
+    this.spikeThreshold = this.baseSpikeThreshold 
+      + this.currentThresholdShift 
+      + this.adaptationThresholdShift;
+
+    this.tau = this.baseTau * this.currentTauMultiplier;
+
+    // Сбрасываем только модуляционные аккумуляторы
+    this.currentThresholdShift = 0;
+    this.currentTauMultiplier = 1;
+
+    // Адаптация уменьшается со временем — это делаем в step()
   }
 
   public abstract checkForSpike (): void;

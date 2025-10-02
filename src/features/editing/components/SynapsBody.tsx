@@ -1,23 +1,23 @@
-import { useEditEdge } from "../hooks/useEditEdge";
+import { useEditSynaps } from "../hooks/useEditSynaps";
 import { Link, Activity, Clock } from 'lucide-react';
 import { SaveButton } from "./SaveButton";
 import { HeaderCard } from "./HeaderCard";
 import toShortenText from "../utils/toShortenText";
 import { IconInput } from "../../../shared/components/IconInput";
 
-export const EdgeBody = () => {
+export const SynapsBody = () => {
   const {
-    edge,
+    synaps,
     form,
     setForm,
     save,
     hasChanges,
-  } = useEditEdge();
+  } = useEditSynaps();
 
-  if (!edge) return null;
+  if (!synaps) return null;
 
-  const sourceId = toShortenText(edge.sourceId || '');
-  const targetId = toShortenText(edge.targetId || '');
+  const sourceId = toShortenText(synaps.sourceId || '');
+  const targetId = toShortenText(synaps.targetId || '');
 
   // Проводимость: 0.1 → 2.0 → 0% → 100%
   const conductanceValue = parseFloat(form.conductance) || 0.1;

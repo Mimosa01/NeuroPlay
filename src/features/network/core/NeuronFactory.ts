@@ -1,4 +1,4 @@
-import type { Coords, NeuronInstance, NeuronType } from "../types";
+import type { Coords, NeuronInstance, NeuronType } from "../types/types";
 import RelayNeuron from "./neurons/RelayNeuron";
 
 export class NeuronFactory {

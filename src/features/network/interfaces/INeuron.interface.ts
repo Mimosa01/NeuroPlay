@@ -1,12 +1,12 @@
-import type { NeuroTransmitterType, Coords } from "../types";
-import type { IEdge } from "./IEdge.interface";
+import type { Coords, ChemicalSignalType } from "../types/types";
+import type { ISynaps } from "./ISynaps.interface";
 
 export interface INeuron {
   readonly id: string;
-  inputEdges: Map<string, IEdge>;
-  outputEdges: Map<string, IEdge>;
+  inputSynapses: Map<string, ISynaps>;
+  outputSynapses: Map<string, ISynaps>;
   
-  neuroTransmitter: NeuroTransmitterType;
+  neuroTransmitter: ChemicalSignalType;
   membranePotential: number;
   restingPotential: number; 
   spikeThreshold: number;
@@ -15,10 +15,14 @@ export interface INeuron {
   refractoryDuration: number;
   inactivityCounter: number;
   inactivityThreshold: number;
-  receptors: Set<NeuroTransmitterType>;
+  receptors: Set<ChemicalSignalType>;
 
   coords: Coords;
   label: string;
 
   readyToSend: boolean;
+
+  currentThresholdShift: number;
+  currentTauMultiplier: number;
+  // currentConductanceMultiplier: number;
 }

@@ -1,34 +1,36 @@
 import { create } from 'zustand';
-import type { EdgeDTO } from '../dto/edge.dto';
+import type { SynapsDTO } from '../dto/synaps.dto';
 import type { NeuronDTO } from '../dto/neuron.dto';
 import { neuronToDTO } from '../dto/neuronTo';
 import { NetworkSerializer } from '../core/network/NetworkSerealizer';
 import { NetworkFacade } from '../core/network/NetworkFacade';
 import { toast } from 'sonner';
-import { edgeToDTO } from '../dto/edgeTo';
 import NeuronAccessor from '../core/neurons/NeuronAccessor';
-import type { Coords, NeuronType } from '../types';
+import type { Coords, NeuronType } from '../types/types';
+import type { ModulationCloudDTO } from '../dto/modulationCloud.dto';
+import { synapsToDTO } from '../dto/synapsTo';
 
 
 const facade = new NetworkFacade();
 
 type NetworkState = {
   neuronsDTO: NeuronDTO[];
-  edgesDTO: EdgeDTO[];
+  synapsesDTO: SynapsDTO[];
+  cloudsDTO: ModulationCloudDTO[];
 
   // Методы сети
   createNeuron: (coords: Coords, type: NeuronType) => NeuronDTO;
-  createEdge: (sourceId: string, targetId: string) => EdgeDTO | null;
+  createSynaps: (sourceId: string, targetId: string) => SynapsDTO | null;
   findNearestNeuron: (coords: Coords, maxDistance?: number) => NeuronDTO | null;
-  findNearestEdge: (coords: Coords, maxDistance?: number) => EdgeDTO | null;
+  findNearestSynaps: (coords: Coords, maxDistance?: number) => SynapsDTO | null;
   removeNeuron: (id: string) => void;
-  removeEdge: (id: string) => void;
+  removeSynaps: (id: string) => void;
   resetNetwork: () => void;
 
   // Методы нейронов и ребер
   exciteNeuron: (id: string, signal: number) => void;
   updateNeuron: (id: string, data: Partial<NeuronDTO>) => void;
-  updateEdge: (id: string, data: Partial<EdgeDTO>) => void;
+  updateSynaps: (id: string, data: Partial<SynapsDTO>) => void;
 
   // Методы симуляции
   tick: () => void;
@@ -43,20 +45,22 @@ export const useNetworkStore = create<NetworkState>(( set ) => {
     const snapshot = facade.getSnapshot();
     set({
       neuronsDTO: snapshot.neurons,
-      edgesDTO: snapshot.edges,
+      synapsesDTO: snapshot.synapses,
+      cloudsDTO: snapshot.clouds
     });
   });
 
   return {
     neuronsDTO: initialSnapshot.neurons,
-    edgesDTO: initialSnapshot.edges,
+    synapsesDTO: initialSnapshot.synapses,
+    cloudsDTO: initialSnapshot.clouds,
 
     refresh: () => {
       const snapshot = NetworkSerializer.createSnapshot(facade.network);
 
       set({
         neuronsDTO: snapshot.neurons,
-        edgesDTO: snapshot.edges,
+        synapsesDTO: snapshot.synapses,
       });
     },
 
@@ -64,8 +68,8 @@ export const useNetworkStore = create<NetworkState>(( set ) => {
       facade.updateNeuron(id, data);
     },
 
-    updateEdge: (id, data) => {
-      facade.updateEdge(id, data);
+    updateSynaps: (id, data) => {
+      facade.updateSynaps(id, data);
     },
 
     createNeuron: (coords, type = 'relay') => {
@@ -73,13 +77,13 @@ export const useNetworkStore = create<NetworkState>(( set ) => {
       return neuronToDTO(new NeuronAccessor(neuron));
     },
 
-    createEdge: (sourceId, targetId) => {
-      const edge = facade.createEdge(sourceId, targetId);
-      return edge ? edgeToDTO(edge) : null;
+    createSynaps: (sourceId, targetId) => {
+    const synaps = facade.createSynaps(sourceId, targetId);
+    return synaps ? synapsToDTO(synaps) : null;
     },
 
-    removeEdge: (id) => {
-      facade.removeEdge(id);
+    removeSynaps: (id) => {
+      facade.removeSynaps(id);
     },
 
     removeNeuron: (id) => {
@@ -91,9 +95,9 @@ export const useNetworkStore = create<NetworkState>(( set ) => {
       return neuron ? facade.getSnapshot().neurons.find((n: { id: string; }) => n.id === neuron.id)! : null;
     },
 
-    findNearestEdge: (coords, maxDistance = 30) => {
-      const edge = facade.findNearestEdge(coords, maxDistance);
-      return edge ? facade.getSnapshot().edges.find((e: { id: string; }) => e.id === edge.id)! : null;
+    findNearestSynaps: (coords, maxDistance = 30) => {
+    const synaps = facade.findNearestSynaps(coords, maxDistance);
+    return synaps ? facade.getSnapshot().synapses.find((e: { id: string; }) => e.id === synaps.id)! : null;
     },
 
     resetNetwork: () => {

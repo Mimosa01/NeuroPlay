@@ -1,19 +1,24 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { IEdge } from '../interfaces/IEdge.interface';
-import { BASE_POSTSYNAPTIC_EFFECTS as BPE, MODULATORS, type ModulatorType } from '../constants/signals.constants';
+import type { ISynaps } from '../interfaces/ISynaps.interface';
+import { BASE_POSTSYNAPTIC_EFFECTS as BPE } from '../constants/signals.constants';
 import NeuronAccessor from './neurons/NeuronAccessor';
-import type { NeuronInstance } from '../types';
+import type { NeuronInstance } from '../types/types';
+import { eventBus } from './EventBus';
 
-export default class Edge implements IEdge {
+export default class Synaps implements ISynaps {
   public readonly id: string;
   public readonly source: NeuronInstance;
   public readonly target: NeuronInstance;
   
-  private conductance: number;        // условные единицы (0.1–2.0)
+  // private conductance: number;        // условные единицы (0.1–2.0)
   private sourceAccessor: NeuronAccessor;
   private delay: number;              // шагов задержки
 
   private signalQueue: Array<{ effect_mV: number; delay: number }> = [];
+  // private signalQueue: Array<{ baseEffect: number; delay: number }> = [];
+
+  private baseConductance: number; // ← неизменная "настройка"
+  private currentConductance: number; // ← текущая, с модуляцией
 
   constructor(
     source: NeuronInstance, 
@@ -24,27 +29,31 @@ export default class Edge implements IEdge {
     this.id = uuidv4();
     this.source = source;
     this.target = target;
-    this.conductance = Math.max(0.1, Math.min(2.0, conductance)); // 0.1–2.0
+    this.baseConductance = Math.max(0.1, Math.min(2.0, conductance));
+    this.currentConductance = this.baseConductance; // изначально = базе
     this.delay = Math.max(1, Math.min(10, delay)); // 1–10 шагов
     this.sourceAccessor = new NeuronAccessor(this.source);
   }
 
   // === Геттеры и сеттеры ===
-  
+
   public setConductance(newConductance: number): void {
-    const old = this.conductance;
-    this.conductance = Math.max(0.1, Math.min(2.0, newConductance));
-    console.log(`[Edge ${this.id}] Проводимость изменена: ${old.toFixed(1)} → ${this.conductance.toFixed(1)}`);
+    const old = this.baseConductance;
+    this.baseConductance = Math.max(0.1, Math.min(2.0, newConductance));
+    // Важно: обновляем и current, если нет активной модуляции
+    this.currentConductance = this.baseConductance;
+    console.log(`[Synaps ${this.id}] Базовая проводимость изменена: ${old.toFixed(1)} → ${this.baseConductance.toFixed(1)}`);
   }
 
   public getConductance(): number {
-    return this.conductance;
+    console.log(this.currentConductance)
+    return this.currentConductance;
   }
 
   public setDelay(newDelay: number): void {
     const old = this.delay;
     this.delay = Math.max(1, Math.min(10, newDelay));
-    console.log(`[Edge ${this.id}] Задержка изменена: ${old} → ${this.delay} шагов`);
+    console.log(`[Synaps ${this.id}] Задержка изменена: ${old} → ${this.delay} шагов`);
   }
 
   public getDelay(): number {
@@ -52,13 +61,10 @@ export default class Edge implements IEdge {
   }
 
   // === Передача сигнала (вызывается при спайке источника) ===
-  
+
   public transmit(): void {
-    const baseEffect = BPE[this.sourceAccessor.getNeuroTransmitter()];
-    
-    const totalEffect_mV = baseEffect * this.conductance;
-    
-    // Ставим в очередь
+    const baseEffect = BPE[this.sourceAccessor.getNeuroTransmitter()] || 0;
+    const totalEffect_mV = baseEffect * this.currentConductance; // ← используем текущую!
     this.signalQueue.push({
       effect_mV: totalEffect_mV,
       delay: this.delay,
@@ -66,11 +72,9 @@ export default class Edge implements IEdge {
   }
 
   // === Доставка сигналов (вызывается симулятором каждый шаг) ===
-  
+
   public deliverSignals(): void {
     const signalsToDeliver: number[] = [];
-    
-    // Обновляем задержки
     this.signalQueue = this.signalQueue.filter(signalObj => {
       signalObj.delay--;
       if (signalObj.delay <= 0) {
@@ -84,15 +88,22 @@ export default class Edge implements IEdge {
       if (!this.target.hasReceptor(this.sourceAccessor.getNeuroTransmitter())) {
         return;
       }
-
-      const transmitter = this.sourceAccessor.getNeuroTransmitter();
-      if (transmitter in MODULATORS) {
-        const effect = MODULATORS[transmitter as ModulatorType];
-        this.target.modulation(effect);
-      } else {
-        this.target.receive(effect_mV);
-      }
+      eventBus.publish('synaps.signal.delivered', {
+        synapsId: this.id,
+        targetId: this.target.id,
+        effect_mV,
+      });
     });
+  }
+
+  public applyConductanceMultiplier(multiplier: number): void {
+    this.currentConductance = this.baseConductance * multiplier;
+    // Ограничиваем диапазон
+    this.currentConductance = Math.max(0.1, Math.min(2.0, this.currentConductance));
+  }
+
+  public resetConductance(): void {
+    this.currentConductance = this.baseConductance;
   }
 
   // === Для отладки ===

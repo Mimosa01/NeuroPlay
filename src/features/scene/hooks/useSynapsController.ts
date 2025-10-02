@@ -1,11 +1,11 @@
 import { useCallback, useRef, useState, useMemo } from 'react';
-import type { EdgeDTO } from '../../network/dto/edge.dto';
+import type { SynapsDTO } from '../../network/dto/synaps.dto';
 import { useInteractionStore } from '../store/useInteractionStore';
 import { useSelectionStore } from '../../editing/store/useSelectionStore';
 import { useToolStore } from '../store/useToolStore';
-import { getWeightColors, getLineWidth } from '../utils/edgeUtils';
+import { getWeightColors, getLineWidth } from '../utils/synapsUtils';
 
-interface EdgeController {
+interface SynapsController {
   handlers: {
     onClick: (e: React.MouseEvent) => void;
     onMouseEnter: () => void;
@@ -38,22 +38,22 @@ interface EdgeController {
   };
 }
 
-export function useEdgeController(edge: EdgeDTO): EdgeController {
+export function useSynapsController(synaps: SynapsDTO): SynapsController {
   const divRef = useRef<HTMLDivElement>(null!);
   const [width, setWidth] = useState(50);
 
   const { hoveredId, setHoveredId } = useInteractionStore();
-  const { selectedEdgeId } = useSelectionStore();
+  const { selectedSynapsId } = useSelectionStore();
   const selectedTool = useToolStore(state => state.selectedTool);
 
-  const isHovered = hoveredId === edge.id;
-  const isSelected = selectedEdgeId === edge.id;
+  const isHovered = hoveredId === synaps.id;
+  const isSelected = selectedSynapsId === synaps.id;
   const isInteractive = selectedTool === 'none';
 
   // Вычисляем геометрию
   const geometry = useMemo(() => {
-    const { x: x1, y: y1 } = edge.sourceCoords;
-    const { x: x2, y: y2 } = edge.targetCoords;
+  const { x: x1, y: y1 } = synaps.sourceCoords;
+  const { x: x2, y: y2 } = synaps.targetCoords;
 
     // Укорачиваем линию на 20px с каждой стороны (аналогично PADDING в старом коде)
     const dx = x2 - x1;
@@ -86,32 +86,32 @@ export function useEdgeController(edge: EdgeDTO): EdgeController {
     const labelY = baseY + normY * offset;
 
     return { x1: startX, y1: startY, x2: endX, y2: endY, labelX, labelY };
-  }, [edge]);
+  }, [synaps]);
 
   // Стили
-  const weightColors = getWeightColors(edge.conductance ?? 0);
+  const weightColors = getWeightColors(synaps.conductance ?? 0);
   const styles = {
     lineColor: isSelected ? '#60a5fa' : weightColors.line,
     arrowColor: isSelected ? '#60a5fa' : weightColors.arrow,
     textColor: weightColors.text,
   };
 
-  const lineWidth = getLineWidth(edge.conductance ?? 0);
+  const lineWidth = getLineWidth(synaps.conductance ?? 0);
   const displayWidth = isSelected || isHovered ? lineWidth * 1.5 : lineWidth;
 
   const handlers = {
     onClick: useCallback((e: React.MouseEvent) => {
       if (isInteractive) {
         e.stopPropagation();
-        useSelectionStore.getState().setSelectedEdgeId(edge.id);
+        useSelectionStore.getState().setSelectedSynapsId(synaps.id);
       }
-    }, [edge.id, isInteractive]),
+    }, [synaps.id, isInteractive]),
 
     onMouseEnter: useCallback(() => {
       if (isInteractive) {
-        setHoveredId(edge.id);
+        setHoveredId(synaps.id);
       }
-    }, [edge.id, isInteractive, setHoveredId]),
+    }, [synaps.id, isInteractive, setHoveredId]),
 
     onMouseLeave: useCallback(() => {
       if (isInteractive) {
@@ -131,7 +131,7 @@ export function useEdgeController(edge: EdgeDTO): EdgeController {
     geometry,
     styles,
     label: {
-      text: typeof edge.conductance === 'number' ? edge.conductance.toFixed(1) : edge.conductance,
+      text: typeof synaps.conductance === 'number' ? synaps.conductance.toFixed(1) : synaps.conductance,
       width,
       setWidth,
       divRef,

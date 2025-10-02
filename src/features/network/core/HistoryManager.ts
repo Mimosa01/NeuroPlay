@@ -1,4 +1,4 @@
-import type { NetworkSnapshot } from "../types";
+import type { NetworkSnapshot } from "../types/types";
 import type Network from "./network/Network";
 import { NetworkSerializer } from "./network/NetworkSerealizer";
 

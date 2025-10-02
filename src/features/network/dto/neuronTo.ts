@@ -9,8 +9,8 @@ export function neuronToDTO(accessor: NeuronAccessor): NeuronDTO {
     label: accessor.getLabel(),
     readyToSend: accessor.getReadyToSend(),
 
-    inputEdges: accessor.getInputEdges(),
-    outputEdges: accessor.getOutputEdges(),
+    inputSynapses: accessor.getInputSynapses(),
+    outputSynapses: accessor.getOutputSynapses(),
     
     neuroTransmitter: accessor.getNeuroTransmitter(),
     membranePotential: accessor.getMembranePotential(),

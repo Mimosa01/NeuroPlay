@@ -8,7 +8,7 @@ import { useNetworkStore } from '../../network/store/useNetworkStore';
 export function useToolLogic() {
   const { selectedTool } = useToolStore();
   const { setSelectedNeuronId } = useSelectionStore();
-  const { createNeuron, createEdge, removeNeuron, removeEdge, resetNetwork, findNearestNeuron, findNearestEdge } = useNetworkStore();
+  const { createNeuron, createSynaps, removeNeuron, removeSynaps, resetNetwork, findNearestNeuron, findNearestSynaps } = useNetworkStore();
   const resetControls = useControlStore(state => state.resetControls);
   const [firstNeuron, setFirstNeuron] = useState<NeuronDTO | null>(null);
 
@@ -38,8 +38,8 @@ export function useToolLogic() {
           setSelectedNeuronId(clickedNeuron.id);
           console.log('[CONNECT] First neuron selected:', clickedNeuron);
         } else if (firstNeuron !== clickedNeuron) {
-          createEdge(firstNeuron.id, clickedNeuron.id);
-          console.log(`[CONNECT] Edge created between ${firstNeuron.id} and ${clickedNeuron.id}`);
+          createSynaps(firstNeuron.id, clickedNeuron.id);
+          console.log(`[CONNECT] Synaps created between ${firstNeuron.id} and ${clickedNeuron.id}`);
           setSelectedNeuronId(null);
           setFirstNeuron(null);
         } else {
@@ -51,10 +51,10 @@ export function useToolLogic() {
       }
 
       case 'reconnect': {
-        const edge = findNearestEdge({ x, y });
-        if (edge) {
-          removeEdge(edge.id);
-          console.log('[RECONNECT] Edge removed:', edge.id);
+    const synaps = findNearestSynaps({ x, y });
+    if (synaps) {
+      removeSynaps(synaps.id);
+      console.log('[RECONNECT] Synaps removed:', synaps.id);
         }
         break;
       }
@@ -62,7 +62,7 @@ export function useToolLogic() {
       default:
         break;
     }
-  }, [selectedTool, createNeuron, findNearestNeuron, removeNeuron, firstNeuron, setSelectedNeuronId, createEdge, findNearestEdge, removeEdge]);
+  }, [selectedTool, createNeuron, findNearestNeuron, removeNeuron, firstNeuron, setSelectedNeuronId, createSynaps, findNearestSynaps, removeSynaps]);
 
   useEffect(() => {
     if (selectedTool === 'clear') {

@@ -1,6 +1,7 @@
 import { useNetworkStore } from '../../network/store/useNetworkStore';
 import NeuronViewMemo from './NeuronView';
-import EdgeViewMemo from './EdgeView';
+import SinapsViewMemo from './SynapsView';
+import CloudViewMemo from './CloudView'; // ← импортируем облако
 import type { useSceneController } from '../hooks/useSceneController';
 
 interface Props {
@@ -11,7 +12,8 @@ export const SceneView: React.FC<Props> = ({ controller }) => {
   const { svgRef, gRef, onClick } = controller;
 
   const neurons = useNetworkStore(state => state.neuronsDTO);
-  const edges = useNetworkStore(state => state.edgesDTO);
+  const sinapses = useNetworkStore(state => state.synapsesDTO);
+  const clouds = useNetworkStore(state => state.cloudsDTO);
 
   return (
     <svg
@@ -37,12 +39,17 @@ export const SceneView: React.FC<Props> = ({ controller }) => {
       </defs>
 
       <g ref={gRef}>
-        {/* Рёбра сначала */}
-        {edges.map((edge) => (
-          <EdgeViewMemo key={edge.id} edge={edge} />
+        {/* Облака — самый нижний слой */}
+        {clouds.map((cloud) => (
+          <CloudViewMemo key={cloud.id} cloud={cloud} />
         ))}
 
-        {/* Нейроны сверху */}
+        {/* Рёбра — поверх облаков */}
+        {sinapses.map((sinaps) => (
+          <SinapsViewMemo key={sinaps.id} synaps={sinaps} />
+        ))}
+
+        {/* Нейроны — самый верхний слой */}
         {neurons.map((neuron) => (
           <NeuronViewMemo key={neuron.id} neuron={neuron} />
         ))}

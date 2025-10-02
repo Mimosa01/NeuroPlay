@@ -1,6 +1,6 @@
-import type { IEdge } from "../../interfaces/IEdge.interface";
+import type { ISynaps } from "../../interfaces/ISynaps.interface";
 import type { INeuron } from "../../interfaces/INeuron.interface";
-import type { Coords, NeuroTransmitterType } from "../../types";
+import type { ChemicalSignalType, Coords } from "../../types/types";
 
 export default class NeuronAccessor {
   private neuron: INeuron;
@@ -13,12 +13,12 @@ export default class NeuronAccessor {
     return this.neuron.id;
   }
   
-  public getInputEdges (): Map<string, IEdge> {
-    return this.neuron.inputEdges;
+  public getInputSynapses (): Map<string, ISynaps> {
+    return this.neuron.inputSynapses;
   }
 
-  public getOutputEdges (): Map<string, IEdge> {
-    return this.neuron.outputEdges;
+  public getOutputSynapses (): Map<string, ISynaps> {
+    return this.neuron.outputSynapses;
   }
 
   public getCoords (): Coords {
@@ -57,11 +57,11 @@ export default class NeuronAccessor {
     this.neuron.spikeThreshold = Math.max(-60, Math.min(-40, threshold))
   }
 
-  public getNeuroTransmitter(): NeuroTransmitterType {
+  public getNeuroTransmitter(): ChemicalSignalType {
     return this.neuron.neuroTransmitter;
   }
 
-  public setNeuroTransmitter (transmitter: NeuroTransmitterType): void {
+  public setNeuroTransmitter (transmitter: ChemicalSignalType): void {
     this.neuron.neuroTransmitter = transmitter;
   }
   
@@ -105,12 +105,24 @@ export default class NeuronAccessor {
     this.neuron.restingPotential = potential;
   }
 
-  public getReceptors (): Set<NeuroTransmitterType> {
+  public getReceptors (): Set<ChemicalSignalType> {
     return this.neuron.receptors;
   }
 
   // Пока в нем не уверен
-  public setReceptors (receptors: Set<NeuroTransmitterType>): void {
+  public setReceptors (receptors: Set<ChemicalSignalType>): void {
     this.neuron.receptors = receptors
   }
+
+  public setCurrentThresholdShift (value: number): void {
+    this.neuron.currentThresholdShift = value;
+  }
+
+  public setCurrentTauMultiplier (value: number): void {
+    this.neuron.currentTauMultiplier = value;
+  }
+
+  // public getCurrentConductanceMultiplier(): number {
+  //   return this.neuron.currentConductanceMultiplier;
+  // }
 }

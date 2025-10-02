@@ -1,4 +1,6 @@
-import type { Coords } from '../../types';
+import type { Coords } from '../../types/types';
+import { isModulator } from '../../utils/modulator.utils';
+import { eventBus } from '../EventBus';
 import BaseNeuron from './BaseNeuron';
 
 export default class RelayNeuron extends BaseNeuron {
@@ -10,32 +12,27 @@ export default class RelayNeuron extends BaseNeuron {
   }
 
   public checkForSpike(): void {
-    if (this.adaptationCounter > 0) {
-      this.adaptationCounter--;
-      if (this.adaptationCounter === 0) {
-        this.spikeThreshold = -55;
-      }
-    }
-
-    const effectiveThreshold = this.adaptationCounter > 0 
-      ? this.spikeThreshold 
-      : -55;
-
-    if (!this.isRefractory() && this.membranePotential >= effectiveThreshold) {
-      console.log(`${this.id} - ${this.membranePotential}`)
+    if (!this.isRefractory() && this.membranePotential >= this.spikeThreshold) {
+      console.log(`${this.id} - ${this.membranePotential}`);
       this.fire();
     }
   }
 
   public fire(): void {
-    for (const edge of this.outputEdges.values()) {
-      edge.transmit();
+    eventBus.publish('neuron.spike', { neuronId: this.id });
+
+    if (isModulator(this.neuroTransmitter)) {
+      eventBus.publish('modulation.cloud.spawn', {
+        neuronId: this.id,
+        modulator: this.neuroTransmitter,
+        coords: this.coords,
+      });
     }
 
     this.refractorySteps = this.refractoryDuration;
     this.membranePotential = -75;
 
-    this.spikeThreshold = -55 + this.adaptationDelta;
+    this.adaptationThresholdShift = this.adaptationDelta;
     this.adaptationCounter = this.adaptationDuration;
   }
 }

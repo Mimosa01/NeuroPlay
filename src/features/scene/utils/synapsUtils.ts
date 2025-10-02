@@ -1,4 +1,4 @@
-import { WEIGHT_COLORS, LINE_WIDTH_MAX, LINE_WIDTH_MIN, LINE_WIDTH_FACTOR } from "../../../shared/constants/edge.constants";
+import { WEIGHT_COLORS, LINE_WIDTH_MAX, LINE_WIDTH_MIN, LINE_WIDTH_FACTOR } from "../../../shared/constants/synaps.constants";
 
 type Weight = number;
 

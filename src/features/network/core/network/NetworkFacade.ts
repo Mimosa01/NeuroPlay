@@ -1,9 +1,11 @@
-import type { EdgeDTO } from "../../dto/edge.dto";
+import type { SynapsDTO } from "../../dto/synaps.dto";
 import type { NeuronDTO } from "../../dto/neuron.dto";
-import type { IEdge } from "../../interfaces/IEdge.interface";
+import type { ISynaps } from "../../interfaces/ISynaps.interface";
 import type { INeuron } from "../../interfaces/INeuron.interface";
-import type { Coords, NeuronType } from "../../types";
+import type { Coords, NeuronType } from "../../types/types";
+import { eventBus } from "../EventBus";
 import { HistoryManager } from "../HistoryManager";
+import { ModulationCloud } from "../ModulationCloud";
 import NeuronAccessor from "../neurons/NeuronAccessor";
 import Network from "./Network";
 import { NetworkSerializer } from "./NetworkSerealizer";
@@ -18,11 +20,38 @@ export class NetworkFacade {
   public readonly simulator: NetworkSimulator;
 
   private listeners: Listener[] = [];
+  private neuronSubscriptions = new Map<string, Array<() => void>>();
 
   constructor () {
     this.network = new Network();
     this.history = new HistoryManager(this.network);
     this.simulator = new NetworkSimulator(this.network);
+
+    eventBus.subscribe('neuron.spike', (event) => {
+      const neuron = this.network.getNeuron(event.payload.neuronId);
+      if (!neuron) return;
+    for (const synaps of neuron.outputSynapses.values()) {
+      synaps.transmit();
+      }
+    });
+
+    eventBus.subscribe('modulation.cloud.spawn', (event) => {
+      const { neuronId, modulator, coords } = event.payload;
+      console.log(`Создал или добавил облако. НЕЙРОН: ${neuronId}`) // временно
+      const NEARBY_RADIUS = 50;
+
+      const nearbyCloud = Array.from(this.network.modulationClouds.values()).find(cloud =>
+        cloud.type === modulator && cloud.isNear(coords, NEARBY_RADIUS)
+      );
+
+      if (nearbyCloud) {
+        nearbyCloud.setStrength(0.5);
+        nearbyCloud.setTtl(5);
+      } else {
+        const newCloud = new ModulationCloud(modulator, coords);
+        this.network.modulationClouds.set(newCloud.id, newCloud);
+      }
+    });
   }
 
   // === Система событий ===
@@ -37,31 +66,49 @@ export class NetworkFacade {
     };
   }
 
-  // === Методы сети ===
-  public createNeuron (coords: Coords, type: NeuronType): INeuron {
+  public createNeuron(coords: Coords, type: NeuronType): INeuron {
     const neuron = this.network.createNeuron(coords, type);
+
+    const unsubscribes: Array<() => void> = [];
+
+    unsubscribes.push(
+      eventBus.subscribe('synaps.signal.delivered', (event) => {
+        if (event.payload.targetId === neuron.id) {
+          neuron.receive(event.payload.effect_mV);
+        }
+      })
+    );
+
+    this.neuronSubscriptions.set(neuron.id, unsubscribes);
+
     this.history.takeSnapshot();
     this.notifyChange();
     return neuron;
   }
 
-  public createEdge (sourceId: string, targetId: string): IEdge | null {
+  public createSynaps (sourceId: string, targetId: string): ISynaps | null {
     const source = this.network.getNeuron(sourceId);
     const target = this.network.getNeuron(targetId);
     if (!source || !target) return null;
-    const edge = this.network.createEdge(source, target);
+    const synaps = this.network.createSynaps(source, target);
     this.notifyChange();
-    return edge;
+    return synaps;
   }
 
-  public removeNeuron (id: string): void {
+  public removeNeuron(id: string): void {
+    const unsubscribes = this.neuronSubscriptions.get(id);
+    if (unsubscribes) {
+      unsubscribes.forEach(unsub => unsub());
+      this.neuronSubscriptions.delete(id);
+    }
+
     this.network.removeNeuron(id);
     this.history.takeSnapshot();
     this.notifyChange();
   }
 
-  public removeEdge (id: string): void {
-    this.network.removeEdge(id);
+  public removeSynaps (id: string): void {
+    this.network.removeSynaps(id);
     this.notifyChange();
   }
 
@@ -69,8 +116,8 @@ export class NetworkFacade {
     return this.network.findNearestNeuron(coords, maxDistance);
   }
 
-  public findNearestEdge (coords: Coords, maxDistance: number = 30): IEdge | null {
-    return this.network.findNearestEdge(coords, maxDistance);
+  public findNearestSynaps (coords: Coords, maxDistance: number = 30): ISynaps | null {
+    return this.network.findNearestSynaps(coords, maxDistance);
   }
 
   public resetNetwork (): void {
@@ -104,12 +151,12 @@ export class NetworkFacade {
     this.notifyChange();
   }
 
-  public updateEdge (id: string, data: Partial<EdgeDTO>): void {
-    const edge = this.network.getEdge(id);
-    if (!edge) return;
+  public updateSynaps (id: string, data: Partial<SynapsDTO>): void {
+    const synaps = this.network.getSynaps(id);
+    if (!synaps) return;
 
-    if (data.conductance) edge.setConductance(data.conductance);
-    if (data.delay) edge.setDelay(data.delay);
+    if (data.conductance) synaps.setConductance(data.conductance);
+    if (data.delay) synaps.setDelay(data.delay);
 
     this.notifyChange();
   }

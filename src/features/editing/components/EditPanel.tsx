@@ -1,26 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { useEditNeuron } from '../hooks/useEditNeuron';
-import { useEditEdge } from '../hooks/useEditEdge';
+import { useEditSynaps } from '../hooks/useEditSynaps';
 import { useSelectionStore } from '../store/useSelectionStore';
-import { EdgeBody } from './EdgeBody';
+import { SynapsBody } from './SynapsBody';
 import { NeuronBody } from './NeuronBody';
 
 export const EditPanel: React.FC = () => {
   const { neuron } = useEditNeuron();
-  const { edge } = useEditEdge();
+  const { synaps } = useEditSynaps();
   const clearSelection = useSelectionStore(state => state.clearSelection);
 
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (neuron || edge) {
+    if (neuron || synaps) {
       const timer = setTimeout(() => setIsVisible(true), 10);
       return () => clearTimeout(timer);
     } else {
       setIsVisible(false);
     } 
-  }, [neuron, edge]);
+  }, [neuron, synaps]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -30,7 +30,7 @@ export const EditPanel: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [clearSelection]);
 
-  if (!neuron && !edge) return null;
+  if (!neuron && !synaps) return null;
 
   return (
     <div
@@ -82,7 +82,7 @@ export const EditPanel: React.FC = () => {
           hover:scrollbar-thumb-slate-400
         ">
           {neuron && <NeuronBody />}
-          {edge && <EdgeBody />}
+          {synaps && <SynapsBody />}
         </div>
       </div>
     </div>

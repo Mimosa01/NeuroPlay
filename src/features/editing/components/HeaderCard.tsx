@@ -4,7 +4,7 @@ import type { FC } from "react";
 type HeaderCardProps = {
   icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   subtitle?: string;
-  variant?: 'default' | 'neuron' | 'edge';
+  variant?: 'default' | 'neuron' | 'synaps';
 };
 
 export const HeaderCard: FC<HeaderCardProps> = ({ 
@@ -15,14 +15,14 @@ export const HeaderCard: FC<HeaderCardProps> = ({
   // Определяем заголовок и иконку по варианту
   const getTitle = () => {
     if (variant === 'neuron') return 'Нейрон';
-    if (variant === 'edge') return 'Связь';
+    if (variant === 'synaps') return 'Синапс';
     return 'Элемент';
   };
 
   const getIcon = () => {
     if (Icon) return Icon;
     if (variant === 'neuron') return Hash;
-    if (variant === 'edge') return Link;
+    if (variant === 'synaps') return Link;
     return Hash;
   };
 
@@ -32,12 +32,12 @@ export const HeaderCard: FC<HeaderCardProps> = ({
   // Цвета по варианту
   const bgColor = 
     variant === 'neuron' ? 'bg-blue-50/70' :
-    variant === 'edge' ? 'bg-purple-50/70' :
+    variant === 'synaps' ? 'bg-purple-50/70' :
     'bg-slate-50/70';
 
   const iconColor = 
     variant === 'neuron' ? 'text-blue-600' :
-    variant === 'edge' ? 'text-purple-600' :
+    variant === 'synaps' ? 'text-purple-600' :
     'text-slate-500';
 
   return (

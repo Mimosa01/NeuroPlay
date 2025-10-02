@@ -1,6 +1,6 @@
-import type { Coords } from "../types";
+import type { Coords } from "../types/types";
 
-export type EdgeDTO = {
+export type SynapsDTO = {
   id: string;
   sourceId: string;
   targetId: string;

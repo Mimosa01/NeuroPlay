@@ -1,9 +1,9 @@
 import { memo, type FC } from 'react';
-import type { EdgeDTO } from '../../network/dto/edge.dto';
-import { useEdgeController } from '../hooks/useEdgeController';
+import type { SynapsDTO } from '../../network/dto/synaps.dto';
+import { useSynapsController } from '../hooks/useSynapsController';
 
-const EdgeView: FC<{ edge: EdgeDTO }> = ({ edge }) => {
-  const { handlers, state, geometry, styles, label } = useEdgeController(edge);
+const SynapsView: FC<{ synaps: SynapsDTO }> = ({ synaps }) => {
+  const { handlers, state, geometry, styles, label } = useSynapsController(synaps);
 
   const { x1, y1, x2, y2, labelX, labelY } = geometry;
   const { onClick, onMouseEnter, onMouseLeave } = handlers;
@@ -17,7 +17,7 @@ const EdgeView: FC<{ edge: EdgeDTO }> = ({ edge }) => {
     <g>
       <defs>
         <marker
-          id={`arrowhead-${edge.id}`}
+          id={`arrowhead-${synaps.id}`}
           markerWidth="8"
           markerHeight="8"
           refX="6"
@@ -40,7 +40,7 @@ const EdgeView: FC<{ edge: EdgeDTO }> = ({ edge }) => {
         y2={y2}
         stroke={styles.lineColor}
         strokeWidth={state.displayWidth}
-        markerEnd={`url(#arrowhead-${edge.id})`}
+        markerEnd={`url(#arrowhead-${synaps.id})`}
         className={`
           transition-all duration-200 ease-out
           ${state.isInteractive ? 'cursor-pointer' : 'cursor-default'}
@@ -80,5 +80,5 @@ const EdgeView: FC<{ edge: EdgeDTO }> = ({ edge }) => {
 };
 
 
-const EdgeViewMemo = memo(EdgeView);
-export default EdgeViewMemo;
+const SynapsViewMemo = memo(SynapsView);
+export default SynapsViewMemo;
