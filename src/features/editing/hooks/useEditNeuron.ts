@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { useSelectionStore } from '../store/useSelectionStore';
 import { useNetworkStore } from '../../network/store/useNetworkStore';
-import { toast } from 'sonner';
-import type { NeuroTransmitterType } from '../../network/types/types';
+import type { ChemicalSignalType } from '../../network/types/types';
 
 type NeuronFormFields = {
   label: string;
@@ -10,8 +10,8 @@ type NeuronFormFields = {
   refractoryDuration: string;
   spikeThreshold: string;
   tau: string;
-  transmitter: NeuroTransmitterType;
-  receptors: Set<NeuroTransmitterType>
+  transmitter: ChemicalSignalType;
+  receptors: Set<ChemicalSignalType>
 };
 
 export const useEditNeuron = () => {
@@ -34,7 +34,7 @@ export const useEditNeuron = () => {
   const [initialForm, setInitialForm] = useState<NeuronFormFields>(form);
 
   // Вспомогательная функция для сравнения Set'ов
-  const setsAreEqual = (a: Set<NeuroTransmitterType>, b: Set<NeuroTransmitterType>): boolean => {
+  const setsAreEqual = (a: Set<ChemicalSignalType>, b: Set<ChemicalSignalType>): boolean => {
     if (a.size !== b.size) return false;
     for (const item of a) {
       if (!b.has(item)) return false;

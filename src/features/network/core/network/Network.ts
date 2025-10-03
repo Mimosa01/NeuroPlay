@@ -2,9 +2,9 @@ import type { ISynaps } from "../../interfaces/ISynaps.interface";
 import type { IModulationCloud } from "../../interfaces/IModulationCloud.interface";
 import type { INeuron } from "../../interfaces/INeuron.interface";
 import type { NeuronInstance, Coords, NeuronType } from "../../types/types";
-import Synaps from "../Synaps";
 import { NeuronFactory } from "../NeuronFactory";
 import NeuronAccessor from "../neurons/NeuronAccessor";
+import Synaps from "../../synapses/Synaps";
 
 
 export default class Network {

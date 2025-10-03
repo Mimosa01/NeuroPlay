@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { useSelectionStore } from '../store/useSelectionStore';
 import { useNetworkStore } from '../../network/store/useNetworkStore';
-import { toast } from 'sonner';
 
 type SynapsFormFields = {
   conductance: string;

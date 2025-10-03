@@ -1,9 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { ISynaps } from '../interfaces/ISynaps.interface';
 import { BASE_POSTSYNAPTIC_EFFECTS as BPE } from '../constants/signals.constants';
-import NeuronAccessor from './neurons/NeuronAccessor';
 import type { NeuronInstance } from '../types/types';
-import { eventBus } from './EventBus';
+import { eventBus } from '../core/EventBus';
+import NeuronAccessor from '../core/neurons/NeuronAccessor';
 
 export default class Synaps implements ISynaps {
   public readonly id: string;
