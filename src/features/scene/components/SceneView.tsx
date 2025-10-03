@@ -1,8 +1,9 @@
 import { useNetworkStore } from '../../network/store/useNetworkStore';
 import NeuronViewMemo from './NeuronView';
-import SinapsViewMemo from './SynapsView';
+import SynapsViewMemo from './SynapsView';
 import CloudViewMemo from './CloudView'; // ← импортируем облако
 import type { useSceneController } from '../hooks/useSceneController';
+import ElectricSynapsViewMemo from './ElectricSynapsView';
 
 interface Props {
   controller: ReturnType<typeof useSceneController>;
@@ -12,7 +13,8 @@ export const SceneView: React.FC<Props> = ({ controller }) => {
   const { svgRef, gRef, onClick } = controller;
 
   const neurons = useNetworkStore(state => state.neuronsDTO);
-  const sinapses = useNetworkStore(state => state.synapsesDTO);
+  const synapses = useNetworkStore(state => state.synapsesDTO);
+  const electricSynapses = useNetworkStore(state => state.electricSynapsesDTO);
   const clouds = useNetworkStore(state => state.cloudsDTO);
 
   return (
@@ -45,8 +47,12 @@ export const SceneView: React.FC<Props> = ({ controller }) => {
         ))}
 
         {/* Рёбра — поверх облаков */}
-        {sinapses.map((sinaps) => (
-          <SinapsViewMemo key={sinaps.id} synaps={sinaps} />
+        {synapses.map((synaps) => (
+          <SynapsViewMemo key={synaps.id} synaps={synaps} />
+        ))}
+
+        {electricSynapses.map((synaps) => (
+          <ElectricSynapsViewMemo key={synaps.id} synaps={synaps} />
         ))}
 
         {/* Нейроны — самый верхний слой */}

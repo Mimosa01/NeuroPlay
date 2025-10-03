@@ -4,7 +4,7 @@ import type { Coords } from "./types";
 
 export interface EventMap {
   'neuron.spike': { neuronId: string };
-  'synaps.signal.delivered': { synapsId: string; targetId: string; effect_mV: number };
+  'chemicalSynaps.signal.delivered': { synapsId: string; targetId: string; effect_mV: number };
   'neuron.modulation.request': { targetId: string; effect: ModulatorEffect };
   'modulation.cloud.spawn': { neuronId: string; modulator: NeuroModulatorType; coords: Coords };
 }

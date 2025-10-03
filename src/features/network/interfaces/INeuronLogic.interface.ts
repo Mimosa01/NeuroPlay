@@ -1,6 +1,7 @@
 import type { ModulatorEffect } from "../types/modulator.types";
 import type { ChemicalSignalType } from "../types/types";
-import type { ISynaps } from "./ISynaps.interface";
+import type { IElectricSynaps } from "./IElectricSynaps.interface";
+import type { IChemicalSynaps } from "./ISynaps.interface";
 
 export interface INeuronLogic {
   receive (signal_mV: number): void;
@@ -8,8 +9,10 @@ export interface INeuronLogic {
   step(): void;
   isDead (): boolean;
 
-  addInputSynaps (synaps: ISynaps): void;
-  addOutputSynaps (synaps: ISynaps): void;
+  addInputSynaps (synaps: IChemicalSynaps): void;
+  addOutputSynaps (synaps: IChemicalSynaps): void;
+  addInputElectricSynaps (synaps: IElectricSynaps): void;
+  addOutputElectricSynaps (synaps: IElectricSynaps): void;
   removeInputSynaps (synapsId: string): void;
   removeOutputSynaps (synapsId: string): void;
 
@@ -19,4 +22,6 @@ export interface INeuronLogic {
 
   applyModulationEffect(effect: ModulatorEffect): void;
   finalizeModulation(): void;
+
+  receiveElectricSignal(current: number): void;
 }

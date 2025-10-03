@@ -9,9 +9,13 @@ export class NetworkSimulator {
   }
 
   public tick(): void {
+    // Электрические синапсы
+    for (const synaps of this.network.electricSynapses.values()) {
+      synaps.deliver();
+    }
     // === Phase 1: Доставка сигналов от рёбер ===
     // Все рёбра обновляют задержки и применяют готовые сигналы
-    for (const synaps of this.network.synapses.values()) {
+    for (const synaps of this.network.chemicalSynapses.values()) {
       synaps.deliverSignals(); // внутри вызывает neuron.receive(effect_mV)
     }
 
@@ -55,7 +59,7 @@ export class NetworkSimulator {
 
   private applyModulationClouds(): void {
     // 1. Сброс: возвращаем все синапсы к базовой проводимости
-    for (const synaps of this.network.synapses.values()) {
+    for (const synaps of this.network.chemicalSynapses.values()) {
       synaps.resetConductance();
     }
 

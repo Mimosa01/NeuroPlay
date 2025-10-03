@@ -2,25 +2,28 @@ import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { useEditNeuron } from '../hooks/useEditNeuron';
 import { useEditSynaps } from '../hooks/useEditSynaps';
+import { useEditElectricSynaps } from '../hooks/useEditElectricSynaps';
 import { useSelectionStore } from '../store/useSelectionStore';
 import { SynapsBody } from './SynapsBody';
 import { NeuronBody } from './NeuronBody';
+import { ElectricSynapsBody } from './ElectricSynapsBody';
 
 export const EditPanel: React.FC = () => {
   const { neuron } = useEditNeuron();
   const { synaps } = useEditSynaps();
+  const { synaps: electricSynaps } = useEditElectricSynaps(); // ← обрати внимание
   const clearSelection = useSelectionStore(state => state.clearSelection);
 
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (neuron || synaps) {
+    if (neuron || synaps || electricSynaps) { // ← обновляем условие
       const timer = setTimeout(() => setIsVisible(true), 10);
       return () => clearTimeout(timer);
     } else {
       setIsVisible(false);
     } 
-  }, [neuron, synaps]);
+  }, [neuron, synaps, electricSynaps]); // ← добавляем electricSynaps в зависимости
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -30,7 +33,7 @@ export const EditPanel: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [clearSelection]);
 
-  if (!neuron && !synaps) return null;
+  if (!neuron && !synaps && !electricSynaps) return null; // ← обновляем условие
 
   return (
     <div
@@ -55,7 +58,7 @@ export const EditPanel: React.FC = () => {
         {/* Заголовок (всегда виден) */}
         <div className="flex justify-between items-center p-4 pb-2">
           <h3 className="text-sm font-semibold text-slate-800">
-            {neuron ? 'Нейрон' : 'Связь'}
+            {neuron ? 'Нейрон' : (electricSynaps ? 'Эл. синапс' : 'Связь')}
           </h3>
           <button
             onClick={clearSelection}
@@ -83,6 +86,7 @@ export const EditPanel: React.FC = () => {
         ">
           {neuron && <NeuronBody />}
           {synaps && <SynapsBody />}
+          {electricSynaps && <ElectricSynapsBody />}
         </div>
       </div>
     </div>

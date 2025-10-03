@@ -1,6 +1,7 @@
-import type { ISynaps } from "../../interfaces/ISynaps.interface";
+import type { IChemicalSynaps } from "../../interfaces/ISynaps.interface";
 import type { INeuron } from "../../interfaces/INeuron.interface";
 import type { ChemicalSignalType, Coords } from "../../types/types";
+import type { IElectricSynaps } from "../../interfaces/IElectricSynaps.interface";
 
 export default class NeuronAccessor {
   private neuron: INeuron;
@@ -13,12 +14,20 @@ export default class NeuronAccessor {
     return this.neuron.id;
   }
   
-  public getInputSynapses (): Map<string, ISynaps> {
+  public getInputSynapses (): Map<string, IChemicalSynaps> {
     return this.neuron.inputSynapses;
   }
 
-  public getOutputSynapses (): Map<string, ISynaps> {
+  public getOutputSynapses (): Map<string, IChemicalSynaps> {
     return this.neuron.outputSynapses;
+  }
+
+  public getInputElectricSynapses (): Map<string, IElectricSynaps> {
+    return this.neuron.inputElectricSynapses;
+  }
+
+  public getOutputElectricSynapses (): Map<string, IElectricSynaps> {
+    return this.neuron.outputElectricSynapses;
   }
 
   public getCoords (): Coords {
@@ -121,8 +130,4 @@ export default class NeuronAccessor {
   public setCurrentTauMultiplier (value: number): void {
     this.neuron.currentTauMultiplier = value;
   }
-
-  // public getCurrentConductanceMultiplier(): number {
-  //   return this.neuron.currentConductanceMultiplier;
-  // }
 }

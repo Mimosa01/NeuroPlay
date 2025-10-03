@@ -1,6 +1,7 @@
+import { electricSynapsToDTO } from "../../dto/electricSynapsTo";
 import { modulationCloudToDTO } from "../../dto/modulationCloudTo";
 import { neuronToDTO } from "../../dto/neuronTo";
-import { synapsToDTO } from "../../dto/synapsTo";
+import { chemicalSynapsToDTO } from "../../dto/synapsTo";
 import type { NetworkSnapshot } from "../../types/types";
 import NeuronAccessor from "../neurons/NeuronAccessor";
 import type Network from "./Network";
@@ -9,8 +10,9 @@ export class NetworkSerializer {
   public static createSnapshot(network: Network): NetworkSnapshot {
     return {
       neurons: Array.from(network.neurons.values()).map(n => neuronToDTO(new NeuronAccessor(n))),
-      synapses: Array.from(network.synapses.values()).map(e => synapsToDTO(e)),
-      clouds: Array.from(network.modulationClouds.values()).map(e => modulationCloudToDTO(e))
+      synapses: Array.from(network.chemicalSynapses.values()).map(e => chemicalSynapsToDTO(e)),
+      clouds: Array.from(network.modulationClouds.values()).map(e => modulationCloudToDTO(e)),
+      electricSynapses: Array.from(network.electricSynapses.values()).map(e => electricSynapsToDTO(e))
     };
   }
     
@@ -26,11 +28,20 @@ export class NetworkSerializer {
     });
 
     snapshot.synapses.forEach(({ id, conductance, delay }) => {
-      const synaps = network.synapses.get(id);
+      const synaps = network.chemicalSynapses.get(id);
       if (synaps) {
         if (conductance !== undefined) synaps.setConductance(conductance);
         if (delay !== undefined) synaps.setDelay(delay);
       }
     });
+
+    snapshot.electricSynapses.forEach(({ id, conductance }) => {
+      const synaps = network.electricSynapses.get(id);
+      if (synaps) {
+        if (conductance !== undefined) synaps.setConductance(conductance);
+      }
+    });
+
+    // Еще облака надо добавить
   }
 }

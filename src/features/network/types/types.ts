@@ -1,9 +1,10 @@
-import type { SynapsDTO } from "../dto/synaps.dto";
+import type { ChemicalSynapsDTO } from "../dto/synaps.dto";
 import type { ModulationCloudDTO } from "../dto/modulationCloud.dto";
 import type { NeuronDTO } from "../dto/neuron.dto";
 import type { INeuron } from "../interfaces/INeuron.interface";
 import type { INeuronLogic } from "../interfaces/INeuronLogic.interface";
 import type { NeuroModulatorType } from "./modulator.types";
+import type { ElectricSynapsDTO } from "../dto/electricSynaps.dto";
 
 
 export type SignalValue = number;
@@ -44,6 +45,7 @@ export type Coords = {
 
 export type NetworkSnapshot = {
   neurons: NeuronDTO[];
-  synapses: SynapsDTO[];
+  synapses: ChemicalSynapsDTO[];
+  electricSynapses: ElectricSynapsDTO[];
   clouds: ModulationCloudDTO[];
 };

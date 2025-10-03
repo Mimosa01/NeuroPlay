@@ -1,6 +1,6 @@
 import type { Coords } from "../types/types";
 
-export type SynapsDTO = {
+export type ChemicalSynapsDTO = {
   id: string;
   sourceId: string;
   targetId: string;

@@ -1,8 +1,9 @@
 import NeuronAccessor from "../core/neurons/NeuronAccessor";
-import type { IChemicalSynaps } from "../interfaces/ISynaps.interface";
-import type { ChemicalSynapsDTO } from "./synaps.dto";
+import type { IElectricSynaps } from "../interfaces/IElectricSynaps.interface";
+import type { ElectricSynapsDTO } from "./electricSynaps.dto";
 
-export function chemicalSynapsToDTO(synaps: IChemicalSynaps): ChemicalSynapsDTO {
+
+export function electricSynapsToDTO(synaps: IElectricSynaps): ElectricSynapsDTO {
   return {
     id: synaps.id,
     sourceId: synaps.source.id,
@@ -11,6 +12,5 @@ export function chemicalSynapsToDTO(synaps: IChemicalSynaps): ChemicalSynapsDTO 
     targetCoords: new NeuronAccessor(synaps.target).getCoords(),
 
     conductance: synaps.getConductance(),
-    delay: synaps.getDelay(),
   };
 }

@@ -1,10 +1,13 @@
 import type { Coords, ChemicalSignalType } from "../types/types";
-import type { ISynaps } from "./ISynaps.interface";
+import type { IElectricSynaps } from "./IElectricSynaps.interface";
+import type { IChemicalSynaps } from "./ISynaps.interface";
 
 export interface INeuron {
   readonly id: string;
-  inputSynapses: Map<string, ISynaps>;
-  outputSynapses: Map<string, ISynaps>;
+  inputSynapses: Map<string, IChemicalSynaps>;
+  outputSynapses: Map<string, IChemicalSynaps>;
+  inputElectricSynapses: Map<string, IElectricSynaps>;
+  outputElectricSynapses: Map<string, IElectricSynaps>;
   
   neuroTransmitter: ChemicalSignalType;
   membranePotential: number;
@@ -24,5 +27,4 @@ export interface INeuron {
 
   currentThresholdShift: number;
   currentTauMultiplier: number;
-  // currentConductanceMultiplier: number;
 }

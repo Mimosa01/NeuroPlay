@@ -1,14 +1,17 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { ISynaps } from "../../interfaces/ISynaps.interface";
+import type { IChemicalSynaps } from "../../interfaces/ISynaps.interface";
 import { DEFAULT_BIOLOGICAL_NEURON_PARAMS as DBNP } from '../../../../shared/constants/neuron.constants';
 import type { NeuronInstance, Coords, NeuroTransmitterType, ChemicalSignalType } from '../../types/types';
 import type { ModulatorEffect } from '../../types/modulator.types';
+import type { IElectricSynaps } from '../../interfaces/IElectricSynaps.interface';
 
 
 export default abstract class BaseNeuron implements NeuronInstance {
   public readonly id: string;
-  public inputSynapses: Map<string, ISynaps> = new Map();
-  public outputSynapses: Map<string, ISynaps> = new Map();
+  public inputSynapses: Map<string, IChemicalSynaps> = new Map();
+  public outputSynapses: Map<string, IChemicalSynaps> = new Map();
+  public inputElectricSynapses: Map<string, IElectricSynaps> = new Map();
+  public outputElectricSynapses: Map<string, IElectricSynaps> = new Map();
   public label: string = '';
   public coords: Coords;
 
@@ -31,7 +34,6 @@ export default abstract class BaseNeuron implements NeuronInstance {
   protected adaptationCounter: number = 0;
   public adaptationThresholdShift: number = 0;
 
-  // В BaseNeuron, рядом с другими полями:
   public readonly baseSpikeThreshold: number = DBNP.spikeThreshold;
   public readonly baseTau: number = DBNP.tau || 15;
 
@@ -39,19 +41,26 @@ export default abstract class BaseNeuron implements NeuronInstance {
   
   public currentThresholdShift: number = 0;
   public currentTauMultiplier: number = 1;
-  // public currentConductanceMultiplier: number = 1;
 
   constructor (coords: Coords) {
     this.id = uuidv4();
     this.coords = coords;
   }
   
-  public addInputSynaps (synaps: ISynaps): void {
+  public addInputSynaps (synaps: IChemicalSynaps): void {
     this.inputSynapses.set(synaps.id, synaps);
   }
 
-  public addOutputSynaps (synaps: ISynaps): void {
+  public addOutputSynaps (synaps: IChemicalSynaps): void {
     this.outputSynapses.set(synaps.id, synaps);
+  }
+
+  public addInputElectricSynaps (synaps: IElectricSynaps): void {
+    this.inputElectricSynapses.set(synaps.id, synaps);
+  }
+
+  public addOutputElectricSynaps (synaps: IElectricSynaps): void {
+    this.outputElectricSynapses.set(synaps.id, synaps);
   }
 
   public removeInputSynaps (synapsId: string): void {
@@ -115,28 +124,6 @@ export default abstract class BaseNeuron implements NeuronInstance {
     return this.inactivityCounter >= this.inactivityThreshold;
   }
 
-  // public applyModulationEffect(effect: ModulatorEffect): void {
-  //   if (effect.thresholdShift !== undefined) {
-  //     this.currentThresholdShift += effect.thresholdShift;
-  //   }
-  //   if (effect.tauMultiplier !== undefined) {
-  //     this.currentTauMultiplier *= effect.tauMultiplier;
-  //   }
-  //   if (effect.conductanceMultiplier !== undefined) {
-  //     this.currentConductanceMultiplier *= effect.conductanceMultiplier;
-  //   }
-  // }
-
-  // public finalizeModulation(): void {
-  //   this.spikeThreshold = this.baseSpikeThreshold + this.currentThresholdShift + this.adaptationThresholdShift;
-  //   this.tau = this.baseTau * this.currentTauMultiplier;
-    
-  //   // Сбрасываем аккумуляторы
-  //   this.currentThresholdShift = 0;
-  //   this.currentTauMultiplier = 1;
-  //   this.currentConductanceMultiplier = 1; // ← сбрасываем после применения
-  // }
-
   public applyModulationEffect(effect: ModulatorEffect): void {
     console.log(`EFFECT% ${effect} --- NEURON: ${this.id}`);  
     if (effect.thresholdShift !== undefined) {
@@ -160,6 +147,10 @@ export default abstract class BaseNeuron implements NeuronInstance {
     this.currentTauMultiplier = 1;
 
     // Адаптация уменьшается со временем — это делаем в step()
+  }
+
+  public receiveElectricSignal(current: number): void {
+    this.membranePotential += current;
   }
 
   public abstract checkForSpike (): void;

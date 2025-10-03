@@ -1,6 +1,6 @@
 import type { NeuronInstance } from "../types/types";
 
-export interface ISynaps {
+export interface IChemicalSynaps {
   readonly id: string;
   readonly source: NeuronInstance;
   readonly target: NeuronInstance;

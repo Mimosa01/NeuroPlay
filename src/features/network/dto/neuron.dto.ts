@@ -1,10 +1,10 @@
-import type { ISynaps } from "../interfaces/ISynaps.interface";
+import type { IChemicalSynaps } from "../interfaces/ISynaps.interface";
 import type { Coords, ChemicalSignalType } from "../types/types";
 
 export type NeuronDTO = {
   id: string;
-  inputSynapses: Map<string, ISynaps>;
-  outputSynapses: Map<string, ISynaps>;
+  inputSynapses: Map<string, IChemicalSynaps>;
+  outputSynapses: Map<string, IChemicalSynaps>;
   
   neuroTransmitter: ChemicalSignalType;
   membranePotential: number;

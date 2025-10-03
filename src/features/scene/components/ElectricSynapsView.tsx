@@ -1,9 +1,9 @@
 import { memo, type FC } from 'react';
-import type { ChemicalSynapsDTO } from '../../network/dto/synaps.dto';
-import { useSynapsController } from '../hooks/useSynapsController';
+import type { ElectricSynapsDTO } from '../../network/dto/electricSynaps.dto';
+import { useElectricSynapsController } from '../hooks/useElectricSynapsController';
 
-const SynapsView: FC<{ synaps: ChemicalSynapsDTO }> = ({ synaps }) => {
-  const { handlers, state, geometry, styles, label } = useSynapsController(synaps);
+const ElectricSynapsView: FC<{ synaps: ElectricSynapsDTO }> = ({ synaps }) => {
+  const { handlers, state, geometry, styles, label } = useElectricSynapsController(synaps);
 
   const { x1, y1, x2, y2, labelX, labelY } = geometry;
   const { onClick, onMouseEnter, onMouseLeave } = handlers;
@@ -17,7 +17,22 @@ const SynapsView: FC<{ synaps: ChemicalSynapsDTO }> = ({ synaps }) => {
     <g>
       <defs>
         <marker
-          id={`arrowhead-${synaps.id}`}
+          id={`arrowhead-${synaps.id}-start`}
+          markerWidth="8"
+          markerHeight="8"
+          refX="6"
+          refY="4"
+          orient="auto"
+          markerUnits="strokeWidth"
+        >
+          <path
+            d="M 8 0 L 0 4 L 8 8 Z"
+            fill={styles.arrowColor}
+            className="transition-colors duration-200"
+          />
+        </marker>
+        <marker
+          id={`arrowhead-${synaps.id}-end`}
           markerWidth="8"
           markerHeight="8"
           refX="6"
@@ -40,7 +55,9 @@ const SynapsView: FC<{ synaps: ChemicalSynapsDTO }> = ({ synaps }) => {
         y2={y2}
         stroke={styles.lineColor}
         strokeWidth={state.displayWidth}
-        markerEnd={`url(#arrowhead-${synaps.id})`}
+        strokeDasharray="4,4" // пунктир
+        markerStart={`url(#arrowhead-${synaps.id}-start)`}
+        markerEnd={`url(#arrowhead-${synaps.id}-end)`}
         className={`
           transition-all duration-200 ease-out
           ${state.isInteractive ? 'cursor-pointer' : 'cursor-default'}
@@ -79,6 +96,5 @@ const SynapsView: FC<{ synaps: ChemicalSynapsDTO }> = ({ synaps }) => {
   );
 };
 
-
-const SynapsViewMemo = memo(SynapsView);
-export default SynapsViewMemo;
+const ElectricSynapsViewMemo = memo(ElectricSynapsView);
+export default ElectricSynapsViewMemo;

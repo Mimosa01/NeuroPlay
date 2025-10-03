@@ -1,11 +1,10 @@
 import { useCallback, useRef, useState, useMemo } from 'react';
-import type { ChemicalSynapsDTO } from '../../network/dto/synaps.dto';
+import type { ElectricSynapsDTO } from '../../network/dto/electricSynaps.dto';
 import { useInteractionStore } from '../store/useInteractionStore';
 import { useSelectionStore } from '../../editing/store/useSelectionStore';
 import { useToolStore } from '../store/useToolStore';
-import { getWeightColors, getLineWidth } from '../utils/synapsUtils';
 
-interface SynapsController {
+interface ElectricSynapsController {
   handlers: {
     onClick: (e: React.MouseEvent) => void;
     onMouseEnter: () => void;
@@ -38,7 +37,7 @@ interface SynapsController {
   };
 }
 
-export function useSynapsController(synaps: ChemicalSynapsDTO): SynapsController {
+export function useElectricSynapsController(synaps: ElectricSynapsDTO): ElectricSynapsController {
   const divRef = useRef<HTMLDivElement>(null!);
   const [width, setWidth] = useState(50);
 
@@ -52,10 +51,10 @@ export function useSynapsController(synaps: ChemicalSynapsDTO): SynapsController
 
   // Вычисляем геометрию
   const geometry = useMemo(() => {
-  const { x: x1, y: y1 } = synaps.sourceCoords;
-  const { x: x2, y: y2 } = synaps.targetCoords;
+    const { x: x1, y: y1 } = synaps.sourceCoords;
+    const { x: x2, y: y2 } = synaps.targetCoords;
 
-    // Укорачиваем линию на 20px с каждой стороны (аналогично PADDING в старом коде)
+    // Укорачиваем линию на 20px с каждой стороны
     const dx = x2 - x1;
     const dy = y2 - y1;
     const length = Math.sqrt(dx * dx + dy * dy);
@@ -73,8 +72,8 @@ export function useSynapsController(synaps: ChemicalSynapsDTO): SynapsController
     const endX = x2 - unitX * shorten;
     const endY = y2 - unitY * shorten;
 
-    // Позиция метки (75% от начала)
-    const t = 0.75;
+    // Позиция метки (50% от начала)
+    const t = 0.5;
     const baseX = startX + (endX - startX) * t;
     const baseY = startY + (endY - startY) * t;
 
@@ -88,22 +87,22 @@ export function useSynapsController(synaps: ChemicalSynapsDTO): SynapsController
     return { x1: startX, y1: startY, x2: endX, y2: endY, labelX, labelY };
   }, [synaps]);
 
-  // Стили
-  const weightColors = getWeightColors(synaps.conductance ?? 0);
+  // Стили для электрических синапсов
   const styles = {
-    lineColor: isSelected ? '#60a5fa' : weightColors.line,
-    arrowColor: isSelected ? '#60a5fa' : weightColors.arrow,
-    textColor: weightColors.text,
+    lineColor: isSelected ? '#60a5fa' : '#94a3b8',
+    arrowColor: isSelected ? '#60a5fa' : '#94a3b8',
+    textColor: '#94a3b8',
   };
 
-  const lineWidth = getLineWidth(synaps.conductance ?? 0);
-  const displayWidth = isSelected || isHovered ? lineWidth * 1.5 : lineWidth;
+  // Толщина линии
+  const baseWidth = 1.5 + (synaps.conductance - 0.1) * 1.5; // диапазон 1.5–3
+  const displayWidth = isSelected || isHovered ? baseWidth * 1.5 : baseWidth;
 
   const handlers = {
     onClick: useCallback((e: React.MouseEvent) => {
       if (isInteractive) {
         e.stopPropagation();
-        useSelectionStore.getState().setSelectedSynapsId(synaps.id, 'chemical');
+        useSelectionStore.getState().setSelectedSynapsId(synaps.id, 'electric');
       }
     }, [synaps.id, isInteractive]),
 

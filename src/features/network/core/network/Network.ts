@@ -1,16 +1,19 @@
-import type { ISynaps } from "../../interfaces/ISynaps.interface";
+import type { IChemicalSynaps } from "../../interfaces/ISynaps.interface";
 import type { IModulationCloud } from "../../interfaces/IModulationCloud.interface";
 import type { INeuron } from "../../interfaces/INeuron.interface";
 import type { NeuronInstance, Coords, NeuronType } from "../../types/types";
 import { NeuronFactory } from "../NeuronFactory";
 import NeuronAccessor from "../neurons/NeuronAccessor";
-import Synaps from "../../synapses/Synaps";
+import ChemicalSynaps from "../../synapses/ChemicalSynaps";
+import type { IElectricSynaps } from "../../interfaces/IElectricSynaps.interface";
+import ElectricSynaps from "../../synapses/ElectricSynaps";
 
 
 export default class Network {
   public readonly neurons: Map<string, NeuronInstance> = new Map();
-  public readonly synapses: Map<string, ISynaps> = new Map();
+  public readonly chemicalSynapses: Map<string, IChemicalSynaps> = new Map();
   public readonly modulationClouds: Map<string, IModulationCloud> = new Map();
+  public readonly electricSynapses: Map<string, IElectricSynaps> = new Map();
 
   constructor () {};
 
@@ -23,28 +26,40 @@ export default class Network {
   public removeNeuron(neuronId: string): void {
     this.neurons.delete(neuronId);
 
-    for (const [synapsId, synaps] of this.synapses) {
+    for (const [synapsId, synaps] of this.chemicalSynapses) {
       if (synaps.source.id === neuronId || synaps.target.id === neuronId) {
-        this.synapses.delete(synapsId);
+        this.chemicalSynapses.delete(synapsId);
       }
     }
   }
 
-  public createSynaps(source: NeuronInstance, target: NeuronInstance, conductance?: number, delay?: number): ISynaps {
-    const synaps = new Synaps(source, target, conductance, delay);
+  public createSynaps(source: NeuronInstance, target: NeuronInstance, conductance?: number, delay?: number): IChemicalSynaps {
+    const synaps = new ChemicalSynaps(source, target, conductance, delay);
     source.addOutputSynaps(synaps);
     target.addInputSynaps(synaps);
-    this.synapses.set(synaps.id, synaps);
+    this.chemicalSynapses.set(synaps.id, synaps);
     return synaps;
   }
 
   public removeSynaps(synapsId: string): void {
-    const synaps = this.synapses.get(synapsId);
+    const synaps = this.chemicalSynapses.get(synapsId);
     if (!synaps) return;
 
     synaps.source.removeOutputSynaps(synapsId);
     synaps.target.removeInputSynaps(synapsId);
-    this.synapses.delete(synapsId);
+    this.chemicalSynapses.delete(synapsId);
+  }
+
+  public createElectricSynaps(source: NeuronInstance, target: NeuronInstance, conductance?: number): IElectricSynaps {
+    const synaps = new ElectricSynaps(source, target, conductance);
+    source.addOutputElectricSynaps(synaps);
+    target.addInputElectricSynaps(synaps);
+    this.electricSynapses.set(synaps.id, synaps);
+    return synaps;
+  }
+
+  public removeElectricSynaps(id: string): void {
+    this.electricSynapses.delete(id);
   }
 
   public addModulationCloud(cloud: IModulationCloud): void {
@@ -57,15 +72,19 @@ export default class Network {
 
   public reset(): void {
     this.neurons.clear();
-    this.synapses.clear();
+    this.chemicalSynapses.clear();
   }
 
   public getNeuron(id: string): NeuronInstance | undefined {
     return this.neurons.get(id);
   }
 
-  public getSynaps(id: string): ISynaps | undefined {
-    return this.synapses.get(id);
+  public getSynaps(id: string): IChemicalSynaps | undefined {
+    return this.chemicalSynapses.get(id);
+  }
+
+  public getElectricSynaps(id: string): IElectricSynaps | undefined {
+    return this.electricSynapses.get(id);
   }
 
   public findNearestNeuron(coords: Coords, maxDistance: number = Infinity): INeuron | null {
@@ -87,12 +106,12 @@ export default class Network {
     return nearestNeuron;
   }
 
-  public findNearestSynaps(coords: Coords, maxDistance: number = Infinity): ISynaps | null {
-    let nearest: ISynaps | null = null;
+  public findNearestSynaps(coords: Coords, maxDistance: number = Infinity): IChemicalSynaps | null {
+    let nearest: IChemicalSynaps | null = null;
     let minDist = Infinity;
     const { x, y } = coords;
 
-    for (const synaps of this.synapses.values()) {
+    for (const synaps of this.chemicalSynapses.values()) {
       const { x: x1, y: y1 } = new NeuronAccessor(synaps.source).getCoords();
       const { x: x2, y: y2 } = new NeuronAccessor(synaps.target).getCoords();
 

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { SynapsDTO } from '../dto/synaps.dto';
+import type { ChemicalSynapsDTO } from '../dto/synaps.dto';
 import type { NeuronDTO } from '../dto/neuron.dto';
 import { neuronToDTO } from '../dto/neuronTo';
 import { NetworkSerializer } from '../core/network/NetworkSerealizer';
@@ -8,21 +8,25 @@ import { toast } from 'sonner';
 import NeuronAccessor from '../core/neurons/NeuronAccessor';
 import type { Coords, NeuronType } from '../types/types';
 import type { ModulationCloudDTO } from '../dto/modulationCloud.dto';
-import { synapsToDTO } from '../dto/synapsTo';
+import { chemicalSynapsToDTO } from '../dto/synapsTo';
+import { electricSynapsToDTO } from '../dto/electricSynapsTo';
+import type { ElectricSynapsDTO } from '../dto/electricSynaps.dto';
 
 
 const facade = new NetworkFacade();
 
 type NetworkState = {
   neuronsDTO: NeuronDTO[];
-  synapsesDTO: SynapsDTO[];
+  synapsesDTO: ChemicalSynapsDTO[];
   cloudsDTO: ModulationCloudDTO[];
+  electricSynapsesDTO: ElectricSynapsDTO[];
 
   // Методы сети
   createNeuron: (coords: Coords, type: NeuronType) => NeuronDTO;
-  createSynaps: (sourceId: string, targetId: string) => SynapsDTO | null;
+  createSynaps: (sourceId: string, targetId: string) => ChemicalSynapsDTO | null;
+  createElectricSynaps: (sourceId: string, targetId: string) => ElectricSynapsDTO | null;
   findNearestNeuron: (coords: Coords, maxDistance?: number) => NeuronDTO | null;
-  findNearestSynaps: (coords: Coords, maxDistance?: number) => SynapsDTO | null;
+  findNearestSynaps: (coords: Coords, maxDistance?: number) => ChemicalSynapsDTO | null;
   removeNeuron: (id: string) => void;
   removeSynaps: (id: string) => void;
   resetNetwork: () => void;
@@ -30,7 +34,8 @@ type NetworkState = {
   // Методы нейронов и ребер
   exciteNeuron: (id: string, signal: number) => void;
   updateNeuron: (id: string, data: Partial<NeuronDTO>) => void;
-  updateSynaps: (id: string, data: Partial<SynapsDTO>) => void;
+  updateSynaps: (id: string, data: Partial<ChemicalSynapsDTO>) => void;
+  updateElectricSynaps: (id: string, data: Partial<ChemicalSynapsDTO>) => void;
 
   // Методы симуляции
   tick: () => void;
@@ -46,7 +51,8 @@ export const useNetworkStore = create<NetworkState>(( set ) => {
     set({
       neuronsDTO: snapshot.neurons,
       synapsesDTO: snapshot.synapses,
-      cloudsDTO: snapshot.clouds
+      cloudsDTO: snapshot.clouds,
+      electricSynapsesDTO: snapshot.electricSynapses
     });
   });
 
@@ -54,6 +60,7 @@ export const useNetworkStore = create<NetworkState>(( set ) => {
     neuronsDTO: initialSnapshot.neurons,
     synapsesDTO: initialSnapshot.synapses,
     cloudsDTO: initialSnapshot.clouds,
+    electricSynapsesDTO: initialSnapshot.electricSynapses,
 
     refresh: () => {
       const snapshot = NetworkSerializer.createSnapshot(facade.network);
@@ -72,6 +79,10 @@ export const useNetworkStore = create<NetworkState>(( set ) => {
       facade.updateSynaps(id, data);
     },
 
+    updateElectricSynaps: (id, data) => {
+      facade.updateElectricSynaps(id, data);
+    },
+
     createNeuron: (coords, type = 'relay') => {
       const neuron = facade.createNeuron(coords, type);
       return neuronToDTO(new NeuronAccessor(neuron));
@@ -79,7 +90,12 @@ export const useNetworkStore = create<NetworkState>(( set ) => {
 
     createSynaps: (sourceId, targetId) => {
     const synaps = facade.createSynaps(sourceId, targetId);
-    return synaps ? synapsToDTO(synaps) : null;
+    return synaps ? chemicalSynapsToDTO(synaps) : null;
+    },
+
+    createElectricSynaps(sourceId: string, targetId: string) {
+      const synaps = facade.createElectricSynaps(sourceId, targetId);
+      return synaps ? electricSynapsToDTO(synaps) : null;
     },
 
     removeSynaps: (id) => {
