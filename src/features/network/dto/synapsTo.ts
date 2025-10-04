@@ -1,10 +1,11 @@
-import NeuronAccessor from "../core/neurons/NeuronAccessor";
+import NeuronAccessor from "../core/neurons/base/NeuronAccessor";
 import type { IChemicalSynaps } from "../interfaces/ISynaps.interface";
 import type { ChemicalSynapsDTO } from "./synaps.dto";
 
 export function chemicalSynapsToDTO(synaps: IChemicalSynaps): ChemicalSynapsDTO {
   return {
     id: synaps.id,
+    type: 'chemical',
     sourceId: synaps.source.id,
     targetId: synaps.target.id,
     sourceCoords: new NeuronAccessor(synaps.source).getCoords(),

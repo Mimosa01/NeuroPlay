@@ -1,17 +1,18 @@
-import type { ChemicalSynapsDTO } from "../../dto/synaps.dto";
-import type { NeuronDTO } from "../../dto/neuron.dto";
 import type { IChemicalSynaps } from "../../interfaces/ISynaps.interface";
-import type { INeuron } from "../../interfaces/INeuron.interface";
-import type { Coords, NeuronType } from "../../types/types";
+import type { INeuron } from "../neurons/base/interfaces/INeuron.interface";
+import type { AnySynaps, Coords, NeuronType } from "../../types/types";
 import { eventBus } from "../EventBus";
 import { HistoryManager } from "../HistoryManager";
 import { ModulationCloud } from "../ModulationCloud";
-import NeuronAccessor from "../neurons/NeuronAccessor";
 import Network from "./Network";
-import { NetworkSerializer } from "./NetworkSerealizer";
+import { NetworkSerializer } from "./NetworkSerializer";
+import { neuronToDTO, chemicalSynapsToDTO, electricSynapsToDTO } from "../../dto/mappers";
+import type { NeuronDTO } from "../../dto/neuron.dto";
+import type { ChemicalSynapsDTO } from "../../dto/synaps.dto";
+import type { ElectricSynapsDTO } from "../../dto/electricSynaps.dto";
 import { NetworkSimulator } from "./NetworkSimulator";
 import type { IElectricSynaps } from "../../interfaces/IElectricSynaps.interface";
-import type { ElectricSynapsDTO } from "../../dto/electricSynaps.dto";
+import NeuronAccessor from "../neurons/base/NeuronAccessor";
 
 
 type Listener = () => void;
@@ -28,18 +29,21 @@ export class NetworkFacade {
     this.network = new Network();
     this.history = new HistoryManager(this.network);
     this.simulator = new NetworkSimulator(this.network);
+  }
 
+  public init(): void {
     eventBus.subscribe('neuron.spike', (event) => {
       const neuron = this.network.getNeuron(event.payload.neuronId);
       if (!neuron) return;
-    for (const synaps of neuron.outputSynapses.values()) {
-      synaps.transmit();
+
+      for (const synapsId of neuron.synapses.getOutputChemicalIds()) {
+        const synaps = this.network.getSynaps(synapsId);
+        if (synaps) synaps.transmit();
       }
     });
 
     eventBus.subscribe('modulation.cloud.spawn', (event) => {
-      const { neuronId, modulator, coords } = event.payload;
-      console.log(`Создал или добавил облако. НЕЙРОН: ${neuronId}`) // временно
+      const { modulator, coords } = event.payload;
       const NEARBY_RADIUS = 50;
 
       const nearbyCloud = Array.from(this.network.modulationClouds.values()).find(cloud =>
@@ -81,6 +85,14 @@ export class NetworkFacade {
       })
     );
 
+    unsubscribes.push(
+      eventBus.subscribe('electricSynaps.current.delivered', (event) => {
+        if (event.payload.targetId === neuron.id) {
+          neuron.electric.receive(event.payload.current);
+        }
+      })
+    );
+
     this.neuronSubscriptions.set(neuron.id, unsubscribes);
 
     this.history.takeSnapshot();
@@ -88,21 +100,14 @@ export class NetworkFacade {
     return neuron;
   }
 
-  public createSynaps (sourceId: string, targetId: string): IChemicalSynaps | null {
-    const source = this.network.getNeuron(sourceId);
-    const target = this.network.getNeuron(targetId);
-    if (!source || !target) return null;
-    const synaps = this.network.createSynaps(source, target);
-    this.notifyChange();
-    return synaps;
-  }
-
-  public createElectricSynaps (sourceId: string, targetId: string): IElectricSynaps | null {
-    const source = this.network.getNeuron(sourceId);
-    const target = this.network.getNeuron(targetId);
-
-    if (!source || !target) return null;
-    const synaps = this.network.createElectricSynaps(source, target);
+  public createSynapse(
+    type: 'chemical' | 'electric',
+    sourceId: string,
+    targetId: string,
+    conductance?: number,
+    delay?: number
+  ): IChemicalSynaps | IElectricSynaps | null {
+    const synaps = this.network.createSynaps(type, sourceId, targetId, conductance, delay);
     this.notifyChange();
     return synaps;
   }
@@ -120,7 +125,7 @@ export class NetworkFacade {
   }
 
   public removeSynaps (id: string): void {
-    this.network.removeSynaps(id);
+    this.network.removeSynapse(id);
     this.notifyChange();
   }
 
@@ -128,8 +133,21 @@ export class NetworkFacade {
     return this.network.findNearestNeuron(coords, maxDistance);
   }
 
-  public findNearestSynaps (coords: Coords, maxDistance: number = 30): IChemicalSynaps | null {
+  public findNearestSynaps (coords: Coords, maxDistance: number = 30): AnySynaps | null {
     return this.network.findNearestSynaps(coords, maxDistance);
+  }
+
+  public findNearestNeuronDTO(coords: Coords, maxDistance: number = 30): NeuronDTO | null {
+    const neuron = this.network.findNearestNeuron(coords, maxDistance);
+    if (!neuron) return null;
+    return neuronToDTO(new NeuronAccessor(neuron));
+  }
+
+  public findNearestSynapsDTO(coords: Coords, maxDistance: number = 30): ChemicalSynapsDTO | ElectricSynapsDTO | null {
+    const result = this.network.findNearestSynaps(coords, maxDistance);
+    if (!result) return null;
+    if (result.type === 'chemical') return chemicalSynapsToDTO(result.synaps as IChemicalSynaps);
+    return electricSynapsToDTO(result.synaps as IElectricSynaps);
   }
 
   public resetNetwork (): void {
@@ -158,7 +176,7 @@ export class NetworkFacade {
     if (data.coords !== undefined) accessor.setCoords(data.coords);
     if (data.tau !== undefined) accessor.setTau(data.tau);
     if (data.neuroTransmitter !== undefined) accessor.setNeuroTransmitter(data.neuroTransmitter);
-    if (data.receptors !== undefined) accessor.setReceptors(data.receptors);
+    if (data.receptors !== undefined) accessor.setReceptors(new Set(data.receptors));
 
     this.notifyChange();
   }
@@ -195,8 +213,12 @@ export class NetworkFacade {
     this.notifyChange();
   }
 
-  public redoTick (): void {
-    if (this.history.getFutureLength() > 0) this.history.redo();
+  public redoTick(): void {
+    if (this.history.getFutureLength() > 0) {
+      this.history.redo();
+    } else {
+      this.tick();
+    }
     this.notifyChange();
   }
 

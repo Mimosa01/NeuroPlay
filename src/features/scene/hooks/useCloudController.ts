@@ -4,13 +4,13 @@ import { TRANSMITTER_STYLES } from '../../../shared/constants/transmitter.consta
 
 export const useCloudController = (cloud: ModulationCloudDTO) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [displayRadius, setDisplayRadius] = useState(cloud.raius);
+  const [displayRadius, setDisplayRadius] = useState(cloud.radius);
   const cloudRef = useRef<SVGGElement>(null);
 
   // Адаптивный радиус при наведении
   useEffect(() => {
-    setDisplayRadius(cloud.raius * (isHovered ? 1.1 : 1));
-  }, [isHovered, cloud.raius]);
+    setDisplayRadius(cloud.radius * (isHovered ? 1.1 : 1));
+  }, [isHovered, cloud.radius]);
 
   const style = TRANSMITTER_STYLES[cloud.type as keyof typeof TRANSMITTER_STYLES] || TRANSMITTER_STYLES.dopamine;
 

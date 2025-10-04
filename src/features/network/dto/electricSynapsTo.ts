@@ -1,4 +1,4 @@
-import NeuronAccessor from "../core/neurons/NeuronAccessor";
+import NeuronAccessor from "../core/neurons/base/NeuronAccessor";
 import type { IElectricSynaps } from "../interfaces/IElectricSynaps.interface";
 import type { ElectricSynapsDTO } from "./electricSynaps.dto";
 
@@ -6,6 +6,7 @@ import type { ElectricSynapsDTO } from "./electricSynaps.dto";
 export function electricSynapsToDTO(synaps: IElectricSynaps): ElectricSynapsDTO {
   return {
     id: synaps.id,
+    type: 'electric',
     sourceId: synaps.source.id,
     targetId: synaps.target.id,
     sourceCoords: new NeuronAccessor(synaps.source).getCoords(),

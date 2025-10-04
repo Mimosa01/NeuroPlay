@@ -1,5 +1,3 @@
-export type NeuroModulatorType = 'acetylcholine' | 'dopamine' | 'serotonin' | 'norepinephrine';
-
 export interface ModulatorEffect {
   /**
    * Влияние на порог спайка (мВ или относительное смещение)

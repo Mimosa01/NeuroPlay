@@ -1,24 +1,20 @@
-import type { IChemicalSynaps } from "../interfaces/ISynaps.interface";
 import type { Coords, ChemicalSignalType } from "../types/types";
 
 export type NeuronDTO = {
-  id: string;
-  inputSynapses: Map<string, IChemicalSynaps>;
-  outputSynapses: Map<string, IChemicalSynaps>;
+  readonly id: string;
+  readonly coords: Coords;
+  readonly label: string;
   
-  neuroTransmitter: ChemicalSignalType;
-  membranePotential: number;
-  restingPotential: number; 
-  spikeThreshold: number;
-  tau: number;
-  receptors: Set<ChemicalSignalType>;
+  readonly neuroTransmitter: ChemicalSignalType;
+  readonly membranePotential: number;
+  readonly restingPotential: number; 
+  readonly spikeThreshold: number;
+  readonly tau: number;
+  readonly receptors: ChemicalSignalType[];
   
-  refractoryDuration: number;
-  inactivityCounter: number;
-  inactivityThreshold: number;
+  readonly refractoryDuration: number;
+  readonly inactivityCounter: number;
+  readonly inactivityThreshold: number;
 
-  coords: Coords;
-  label: string;
-
-  readyToSend: boolean;
+  // readonly readyToSend: boolean;
 };

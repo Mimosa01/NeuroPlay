@@ -1,15 +1,15 @@
-import type { NeuronInstance } from "../types/types";
+import type { INeuron } from "../core/neurons/base/interfaces/INeuron.interface";
 
 
 export interface IElectricSynaps {
   readonly id: string;
-  readonly source: NeuronInstance;
-  readonly target: NeuronInstance;
+  readonly source: INeuron;
+  readonly target: INeuron;
 
   getConductance(): number;
   setConductance(conductance: number): void;
 
-  deliver(): void; // вызывается каждый шаг
+  deliver(): void;
 
   applyConductanceMultiplier(multiplier: number): void;
   resetConductance(): void;

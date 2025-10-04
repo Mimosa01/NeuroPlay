@@ -1,9 +1,9 @@
-import type { NeuronInstance } from "../types/types";
+import type { INeuron } from "../core/neurons/base/interfaces/INeuron.interface";
 
 export interface IChemicalSynaps {
   readonly id: string;
-  readonly source: NeuronInstance;
-  readonly target: NeuronInstance;
+  readonly source: INeuron;
+  readonly target: INeuron;
 
   getDelay (): number;
   getConductance (): number;

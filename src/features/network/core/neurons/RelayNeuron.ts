@@ -1,19 +1,18 @@
-import type { Coords } from '../../types/types';
-import { isModulator } from '../../utils/modulator.utils';
-import { eventBus } from '../EventBus';
-import BaseNeuron from './BaseNeuron';
+import type { Coords } from "../../types/types";
+import { isModulator } from "../../utils/modulator.utils";
+import { eventBus } from "../EventBus";
+import BaseNeuron from "./base/BaseNeuron";
 
 export default class RelayNeuron extends BaseNeuron {
   
   constructor(coords: Coords) {
     super(coords);
-    this.membranePotential = -70;
-    this.spikeThreshold = -55;
+    this.state.membranePotential = -70;
+    this.state.spikeThreshold = -55;
   }
 
   public checkForSpike(): void {
-    if (!this.isRefractory() && this.membranePotential >= this.spikeThreshold) {
-      console.log(`${this.id} - ${this.membranePotential}`);
+    if (!this.isRefractory() && this.state.membranePotential >= this.state.spikeThreshold) {
       this.fire();
     }
   }
@@ -21,18 +20,17 @@ export default class RelayNeuron extends BaseNeuron {
   public fire(): void {
     eventBus.publish('neuron.spike', { neuronId: this.id });
 
-    if (isModulator(this.neuroTransmitter)) {
+    if (isModulator(this.state.neuroTransmitter)) {
       eventBus.publish('modulation.cloud.spawn', {
         neuronId: this.id,
-        modulator: this.neuroTransmitter,
+        modulator: this.state.neuroTransmitter,
         coords: this.coords,
       });
     }
 
-    this.refractorySteps = this.refractoryDuration;
-    this.membranePotential = -75;
-
-    this.adaptationThresholdShift = this.adaptationDelta;
-    this.adaptationCounter = this.adaptationDuration;
+    // === Используем менеджеры ===
+    this.refractory.start();
+    this.state.membranePotential = -75;
+    this.adaptation.start();
   }
 }

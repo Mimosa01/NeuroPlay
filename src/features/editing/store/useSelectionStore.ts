@@ -1,15 +1,13 @@
-// store/useSelectionStore.ts
 import { create } from "zustand";
-
-type SynapsType = 'chemical' | 'electric' | null;
+import type { SynapseType } from "../../network/types/types";
 
 type SelectionState = {
   selectedNeuronId: string | null;
   selectedSynapsId: string | null;
-  selectedSynapsType: SynapsType;
+  selectedSynapsType: SynapseType | null;
 
   setSelectedNeuronId: (id: string | null) => void;
-  setSelectedSynapsId: (id: string | null, type?: SynapsType) => void;
+  setSelectedSynapsId: (id: string | null, type?: SynapseType | null) => void;
   clearSelection: () => void;
 };
 
@@ -28,27 +26,3 @@ export const useSelectionStore = create<SelectionState>((set) => ({
     set({ selectedNeuronId: null, selectedSynapsId: null, selectedSynapsType: null }),
 }));
 
-// import { create } from "zustand";
-
-// type SelectionState = {
-//   selectedNeuronId: string | null;
-//   selectedSynapsId: string | null;
-
-//   setSelectedNeuronId: (id: string | null) => void;
-//   setSelectedSynapsId: (id: string | null) => void;
-//   clearSelection: () => void;
-// };
-
-// export const useSelectionStore = create<SelectionState>((set) => ({
-//   selectedNeuronId: null,
-//   selectedSynapsId: null,
- 
-//   setSelectedNeuronId: (id) =>
-//     set({ selectedNeuronId: id, selectedSynapsId: null }),
-
-//   setSelectedSynapsId: (id) =>
-//     set({ selectedSynapsId: id, selectedNeuronId: null }),
-
-//   clearSelection: () =>
-//     set({ selectedNeuronId: null, selectedSynapsId: null }),
-// }));

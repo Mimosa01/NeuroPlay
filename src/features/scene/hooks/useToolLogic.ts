@@ -7,8 +7,18 @@ import { useNetworkStore } from '../../network/store/useNetworkStore';
 
 export function useToolLogic() {
   const { selectedTool, synapsType } = useToolStore();
-  const { setSelectedNeuronId } = useSelectionStore();
-  const { createNeuron, createSynaps, createElectricSynaps, removeNeuron, removeSynaps, resetNetwork, findNearestNeuron, findNearestSynaps } = useNetworkStore();
+  const { setSelectedNeuronId, setSelectedSynapsId, clearSelection } = useSelectionStore();
+  const { 
+    createNeuron, 
+    createSynaps, 
+    createElectricSynaps, 
+    removeNeuron, 
+    removeSynaps, 
+    resetNetwork, 
+    findNearestNeuron, 
+    findNearestSynaps, 
+  } = useNetworkStore();
+  
   const resetControls = useControlStore(state => state.resetControls);
   const [firstNeuron, setFirstNeuron] = useState<NeuronDTO | null>(null);
 
@@ -56,18 +66,55 @@ export function useToolLogic() {
       }
 
       case 'reconnect': {
-        const synaps = findNearestSynaps({ x, y });
-        if (synaps) {
-          removeSynaps(synaps.id);
-          console.log('[RECONNECT] Chemical synaps removed:', synaps.id);
+        const result = findNearestSynaps({ x, y });
+        if (result) {
+          removeSynaps(result.id);
+          console.log(`[RECONNECT] ${result.type} synaps removed:`, result.id);
         }
+        break;
+      }
+
+      case 'none': {
+        // Ищем ближайший нейрон
+        const neuron = findNearestNeuron({ x, y }, 40);
+        if (neuron) {
+          setSelectedNeuronId(neuron.id);
+          console.log('[SELECT] Neuron selected:', neuron.id);
+          return;
+        }
+
+        // Если не нашли нейрон — ищем синапс
+        const result = findNearestSynaps({ x, y }, 20);
+        if (result) {
+          // Устанавливаем ID и тип синапса
+          setSelectedSynapsId(result.id, result.type); // ← передаём тип
+          console.log('[SELECT] Synaps selected:', result.id, 'Type:', result.type);
+          return;
+        }
+
+        // Если ничего не нашли — сбрасываем выбор
+        clearSelection();
         break;
       }
 
       default:
         break;
     }
-  }, [selectedTool, synapsType, createNeuron, findNearestNeuron, removeNeuron, firstNeuron, setSelectedNeuronId, createSynaps, createElectricSynaps, findNearestSynaps, removeSynaps]);
+  }, [
+    selectedTool, 
+    synapsType, 
+    createNeuron, 
+    findNearestNeuron, 
+    removeNeuron, 
+    firstNeuron, 
+    setSelectedNeuronId, 
+    setSelectedSynapsId, 
+    clearSelection,
+    createSynaps, 
+    createElectricSynaps, 
+    findNearestSynaps, 
+    removeSynaps, 
+  ]);
 
   useEffect(() => {
     if (selectedTool === 'clear') {

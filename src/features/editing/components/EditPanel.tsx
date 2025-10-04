@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { useEditNeuron } from '../hooks/useEditNeuron';
-import { useEditSynaps } from '../hooks/useEditSynaps';
-import { useEditElectricSynaps } from '../hooks/useEditElectricSynaps';
+import { useEditSynaps } from '../hooks/useEditSynapse';
+import { useEditElectricSynaps } from '../hooks/useEditElectricSynapse';
 import { useSelectionStore } from '../store/useSelectionStore';
 import { SynapsBody } from './SynapsBody';
 import { NeuronBody } from './NeuronBody';

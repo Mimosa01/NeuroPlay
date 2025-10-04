@@ -1,5 +1,5 @@
-import type { ModulatorEffect, NeuroModulatorType } from "./modulator.types";
-import type { Coords } from "./types";
+import type { ModulatorEffect } from "./modulator.types";
+import type { Coords, NeuroModulatorType } from "./types";
 
 
 export interface EventMap {
@@ -7,6 +7,7 @@ export interface EventMap {
   'chemicalSynaps.signal.delivered': { synapsId: string; targetId: string; effect_mV: number };
   'neuron.modulation.request': { targetId: string; effect: ModulatorEffect };
   'modulation.cloud.spawn': { neuronId: string; modulator: NeuroModulatorType; coords: Coords };
+  'electricSynaps.current.delivered': { synapsId: string; sourceId: string; targetId: string; current: number };
 }
 
 export type EventType = keyof EventMap;

@@ -1,6 +1,6 @@
 import type { NetworkSnapshot } from "../types/types";
 import type Network from "./network/Network";
-import { NetworkSerializer } from "./network/NetworkSerealizer";
+import { NetworkSerializer } from "./network/NetworkSerializer";
 
 export class HistoryManager {
   private network: Network;

@@ -1,12 +1,13 @@
 import type { Coords } from "../types/types";
 
 export type ChemicalSynapsDTO = {
-  id: string;
-  sourceId: string;
-  targetId: string;
-  sourceCoords: Coords;
-  targetCoords: Coords;
+  readonly id: string;
+  readonly type: 'chemical' | 'electric';
+  readonly sourceId: string;
+  readonly targetId: string;
+  readonly sourceCoords: Coords;
+  readonly targetCoords: Coords;
 
-  conductance: number;        // микросименсы (μS)
-  delay: number;             // шагов задержки
+  readonly conductance: number;        // микросименсы (μS)
+  readonly delay: number;             // шагов задержки
 };

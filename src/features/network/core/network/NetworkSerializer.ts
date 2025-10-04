@@ -1,18 +1,16 @@
-import { electricSynapsToDTO } from "../../dto/electricSynapsTo";
-import { modulationCloudToDTO } from "../../dto/modulationCloudTo";
-import { neuronToDTO } from "../../dto/neuronTo";
-import { chemicalSynapsToDTO } from "../../dto/synapsTo";
+import { neuronToDTO, chemicalSynapsToDTO, electricSynapsToDTO, modulationCloudToDTO } from "../../dto/mappers";
 import type { NetworkSnapshot } from "../../types/types";
-import NeuronAccessor from "../neurons/NeuronAccessor";
+import { ModulationCloud } from "../ModulationCloud";
+import NeuronAccessor from "../neurons/base/NeuronAccessor";
 import type Network from "./Network";
 
 export class NetworkSerializer {
   public static createSnapshot(network: Network): NetworkSnapshot {
     return {
       neurons: Array.from(network.neurons.values()).map(n => neuronToDTO(new NeuronAccessor(n))),
-      synapses: Array.from(network.chemicalSynapses.values()).map(e => chemicalSynapsToDTO(e)),
       clouds: Array.from(network.modulationClouds.values()).map(e => modulationCloudToDTO(e)),
-      electricSynapses: Array.from(network.electricSynapses.values()).map(e => electricSynapsToDTO(e))
+      synapses: Array.from(network.synapseRegistry.getAllChemical().values()).map(e => chemicalSynapsToDTO(e)),
+      electricSynapses: Array.from(network.synapseRegistry.getAllElectric().values()).map(e => electricSynapsToDTO(e))
     };
   }
     
@@ -28,7 +26,7 @@ export class NetworkSerializer {
     });
 
     snapshot.synapses.forEach(({ id, conductance, delay }) => {
-      const synaps = network.chemicalSynapses.get(id);
+      const synaps = network.synapseRegistry.getChemical(id);
       if (synaps) {
         if (conductance !== undefined) synaps.setConductance(conductance);
         if (delay !== undefined) synaps.setDelay(delay);
@@ -36,12 +34,20 @@ export class NetworkSerializer {
     });
 
     snapshot.electricSynapses.forEach(({ id, conductance }) => {
-      const synaps = network.electricSynapses.get(id);
+      const synaps = network.synapseRegistry.getElectric(id);
       if (synaps) {
         if (conductance !== undefined) synaps.setConductance(conductance);
       }
     });
 
-    // Еще облака надо добавить
+    network.modulationClouds.clear();
+    snapshot.clouds.forEach(cloudData => {
+      const cloud = new ModulationCloud(
+        cloudData.type,
+        cloudData.center,
+      );
+      network.modulationClouds.set(cloud.id, cloud);
+    });
   }
 }
+

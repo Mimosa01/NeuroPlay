@@ -101,7 +101,7 @@ export const useEditNeuron = () => {
       spikeThreshold: parsedSpikeThreshold,
       tau: parsedTau,
       neuroTransmitter: form.transmitter,
-      receptors: form.receptors, // ← сохраняем как массив
+      receptors: Array.from(form.receptors),
     });
 
     setInitialForm({ ...form }); // важно: создать новый объект

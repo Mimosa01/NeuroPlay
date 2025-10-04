@@ -1,4 +1,4 @@
-import NeuronAccessor from "../neurons/NeuronAccessor";
+import NeuronAccessor from "../neurons/base/NeuronAccessor";
 import type Network from "./Network";
 
 export class NetworkSimulator {
@@ -9,24 +9,24 @@ export class NetworkSimulator {
   }
 
   public tick(): void {
-    // Электрические синапсы
-    for (const synaps of this.network.electricSynapses.values()) {
+    // === Phase 0: Обработка электрических синапсов ===
+    for (const synaps of this.network.synapseRegistry.getAllElectric().values()) {
       synaps.deliver();
     }
-    // === Phase 1: Доставка сигналов от рёбер ===
-    // Все рёбра обновляют задержки и применяют готовые сигналы
-    for (const synaps of this.network.chemicalSynapses.values()) {
-      synaps.deliverSignals(); // внутри вызывает neuron.receive(effect_mV)
+
+    // === Phase 1: Обработка химических синапсов ===
+    for (const synaps of this.network.synapseRegistry.getAllChemical().values()) {
+      synaps.deliverSignals();
     }
 
     this.applyModulationClouds();
 
     // === Phase 2: Обработка всех нейронов ===
     for (const neuron of this.network.neurons.values()) {
-      neuron.step(); // ← ВСЁ внутри: утечка, спайк, рефрактер
+      neuron.step();
     }
 
-    // === Phase 3: Удаление мёртвых нейронов (опционально — можно реже) ===
+    // === Phase 3: Удаление мёртвых нейронов ===
     this.removeDeadNeurons();
     this.cleanupClouds();
   }
@@ -34,17 +34,7 @@ export class NetworkSimulator {
   private removeDeadNeurons(): void {
     for (const neuron of Array.from(this.network.neurons.values())) {
       if (neuron.isDead()) {
-        // Удаляем входящие синапсы
-        for (const synaps of neuron.inputSynapses.values()) {
-          this.network.removeSynaps(synaps.id);
-        }
-        // Удаляем исходящие синапсы
-        for (const synaps of neuron.outputSynapses.values()) {
-          this.network.removeSynaps(synaps.id);
-        }
-        // Удаляем нейрон
         this.network.removeNeuron(neuron.id);
-        console.log(`[Network] Нейрон ${neuron.id} удалён (мертвый)`);
       }
     }
   }
@@ -58,16 +48,16 @@ export class NetworkSimulator {
   }
 
   private applyModulationClouds(): void {
-    // 1. Сброс: возвращаем все синапсы к базовой проводимости
-    for (const synaps of this.network.chemicalSynapses.values()) {
+    /// 1. Сброс: возвращаем все синапсы к базовой проводимости
+    for (const synaps of this.network.synapseRegistry.getAllChemical().values()) {
       synaps.resetConductance();
     }
 
-    // 2. Накопление эффектов от облаков — теперь для НЕЙРОНОВ (для spikeThreshold, tau)
+    // 2. Накопление эффектов от облаков — для НЕЙРОНОВ
     for (const neuron of this.network.neurons.values()) {
       const coords = new NeuronAccessor(neuron).getCoords();
       for (const cloud of this.network.modulationClouds.values()) {
-        if (cloud.affects(coords) && neuron.hasReceptor(cloud.type)) {
+        if (cloud.affects(coords) && neuron.receptors.hasReceptor(cloud.type)) {
           neuron.applyModulationEffect(cloud.getScaledEffect());
         }
       }
@@ -78,13 +68,13 @@ export class NetworkSimulator {
       neuron.finalizeModulation();
     }
 
-    // 4. 🔥 Самое важное: применяем conductanceMultiplier к ВСЕМ входящим синапсам нейрона
+    // 4. Применяем conductanceMultiplier ко ВСЕМ входящим химическим синапсам
     for (const neuron of this.network.neurons.values()) {
       const coords = new NeuronAccessor(neuron).getCoords();
       let totalMultiplier = 1;
 
       for (const cloud of this.network.modulationClouds.values()) {
-        if (cloud.affects(coords) && neuron.hasReceptor(cloud.type)) {
+        if (cloud.affects(coords) && neuron.receptors.hasReceptor(cloud.type)) {
           const effect = cloud.getScaledEffect();
           if (effect.conductanceMultiplier !== undefined) {
             totalMultiplier *= effect.conductanceMultiplier;
@@ -92,9 +82,12 @@ export class NetworkSimulator {
         }
       }
 
-      // Применяем множитель ко всем входящим синапсам
-      for (const synaps of neuron.inputSynapses.values()) {
-        synaps.applyConductanceMultiplier(totalMultiplier);
+      // Применяем множитель ко всем входящим химическим синапсам
+      for (const synapsId of neuron.synapses.getInputChemicalIds()) {
+        const synaps = this.network.synapseRegistry.getChemical(synapsId);
+        if (synaps) {
+          synaps.applyConductanceMultiplier(totalMultiplier);
+        }
       }
     }
 

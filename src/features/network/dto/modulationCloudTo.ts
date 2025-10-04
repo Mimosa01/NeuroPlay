@@ -6,7 +6,7 @@ export function modulationCloudToDTO (cloud: IModulationCloud): ModulationCloudD
     id: cloud.id,
     type: cloud.type,
     center: cloud.getCenter(),
-    raius: cloud.getRadius(),
+    radius: cloud.getRadius(),
     modulator: cloud.modulator
   }
 }

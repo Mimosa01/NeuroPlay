@@ -1,11 +1,12 @@
 import type { Coords } from "../types/types";
 
 export type ElectricSynapsDTO = {
-  id: string;
-  sourceId: string;
-  targetId: string;
-  sourceCoords: Coords;
-  targetCoords: Coords;
+  readonly id: string;
+  readonly type: 'chemical' | 'electric';
+  readonly sourceId: string;
+  readonly targetId: string;
+  readonly sourceCoords: Coords;
+  readonly targetCoords: Coords;
 
-  conductance: number;
+  readonly conductance: number;
 };

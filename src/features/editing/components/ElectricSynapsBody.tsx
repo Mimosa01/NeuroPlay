@@ -3,7 +3,7 @@ import { SaveButton } from "./SaveButton";
 import { HeaderCard } from "./HeaderCard";
 import toShortenText from "../utils/toShortenText";
 import { IconInput } from "../../../shared/components/IconInput";
-import { useEditElectricSynaps } from '../hooks/useEditElectricSynaps';
+import { useEditElectricSynaps } from '../hooks/useEditElectricSynapse';
 
 export const ElectricSynapsBody = () => {
   const {

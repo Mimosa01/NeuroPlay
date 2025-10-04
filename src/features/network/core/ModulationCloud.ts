@@ -1,7 +1,8 @@
 import { MODULATOR_EFFECTS } from "../constants/modulators.constants";
+import type { ModulationCloudDTO } from "../dto/modulationCloud.dto";
 import type { IModulationCloud } from "../interfaces/IModulationCloud.interface";
-import type { ModulatorEffect, NeuroModulatorType } from "../types/modulator.types";
-import type { Coords } from "../types/types";
+import type { ModulatorEffect } from "../types/modulator.types";
+import type { Coords, NeuroModulatorType } from "../types/types";
 
 export class ModulationCloud implements IModulationCloud {
   public readonly id: string;
@@ -93,5 +94,10 @@ export class ModulationCloud implements IModulationCloud {
         ? Math.round((1 + (this.modulator.conductanceMultiplier - 1) * scale) * 100) / 100
         : undefined,
     };
+  }
+
+  static fromDTO(dto: ModulationCloudDTO): ModulationCloud {
+    const cloud = new ModulationCloud(dto.type, dto.center);
+    return cloud;
   }
 }

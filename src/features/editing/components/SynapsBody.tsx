@@ -1,4 +1,4 @@
-import { useEditSynaps } from "../hooks/useEditSynaps";
+import { useEditSynaps } from "../hooks/useEditSynapse";
 import { Link, Activity, Clock } from 'lucide-react';
 import { SaveButton } from "./SaveButton";
 import { HeaderCard } from "./HeaderCard";
