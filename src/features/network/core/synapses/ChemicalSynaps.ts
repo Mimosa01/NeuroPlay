@@ -63,6 +63,19 @@ export default class ChemicalSynaps implements IChemicalSynaps {
     });
   }
 
+  public transmitGraded(inputSignal: number): void {
+    const totalEffect_mV = inputSignal * this.currentConductance;
+    this.signalQueue.push({
+      effect_mV: totalEffect_mV,
+      delay: this.delay,
+    });
+    // eventBus.publish('chemicalSynaps.signal.delivered', {
+    //   synapsId: this.id,
+    //   targetId: this.target.id,
+    //   effect_mV: totalEffect_mV,
+    // });
+  }
+
   // === Доставка сигналов (вызывается симулятором каждый шаг) ===
 
   public deliverSignals(): void {

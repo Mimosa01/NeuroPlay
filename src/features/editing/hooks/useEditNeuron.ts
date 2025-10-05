@@ -3,16 +3,7 @@ import { toast } from 'sonner';
 import { useSelectionStore } from '../store/useSelectionStore';
 import { useNetworkStore } from '../../network/store/useNetworkStore';
 import type { ChemicalSignalType } from '../../network/types/types';
-
-type NeuronFormFields = {
-  label: string;
-  inactivityThreshold: string;
-  refractoryDuration: string;
-  spikeThreshold: string;
-  tau: string;
-  transmitter: ChemicalSignalType;
-  receptors: Set<ChemicalSignalType>
-};
+import type { NeuronFormFields } from '../types/types';
 
 export const useEditNeuron = () => {
   const selectedNeuronId = useSelectionStore(state => state.selectedNeuronId);
@@ -28,7 +19,9 @@ export const useEditNeuron = () => {
     spikeThreshold: '15',
     tau: '15',
     transmitter: 'glutamate',
-    receptors: new Set(), // ← по умолчанию пустой Set
+    receptors: new Set(),
+    mode: 'spiking',
+    membranePotential: String(neuron?.membranePotential ?? -70)
   });
 
   const [initialForm, setInitialForm] = useState<NeuronFormFields>(form);
@@ -53,6 +46,8 @@ export const useEditNeuron = () => {
         tau: String(neuron.tau ?? 15),
         transmitter: neuron.neuroTransmitter,
         receptors: new Set(neuron.receptors || []),
+        mode: neuron.mode ?? 'spiking',
+        membranePotential: String(neuron.membranePotential ?? -70)
       };
       setForm(newForm);
       setInitialForm(newForm);
@@ -65,6 +60,8 @@ export const useEditNeuron = () => {
         tau: '15',
         transmitter: 'glutamate',
         receptors: new Set(),
+        mode: 'spiking',
+        membranePotential: '-70'
       };
       setForm(emptyForm);
       setInitialForm(emptyForm);
@@ -102,6 +99,8 @@ export const useEditNeuron = () => {
       tau: parsedTau,
       neuroTransmitter: form.transmitter,
       receptors: Array.from(form.receptors),
+      mode: form.mode,
+      membranePotential: Number(form.membranePotential)
     });
 
     setInitialForm({ ...form }); // важно: создать новый объект
@@ -115,7 +114,9 @@ export const useEditNeuron = () => {
     form.spikeThreshold !== initialForm.spikeThreshold ||
     form.tau !== initialForm.tau ||
     form.transmitter !== initialForm.transmitter ||
-    !setsAreEqual(form.receptors, initialForm.receptors) // ← сравниваем Set'ы
+    !setsAreEqual(form.receptors, initialForm.receptors) ||
+    form.mode !== initialForm.mode ||
+    form.membranePotential !== initialForm.membranePotential
   );
 
   return {

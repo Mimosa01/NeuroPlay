@@ -1,4 +1,4 @@
-import type { Coords, ChemicalSignalType } from "../../../types/types";
+import type { Coords, ChemicalSignalType, NeuronMode } from "../../../types/types";
 import type { INeuron } from "./interfaces/INeuron.interface";
 
 
@@ -99,5 +99,13 @@ export default class NeuronAccessor {
 
   public setReceptors (receptors: Set<ChemicalSignalType>): void {
     this.neuron.state.receptors = receptors
+  }
+
+  public getMode (): NeuronMode {
+    return this.neuron.state.mode;
+  }
+
+  public setMode (value: NeuronMode): void {
+    this.neuron.state.mode = value;
   }
 }

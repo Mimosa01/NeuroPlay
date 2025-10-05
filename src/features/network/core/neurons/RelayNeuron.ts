@@ -12,8 +12,30 @@ export default class RelayNeuron extends BaseNeuron {
   }
 
   public checkForSpike(): void {
+    if (this.state.mode === 'graded') {
+      this.fireGraded();
+      return;
+    }
+
     if (!this.isRefractory() && this.state.membranePotential >= this.state.spikeThreshold) {
       this.fire();
+    }
+  }
+
+  private fireGraded(): void {
+    const outputSignal = this.state.membranePotential - this.state.restingPotential;
+
+    eventBus.publish('graded.signal.delivered', {
+      neuronId: this.id,
+      effect_mV: outputSignal,
+    });
+
+    if (isModulator(this.state.neuroTransmitter)) {
+      eventBus.publish('modulation.cloud.spawn', {
+        neuronId: this.id,
+        modulator: this.state.neuroTransmitter,
+        coords: this.coords,
+      });
     }
   }
 

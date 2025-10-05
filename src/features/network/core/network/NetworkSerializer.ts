@@ -15,13 +15,14 @@ export class NetworkSerializer {
   }
     
   public static restoreFromSnapshot(network: Network, snapshot: NetworkSnapshot) {
-    snapshot.neurons.forEach(({ id, coords, membranePotential, inactivityCounter }) => {
+    snapshot.neurons.forEach(({ id, coords, membranePotential, inactivityCounter, isGraded }) => {
       const neuron = network.neurons.get(id);
       if (neuron) {
         const accessor = new NeuronAccessor(neuron);
         if (coords !== undefined) accessor.setCoords(coords);
         if (membranePotential !== undefined) accessor.setMembranePotential(membranePotential);
         if (inactivityCounter !== undefined) accessor.setInactivityCounter(inactivityCounter);
+        if (isGraded !== undefined) accessor.setMode(isGraded);
       }
     });
 

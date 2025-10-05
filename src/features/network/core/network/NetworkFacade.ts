@@ -58,6 +58,18 @@ export class NetworkFacade {
         this.network.modulationClouds.set(newCloud.id, newCloud);
       }
     });
+
+    eventBus.subscribe('graded.signal.delivered', (event) => {
+      const neuron = this.network.getNeuron(event.payload.neuronId);
+      if (!neuron) return;
+
+      for (const synapsId of neuron.synapses.getOutputChemicalIds()) {
+        const synaps = this.network.getSynaps(synapsId);
+        if (synaps) {
+          synaps.transmitGraded(event.payload.effect_mV);
+        }
+      }
+    });
   }
 
   // === Система событий ===
@@ -89,6 +101,14 @@ export class NetworkFacade {
       eventBus.subscribe('electricSynaps.current.delivered', (event) => {
         if (event.payload.targetId === neuron.id) {
           neuron.electric.receive(event.payload.current);
+        }
+      })
+    );
+
+    unsubscribes.push(
+      eventBus.subscribe('graded.signal.delivered', (event) => {
+        if (event.payload.neuronId === neuron.id) {
+          neuron.receive(event.payload.effect_mV);
         }
       })
     );
@@ -177,6 +197,8 @@ export class NetworkFacade {
     if (data.tau !== undefined) accessor.setTau(data.tau);
     if (data.neuroTransmitter !== undefined) accessor.setNeuroTransmitter(data.neuroTransmitter);
     if (data.receptors !== undefined) accessor.setReceptors(new Set(data.receptors));
+    if (data.mode !== undefined) accessor.setMode(data.mode);
+    if (data.membranePotential !== undefined) accessor.setMembranePotential(data.membranePotential);
 
     this.notifyChange();
   }

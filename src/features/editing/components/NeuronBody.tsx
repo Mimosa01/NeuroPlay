@@ -7,6 +7,7 @@ import { SignalIndicator } from './SignalIndicator';
 import toShortenText from '../utils/toShortenText';
 import { TRANSMITTER_CONFIG } from '../utils/constants';
 import type { NeuroTransmitterType } from '../../network/types/types';
+import { GradedSwitch } from './GradedSwitch';
 
 export const NeuronBody = () => {
   const {
@@ -53,8 +54,16 @@ export const NeuronBody = () => {
           </span>
         </div>
       </div>
+
+      <div className="flex justify-between items-center px-3 py-2 rounded-lg bg-white/60 border border-slate-200/50">
+        <span className="text-sm font-medium text-slate-800">Режим работы</span>
+        <GradedSwitch form={form} setForm={setForm}/>
+      </div>
       
-      <SignalIndicator signal={membranePotential ?? 0} />
+      <SignalIndicator 
+        signal={membranePotential} 
+        onSignalChange={(value) => setForm(prev => ({ ...prev, membranePotential: String(value) }))} 
+      />
 
       {/* Основные настройки */}
       <div className="space-y-4">

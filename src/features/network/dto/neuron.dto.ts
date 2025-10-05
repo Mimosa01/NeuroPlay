@@ -1,20 +1,21 @@
-import type { Coords, ChemicalSignalType } from "../types/types";
+import type { Coords, ChemicalSignalType, NeuronMode } from "../types/types";
 
 export type NeuronDTO = {
-  readonly id: string;
-  readonly coords: Coords;
-  readonly label: string;
+  id: string;
+  coords: Coords;
+  label: string;
+  mode: NeuronMode;
   
-  readonly neuroTransmitter: ChemicalSignalType;
-  readonly membranePotential: number;
-  readonly restingPotential: number; 
-  readonly spikeThreshold: number;
-  readonly tau: number;
-  readonly receptors: ChemicalSignalType[];
+  neuroTransmitter: ChemicalSignalType;
+  membranePotential: number;
+  restingPotential: number; 
+  spikeThreshold: number;
+  tau: number;
+  receptors: ChemicalSignalType[];
   
-  readonly refractoryDuration: number;
-  readonly inactivityCounter: number;
-  readonly inactivityThreshold: number;
+  refractoryDuration: number;
+  inactivityCounter: number;
+  inactivityThreshold: number;
 
   // readonly readyToSend: boolean;
 };

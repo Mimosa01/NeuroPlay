@@ -8,6 +8,7 @@ export interface EventMap {
   'neuron.modulation.request': { targetId: string; effect: ModulatorEffect };
   'modulation.cloud.spawn': { neuronId: string; modulator: NeuroModulatorType; coords: Coords };
   'electricSynaps.current.delivered': { synapsId: string; sourceId: string; targetId: string; current: number };
+  'graded.signal.delivered': { neuronId: string, effect_mV: number};
 }
 
 export type EventType = keyof EventMap;

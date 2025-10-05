@@ -7,6 +7,7 @@ export function neuronToDTO(accessor: NeuronAccessor): NeuronDTO {
   id: accessor.getId(),
   coords: accessor.getCoords(),
   label: accessor.getLabel(),
+  mode: accessor.getMode(),
   membranePotential: accessor.getMembranePotential(),
   spikeThreshold: accessor.getSpikeThreshold(),
   restingPotential: accessor.getRestingPotential(),

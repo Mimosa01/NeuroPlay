@@ -1,7 +1,8 @@
 import { DEFAULT_BIOLOGICAL_NEURON_PARAMS as DBNP } from '../../../../../shared/constants/neuron.constants';
-import type { ChemicalSignalType } from "../../../types/types";
+import type { ChemicalSignalType, NeuronMode } from "../../../types/types";
 
 export class NeuronState {
+  mode: NeuronMode;
   membranePotential: number;
   restingPotential: number;
   spikeThreshold: number;
@@ -30,6 +31,7 @@ export class NeuronState {
   readonly baseConductanceMultiplier: number = 1;
 
   constructor() {
+    this.mode = 'spiking';
     this.membranePotential = DBNP.restingPotential;
     this.restingPotential = DBNP.restingPotential;
     this.spikeThreshold = DBNP.spikeThreshold;

@@ -52,8 +52,10 @@ export default abstract class BaseNeuron implements INeuron, INeuronLogic {
   }
 
   public receive(signal_mV: number): void {
-    this.state.membranePotential += signal_mV;
-    this.activity.onSignalReceived();
+    if (this.state.mode !== 'graded') {
+      this.state.membranePotential += signal_mV;
+      this.activity.onSignalReceived();
+    }
   }
 
   public isRefractory(): boolean {

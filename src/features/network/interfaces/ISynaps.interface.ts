@@ -15,6 +15,7 @@ export interface IChemicalSynaps {
   getPendingSignals (): Array<{delay: number}>;
   
   transmit (): void;
+  transmitGraded(inputSignal: number): void;
   deliverSignals (): void;
 
   resetConductance(): void;

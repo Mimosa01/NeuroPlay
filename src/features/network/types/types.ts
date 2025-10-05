@@ -38,6 +38,7 @@ export type NeuroModulatorType = 'acetylcholine' | 'dopamine' | 'serotonin' | 'n
 export type ChemicalSignalType = NeuroTransmitterType | NeuroModulatorType;
 export type NeuronType = 'relay';
 export type SynapseType = 'chemical' | 'electric';
+export type NeuronMode = 'spiking' | 'graded';
 
 export type NeuronInstance = INeuron & INeuronLogic;
 
